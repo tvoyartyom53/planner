@@ -9,15 +9,15 @@
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
-    --bg:#050505;
-    /* Сделал карточки чуть плотнее (0.75), чтобы текст на фото читался лучше */
-    --card:rgba(20, 20, 20, 0.75); 
-    --card-hover:rgba(40, 40, 40, 0.9);
+    --bg:#000000;
+    /* Сделал карточки почти непрозрачными, чтобы текст читался без затемнения фона */
+    --card:rgba(15, 15, 15, 0.9); 
+    --card-hover:rgba(30, 30, 30, 0.95);
     --muted:#a0a0a0;
     --text:#ffffff;
     --accent:#39FF14;
     --accent-dim:rgba(57,255,20,0.15);
-    --border:rgba(255,255,255,0.1);
+    --border:rgba(255,255,255,0.15);
   }
   body{
     margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
@@ -25,19 +25,18 @@
     padding:env(safe-area-inset-top) 0 calc(90px + env(safe-area-inset-bottom));
     min-height:100vh;-webkit-font-smoothing:antialiased;
     
-    /* ТУТ МЫ СТАВИМ ТВОЮ ФОТКУ И ЗАТЕМНЯЕМ ЕЁ */
-    background-image: 
-      linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.85)), /* Затемнение */
-      url('bg.jpg'); /* Твоя картинка */
-    background-size: cover;
+    /* НАСТРОЙКИ ФОНА: Без затемнения, полностью видно */
+    background-image: url('bg.jpg');
+    background-size: contain; /* Вся картинка помещается на экран */
     background-position: center center;
-    background-attachment: fixed;
     background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: #000; /* Черный фон для пустых мест по краям */
   }
   .wrap{max-width:520px;margin:0 auto;padding:16px}
   
-  /* Красивая шапка */
-  .greeting{padding:10px 0 20px;font-size:24px;font-weight:700;letter-spacing:-0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);}
+  /* Красивая шапка (добавил тень тексту, чтобы читался на любом фоне) */
+  .greeting{padding:10px 0 20px;font-size:24px;font-weight:700;letter-spacing:-0.5px; text-shadow: 0 2px 6px rgba(0,0,0,1);}
   .greeting span{color:var(--accent)}
   header{display:flex;align-items:center;gap:8px;margin-bottom:20px}
   header button{
@@ -45,20 +44,22 @@
     border:1px solid var(--border);color:var(--text);
     width:44px;height:44px;border-radius:50%;font-size:16px;cursor:pointer;
     transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
   }
   header button:active{transform:scale(0.9);background:var(--card-hover)}
   header .title{flex:1;text-align:center;cursor:pointer;padding:8px;border-radius:12px;transition:background 0.2s}
   header .title:active{background:var(--card)}
-  header .title .d{font-size:16px;font-weight:600;color:var(--text);text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
-  header .title .w{font-size:12px;color:var(--accent);text-transform:uppercase;margin-top:2px;font-weight:700;letter-spacing:0.5px;text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
+  header .title .d{font-size:16px;font-weight:600;color:var(--text);text-shadow: 0 2px 6px rgba(0,0,0,1);}
+  header .title .w{font-size:12px;color:var(--accent);text-transform:uppercase;margin-top:2px;font-weight:700;letter-spacing:0.5px;text-shadow: 0 2px 6px rgba(0,0,0,1);}
   
   /* Поля ввода */
   input{
     width:100%;padding:14px 16px;border-radius:16px;border:1px solid var(--border);
-    background:rgba(0,0,0,0.6);color:var(--text);font-size:16px;outline:none;transition:all 0.2s;
+    background:rgba(0,0,0,0.85);color:var(--text);font-size:16px;outline:none;transition:all 0.2s;
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   }
-  input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim);background:rgba(0,0,0,0.9)}
+  input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim);background:rgba(0,0,0,0.95)}
   
   .input-group{position:relative;flex:2}
   .suggestions{
@@ -74,17 +75,18 @@
   .add-row button{
     padding:0 20px;border-radius:16px;border:0;background:var(--accent);color:#000;
     font-size:24px;font-weight:bold;cursor:pointer;transition:all 0.2s;
-    box-shadow:0 0 15px rgba(57,255,20,0.3);
+    box-shadow:0 0 15px rgba(57,255,20,0.4);
   }
-  .add-row button:active{transform:scale(0.9);box-shadow:0 0 5px rgba(57,255,20,0.5)}
+  .add-row button:active{transform:scale(0.9);box-shadow:0 0 5px rgba(57,255,20,0.6)}
   
   /* Списки */
   ul{list-style:none;padding:0;margin:0}
   li{
     display:flex;align-items:center;gap:12px;padding:16px;
-    background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:16px;margin-bottom:10px;
+    background:var(--card);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border-radius:16px;margin-bottom:10px;
     border:1px solid var(--border);transition:all 0.2s;
     position:relative;overflow:hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
   }
   li::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background 0.3s}
   li.done::before{background:var(--accent)}
@@ -104,12 +106,12 @@
   li.done .t{color:var(--muted);text-decoration:line-through}
   li .x{background:transparent;border:0;color:var(--muted);font-size:18px;cursor:pointer;padding:4px}
   
-  .empty{text-align:center;color:var(--muted);padding:40px 0;font-size:15px;text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
+  .empty{text-align:center;color:var(--muted);padding:40px 0;font-size:15px;text-shadow: 0 2px 6px rgba(0,0,0,1);}
   
   /* Нижнее меню (Стеклянное) */
   .bottom-nav{
     position:fixed;bottom:0;left:0;right:0;z-index:15;
-    background:rgba(10,10,10,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
     border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom);
   }
   .bottom-nav button{
@@ -126,7 +128,7 @@
     background:var(--card);border:1px solid var(--border);border-radius:24px;
     padding:30px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:20px;
     box-shadow:0 10px 30px rgba(0,0,0,0.5);position:relative;overflow:hidden;
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
   }
   .ring-container{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center}
   .ring-svg{position:absolute;top:0;left:0;width:100%;height:100%;transform:rotate(-90deg)}
@@ -139,7 +141,7 @@
   .kcal-info .label{font-size:14px;color:var(--text);margin-bottom:6px;font-weight:500;text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
   .kcal-info .goal{font-size:12px;color:var(--accent);background:var(--accent-dim);padding:4px 8px;border-radius:6px;display:inline-block}
 
-  .food-item{display:flex;justify-content:space-between;align-items:center;background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:16px;border-radius:16px;margin-bottom:10px;border:1px solid var(--border);transition:all 0.2s}
+  .food-item{display:flex;justify-content:space-between;align-items:center;background:var(--card);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);padding:16px;border-radius:16px;margin-bottom:10px;border:1px solid var(--border);transition:all 0.2s;box-shadow: 0 6px 15px rgba(0,0,0,0.4);}
   .food-item:active{background:var(--card-hover)}
   .food-item .name{flex:1;font-size:16px;font-weight:500}
   .food-item .name span{font-size:13px;color:var(--muted);margin-left:6px;font-weight:400}
@@ -148,9 +150,9 @@
   /* Плавающая кнопка ⚙ */
   .fab{
     position:fixed;bottom:90px;right:20px;width:56px;height:56px;border-radius:50%;
-    background:rgba(20,20,20,0.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    background:rgba(20,20,20,0.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     border:1px solid var(--border);color:var(--text);
-    font-size:24px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,0.5);z-index:5;
+    font-size:24px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,0.6);z-index:5;
     display:flex;align-items:center;justify-content:center;transition:all 0.2s;
   }
   .fab:active{transform:scale(0.9) rotate(45deg);background:var(--card-hover)}
@@ -202,7 +204,6 @@
     <button id="next">▶</button>
   </header>
 
-  <!-- ВКЛАДКА 1: ЗАДАЧИ -->
   <div id="view-tasks" class="view active">
     <div class="add-row">
       <input type="text" id="addInput" placeholder="Новая задача...">
@@ -213,9 +214,7 @@
     <button class="fab" id="openTmpl">⚙</button>
   </div>
 
-  <!-- ВКЛАДКА 2: КАЛОРИИ -->
   <div id="view-calories" class="view">
-    
     <div class="kcal-dashboard">
       <div class="ring-container">
         <svg class="ring-svg" viewBox="0 0 100 100">
@@ -252,13 +251,11 @@
 
 </div>
 
-<!-- НИЖНЕЕ МЕНЮ -->
 <div class="bottom-nav">
   <button id="navTasks" class="active"><span class="icon">📝</span>Задачи</button>
   <button id="navCalories"><span class="icon">🔥</span>Калории</button>
 </div>
 
-<!-- МОДАЛКА ШАБЛОНОВ -->
 <div class="modal" id="modal">
   <div class="sheet">
     <h2>Шаблоны на неделю <button id="closeTmpl">✕</button></h2>
