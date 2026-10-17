@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Дневник</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{--bg:#0f172a;--card:#1e293b;--muted:#64748b;--text:#e2e8f0;--accent:#3b82f6;--ok:#22c55e;--border:#334155}
+  body{margin:0;font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);min-height:100vh}
+  .wrap{max-width:520px;margin:0 auto;padding:16px}
+  header{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+  header button{background:var(--card);border:0;color:var(--text);width:40px;height:40px;border-radius:10px;font-size:16px;cursor:pointer}
+  header .title{flex:1;text-align:center;cursor:pointer;padding:4px;border-radius:8px}
+  header .title:active{background:var(--card)}
+  header .title .d{font-size:18px;font-weight:600}
+  header .title .w{font-size:12px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+  input[type=text]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:15px;outline:none}
+  input[type=text]:focus{border-color:var(--accent)}
+  .add-row{display:flex;gap:8px;margin-bottom:16px}
+  .add-row button{padding:0 18px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-size:20px;cursor:pointer}
+  ul{list-style:none;padding:0;margin:0}
+  li{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border-radius:10px;margin-bottom:8px}
+  li .chk{width:22px;height:22px;border-radius:50%;border:2px solid #475569;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  li.done .chk{background:var(--ok);border-color:var(--ok)}
+  li.done .chk::after{content:'✓';color:#fff;font-size:14px;font-weight:700}
+  li .t{flex:1;word-break:break-word}
+  li.done .t{text-decoration:line-through;color:var(--muted)}
+  li .x{background:transparent;border:0;color:var(--muted);font-size:16px;cursor:pointer;padding:4px}
+  .empty{text-align:center;color:var(--muted);padding:32px 0;font-size:14px}
+  .fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:22px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.4);z-index:5}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:flex-end;z-index:10}
+  .modal.open{display:flex}
+  .sheet{background:var(--bg);width:100%;max-height:85vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .sheet h2{margin:0 0 16px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+  .sheet h2 button{background:transparent;border:0;color:var(--muted);font-size:16px;cursor:pointer}
+  .tmpl{padding:12px;background:var(--card);border-radius:10px;margin-bottom:8px}
+  .tmpl-top{display:flex;gap:8px;align-items:center}
+  .tmpl-top .t{flex:1;font-size:15px;word-break:break-word}
+  .tmpl-top .x{background:transparent;border:0;color:var(--muted);font-size:16px;cursor:pointer}
+  .days{display:flex;gap:4px;margin-top:8px}
+  .days button{flex:1;padding:6px 0;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer}
+  .days button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .hint{font-size:12px;color:var(--muted);margin:8px 0}
+  .btn2{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px;cursor:pointer;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <button id="prev">◀</button>
+    <div
+
+
+function addCustom(){
+  const inp=document.getElementById('addInput');
+  const title=inp.value.trim(); if(!title) return;
+  const iso=currentDate;
+  state.entries[iso]=state.entries[iso]||[];
+  state.entries[iso].push({id:uid(),title,done:false});
+  inp.value=''; save(); render();
+}
+
+function renderTemplates(){
+  const box=document.getElementById('tmplList');
+  box.innerHTML='';
+  if(!state.templates.length){box.innerHTML='<div class="hint">Пока нет шаблонов.</div>';return;}
+  state.templates.forEach(t=>{
+    const div=document.createElement('div');div.className='tmpl';
+    const top=document.createElement('div');top.className='tmpl-top';
+    const title=document.createElement('div');title.className='t';title.textContent=t.title;
+    const x=document.createElement('button');x.className='x';x.textContent='✕';
+    x.onclick=()=>{state.templates=state.templates.filter(t2=>t2.id!==t.id);save();renderTemplates();render();};
+    top.append(title,x);
+    const days=document.createElement('div');days.className='days';
+    ORDER.forEach(wd=>{
+      const b=document.createElement('button');
+      b.textContent=WEEKDAYS[wd];
+      if(t.days.includes(wd)) b.className='on';
+      b.onclick=()=>{
+        if(t.days.includes(wd)) t.days=t.days.filter(d=>d!==wd);
+        else t.days.push(wd);
+        save();renderTemplates();render();
+      };
+      days.appendChild(b);
+    });
+    div.append(top,days);box.appendChild(div);
+  });
+}
+
+function addTemplate(){
+  const inp=document.getElementById('tmplInput');
+  const title=inp.value.trim(); if(!title) return;
+  state.templates.push({id:uid(),title,days:[]});
+  inp.value=''; save(); renderTemplates(); render();
+}
+
+document.getElementById('prev').onclick=()=>{currentDate=shiftDate(currentDate,-1);render();};
+document.getElementById('next').onclick=()=>{currentDate=shiftDate(currentDate,1);render();};
+document.getElementById('dateWrap').onclick=()=>{currentDate=todayISO();render();};
+document.getElementById('addBtn').onclick=addCustom;
+document.getElementById('addInput').addEventListener('keydown',e=>{if(e.key==='Enter')addCustom();});
+document.getElementById('tmplAdd').onclick=addTemplate;
+document.getElementById('tmplInput').addEventListener('keydown',e=>{if(e.key==='Enter')addTemplate();});
+document.getElementById('openTmpl').onclick=()=>{renderTemplates();document.getElementById('modal').classList.add('open');};
+document.getElementById('closeTmpl').onclick=()=>document.getElementById('modal').classList.remove('open');
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('open');});
+
+document.getElementById('exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='planner-backup-'+todayISO()+'.json';
+  a.click();
+};
+document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result);
+    if(!d.templates) throw 0;
+    if(!confirm('Заменить текущие данные?')) return;
+    state={templates:d.templates||[],entries:d.entries||{},done:d.done||{},skipped:d.skipped||{}};
+    save(); renderTemplates(); render();
+  }catch{alert('Неверный файл');}};
+  r.readAsText(f);
+};
+
+render();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html> c
+
+
+lass="title" id="dateWrap">
+      <div class="d" id="dateLabel"></div>
+      <div class="w" id="weekdayLabel"></div>
+    </div>
+    <button id="next">▶</button>
+  </header>
+  <div class="add-row">
+    <input type="text" id="addInput" placeholder="Новая задача на этот день...">
+    <button id="addBtn">+</button>
+  </div>
+  <ul id="list"></ul>
+  <div class="empty" id="empty" style="display:none">Пусто. Добавь задачу или шаблон (⚙)</div>
+</div>
+<button class="fab" id="openTmpl">⚙</button>
+<div class="modal" id="modal">
+  <div class="sheet">
+    <h2>Шаблоны на неделю <button id="closeTmpl">✕</button></h2>
+    <div class="add-row">
+      <input type="text" id="tmplInput" placeholder="Например: спортзал">
+      <button id="tmplAdd">+</button>
+    </div>
+    <div class="hint">Отметь дни — задача будет появляться каждую неделю.</div>
+    <div id="tmplList"></div>
+    <div class="hint" style="margin-top:20px">Резервная копия (на случай смены телефона):</div>
+    <button class="btn2" id="exportBtn">💾 Скачать бэкап (JSON)</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none">
+    <button class="btn2" id="importBtn">📂 Импортировать бэкап</button>
+  </div>
+</div>
+<script>
+const KEY='planner_v1';
+const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
+const ORDER=[1,2,3,4,5,6,0];
+
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(KEY));
+    if(d) return {templates:d.templates||[],entries:d.entries||{},done:d.done||{},skipped:d.skipped||{}};
+  }catch{}
+  return {templates:[],entries:{},done:{},skipped:{}};
+}
+let state=load();
+const save=()=>localStorage.setItem(KEY,JSON.stringify(state));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const pad=n=>n<10?'0'+n:''+n;
+const todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+const getWeekday=iso=>{const p=iso.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]).getDay();};
+function shiftDate(iso,n){const p=iso.split('-').map(Number);const dt=new Date(p[0],p[1]-1,p[2]+n);return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate());}
+const formatDate=iso=>{const p=iso.split('-');return p[2]+'.'+p[1]+'.'+p[0];};
+
+let currentDate=todayISO();
+
+function getTasks(iso){
+  const wd=getWeekday(iso);
+  const skipped=state.skipped[iso]||{};
+  const done=state.done[iso]||{};
+  const tpl=state.templates
+    .filter(t=>t.days.includes(wd)&&!skipped[t.id])
+    .map(t=>({key:'t:'+t.id,title:t.title,done:!!done[t.id],templateId:t.id}));
+  const custom=(state.entries[iso]||[]).map(e=>({key:'c:'+e.id,title:e.title,done:!!e.done,customId:e.id}));
+  return [...tpl,...custom];
+}
+
+function render(){
+  const iso=currentDate;
+  document.getElementById('dateLabel').textContent=formatDate(iso);
+  document.getElementById('weekdayLabel').textContent=WEEKDAYS[getWeekday(iso)]+(iso===todayISO()?' • сегодня':'');
+  const list=document.getElementById('list');
+  const tasks=getTasks(iso);
+  list.innerHTML='';
+  tasks.forEach(t=>{
+    const li=document.createElement('li');
+    if(t.done) li.className='done';
+    const chk=document.createElement('div');chk.className='chk';chk.onclick=()=>toggleTask(t);
+    const title=document.createElement('div');title.className='t';title.textContent=t.title;
+    const x=document.createElement('button');x.className='x';x.textContent='✕';x.onclick=()=>removeTask(t);
+    li.append(chk,title,x);
+    list.appendChild(li);
+  });
+  document.getElementById('empty').style.display=tasks.length?'none':'block';
+}
+
+function toggleTask(t){
+  const iso=currentDate;
+  if(t.templateId){
+    state.done[iso]=state.done[iso]||{};
+    state.done[iso][t.templateId]=!t.done;
+  }else{
+    const e=(state.entries[iso]||[]).find(x=>x.id===t.customId);
+    if(e) e.done=!e.done;
+  }
+  save();render();
+}
+
+function removeTask(t){
+  const iso=currentDate;
+  if(t.templateId){
+    state.skipped[iso]=state.skipped[iso]||{};
+    state.skipped[iso][t.templateId]=true;
+  }else{
+    state.entries[iso]=(state.entries[iso]||[]).filter(x=>x.id!==t.customId);
+  }
+  save();render();
+}
