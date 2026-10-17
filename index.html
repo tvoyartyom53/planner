@@ -53,92 +53,7 @@
 <div class="wrap">
   <header>
     <button id="prev">◀</button>
-    <div
-
-
-function addCustom(){
-  const inp=document.getElementById('addInput');
-  const title=inp.value.trim(); if(!title) return;
-  const iso=currentDate;
-  state.entries[iso]=state.entries[iso]||[];
-  state.entries[iso].push({id:uid(),title,done:false});
-  inp.value=''; save(); render();
-}
-
-function renderTemplates(){
-  const box=document.getElementById('tmplList');
-  box.innerHTML='';
-  if(!state.templates.length){box.innerHTML='<div class="hint">Пока нет шаблонов.</div>';return;}
-  state.templates.forEach(t=>{
-    const div=document.createElement('div');div.className='tmpl';
-    const top=document.createElement('div');top.className='tmpl-top';
-    const title=document.createElement('div');title.className='t';title.textContent=t.title;
-    const x=document.createElement('button');x.className='x';x.textContent='✕';
-    x.onclick=()=>{state.templates=state.templates.filter(t2=>t2.id!==t.id);save();renderTemplates();render();};
-    top.append(title,x);
-    const days=document.createElement('div');days.className='days';
-    ORDER.forEach(wd=>{
-      const b=document.createElement('button');
-      b.textContent=WEEKDAYS[wd];
-      if(t.days.includes(wd)) b.className='on';
-      b.onclick=()=>{
-        if(t.days.includes(wd)) t.days=t.days.filter(d=>d!==wd);
-        else t.days.push(wd);
-        save();renderTemplates();render();
-      };
-      days.appendChild(b);
-    });
-    div.append(top,days);box.appendChild(div);
-  });
-}
-
-function addTemplate(){
-  const inp=document.getElementById('tmplInput');
-  const title=inp.value.trim(); if(!title) return;
-  state.templates.push({id:uid(),title,days:[]});
-  inp.value=''; save(); renderTemplates(); render();
-}
-
-document.getElementById('prev').onclick=()=>{currentDate=shiftDate(currentDate,-1);render();};
-document.getElementById('next').onclick=()=>{currentDate=shiftDate(currentDate,1);render();};
-document.getElementById('dateWrap').onclick=()=>{currentDate=todayISO();render();};
-document.getElementById('addBtn').onclick=addCustom;
-document.getElementById('addInput').addEventListener('keydown',e=>{if(e.key==='Enter')addCustom();});
-document.getElementById('tmplAdd').onclick=addTemplate;
-document.getElementById('tmplInput').addEventListener('keydown',e=>{if(e.key==='Enter')addTemplate();});
-document.getElementById('openTmpl').onclick=()=>{renderTemplates();document.getElementById('modal').classList.add('open');};
-document.getElementById('closeTmpl').onclick=()=>document.getElementById('modal').classList.remove('open');
-document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('open');});
-
-document.getElementById('exportBtn').onclick=()=>{
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='planner-backup-'+todayISO()+'.json';
-  a.click();
-};
-document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
-document.getElementById('importFile').onchange=e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{try{
-    const d=JSON.parse(r.result);
-    if(!d.templates) throw 0;
-    if(!confirm('Заменить текущие данные?')) return;
-    state={templates:d.templates||[],entries:d.entries||{},done:d.done||{},skipped:d.skipped||{}};
-    save(); renderTemplates(); render();
-  }catch{alert('Неверный файл');}};
-  r.readAsText(f);
-};
-
-render();
-if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
-</script>
-</body>
-</html> c
-
-
-lass="title" id="dateWrap">
+    <div class="title" id="dateWrap">
       <div class="d" id="dateLabel"></div>
       <div class="w" id="weekdayLabel"></div>
     </div>
@@ -242,3 +157,84 @@ function removeTask(t){
   }
   save();render();
 }
+
+function addCustom(){
+  const inp=document.getElementById('addInput');
+  const title=inp.value.trim(); if(!title) return;
+  const iso=currentDate;
+  state.entries[iso]=state.entries[iso]||[];
+  state.entries[iso].push({id:uid(),title,done:false});
+  inp.value=''; save(); render();
+}
+
+function renderTemplates(){
+  const box=document.getElementById('tmplList');
+  box.innerHTML='';
+  if(!state.templates.length){box.innerHTML='<div class="hint">Пока нет шаблонов.</div>';return;}
+  state.templates.forEach(t=>{
+    const div=document.createElement('div');div.className='tmpl';
+    const top=document.createElement('div');top.className='tmpl-top';
+    const title=document.createElement('div');title.className='t';title.textContent=t.title;
+    const x=document.createElement('button');x.className='x';x.textContent='✕';
+    x.onclick=()=>{state.templates=state.templates.filter(t2=>t2.id!==t.id);save();renderTemplates();render();};
+    top.append(title,x);
+    const days=document.createElement('div');days.className='days';
+    ORDER.forEach(wd=>{
+      const b=document.createElement('button');
+      b.textContent=WEEKDAYS[wd];
+      if(t.days.includes(wd)) b.className='on';
+      b.onclick=()=>{
+        if(t.days.includes(wd)) t.days=t.days.filter(d=>d!==wd);
+        else t.days.push(wd);
+        save();renderTemplates();render();
+      };
+      days.appendChild(b);
+    });
+    div.append(top,days);box.appendChild(div);
+  });
+}
+
+function addTemplate(){
+  const inp=document.getElementById('tmplInput');
+  const title=inp.value.trim(); if(!title) return;
+  state.templates.push({id:uid(),title,days:[]});
+  inp.value=''; save(); renderTemplates(); render();
+}
+
+document.getElementById('prev').onclick=()=>{currentDate=shiftDate(currentDate,-1);render();};
+document.getElementById('next').onclick=()=>{currentDate=shiftDate(currentDate,1);render();};
+document.getElementById('dateWrap').onclick=()=>{currentDate=todayISO();render();};
+document.getElementById('addBtn').onclick=addCustom;
+document.getElementById('addInput').addEventListener('keydown',e=>{if(e.key==='Enter')addCustom();});
+document.getElementById('tmplAdd').onclick=addTemplate;
+document.getElementById('tmplInput').addEventListener('keydown',e=>{if(e.key==='Enter')addTemplate();});
+document.getElementById('openTmpl').onclick=()=>{renderTemplates();document.getElementById('modal').classList.add('open');};
+document.getElementById('closeTmpl').onclick=()=>document.getElementById('modal').classList.remove('open');
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('open');});
+
+document.getElementById('exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='planner-backup-'+todayISO()+'.json';
+  a.click();
+};
+document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result);
+    if(!d.templates) throw 0;
+    if(!confirm('Заменить текущие данные?')) return;
+    state={templates:d.templates||[],entries:d.entries||{},done:d.done||{},skipped:d.skipped||{}};
+    save(); renderTemplates(); render();
+  }catch{alert('Неверный файл');}};
+  r.readAsText(f);
+};
+
+render();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
