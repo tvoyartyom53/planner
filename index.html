@@ -6,7 +6,6 @@
 <meta name="theme-color" content="#1a1a1a">
 <title>Мой Дневник</title>
 <link rel="manifest" href="manifest.json">
-<!-- Рукописные шрифты -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Marck+Script&display=swap" rel="stylesheet">
@@ -15,13 +14,13 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
     --bg:#1a1a1a;
-    --paper:rgba(30, 30, 30, 0.95); /* Сделал бумагу полупрозрачной, чтобы обои были видны */
+    --paper:rgba(30, 30, 30, 0.95);
     --text:#e0e0e0;
     --muted:#888;
     --accent:#f0f0f0;
     --border:#555;
-    --green:#7CB342;
-    --red:#E57373;
+    --green:#4CAF50;
+    --red:#F44336;
   }
   
   body{
@@ -30,10 +29,9 @@
     color:var(--text);
     min-height:100vh;
     display: flex;
-    justify-content: center; /* Центрирование по горизонтали */
-    align-items: flex-start; /* Начинаем сверху */
+    justify-content: center;
+    align-items: flex-start;
     
-    /* ТВОИ ОБОИ. Если настройки не задали другие */
     background-image: url('bg.jpg');
     background-size: cover;
     background-position: center center;
@@ -44,14 +42,13 @@
     font-size: 20px;
   }
   
-  /* Контейнер на весь экран с прокруткой */
   .wrap{
     width: 100%;
     max-width: 520px;
     height: 100vh;
     overflow-y: auto;
     padding: 15px;
-    padding-bottom: calc(90px + env(safe-area-inset-bottom)); /* Место под меню */
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
     
     background-color: var(--paper);
     backdrop-filter: blur(8px);
@@ -59,7 +56,6 @@
     box-shadow: 0 0 20px rgba(0,0,0,0.8);
   }
   
-  /* Шапка Дневника */
   .app-header {
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 15px; padding-bottom: 5px;
@@ -76,7 +72,6 @@
   .app-header .crown { font-size: 24px; position: absolute; top: -15px; left: 20px; transform: rotate(-15deg); }
   .settings-btn { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
   
-  /* Календарь */
   .month-nav { display: flex; justify-content: space-between; align-items: center; font-size: 26px; margin-bottom: 15px; font-family: 'Marck Script', cursive; }
   .month-nav button { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
   
@@ -92,7 +87,6 @@
   }
   .cal-day.today { font-weight: bold; color: #fff; }
   
-  /* Экран задач (День) */
   .day-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 24px; font-family: 'Marck Script', cursive; }
   .day-header .back { cursor: pointer; font-size: 28px; }
   
@@ -104,24 +98,25 @@
   .time-block { margin-bottom: 20px; }
   .time-title { display: flex; align-items: center; gap: 10px; font-size: 24px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; }
   
-  /* Задачи */
   ul { list-style: none; padding: 0; margin: 0; }
-  .task-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; position: relative; }
-  .task-chk {
-    width: 20px; height: 20px; border: 2px solid var(--text); border-radius: 2px;
-    cursor: pointer; flex-shrink: 0; margin-top: 3px; transform: rotate(-3deg);
-    display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold;
-  }
-  .task-item.done .task-chk { background: var(--text); color: var(--bg); }
+  .task-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; position: relative; }
+  .task-text { flex: 1; line-height: 1.2; font-size: 20px; }
   .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
-  .task-text { flex: 1; line-height: 1.2; }
-  .task-del { background: none; border: none; color: #555; font-size: 18px; cursor: pointer; padding: 0 5px; }
   
-  /* Заметки */
+  /* Новые кнопки действий */
+  .task-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn-check, .btn-cross {
+    width: 32px; height: 32px; border-radius: 50%; border: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: bold; cursor: pointer; transition: transform 0.1s;
+  }
+  .btn-check { background: rgba(76, 175, 80, 0.2); color: var(--green); border: 2px solid var(--green); }
+  .btn-cross { background: rgba(244, 67, 54, 0.2); color: var(--red); border: 2px solid var(--red); }
+  .btn-check:active, .btn-cross:active { transform: scale(0.9); }
+
   .notes-box { margin-top: 20px; border: 1px solid var(--border); padding: 10px; border-radius: 2px; background: rgba(0,0,0,0.2); }
   .notes-box textarea { width: 100%; background: none; border: none; color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; resize: none; outline: none; }
 
-  /* Статистика */
   .kcal-dashboard { text-align: center; margin-bottom: 20px; }
   .ring-container { position: relative; width: 140px; height: 140px; margin: 0 auto; }
   .ring-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -130,7 +125,6 @@
   .ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
   .ring-text .num { font-size: 32px; line-height: 1; }
 
-  /* Нижнее меню */
   .bottom-nav {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 520px; z-index: 15;
@@ -146,7 +140,6 @@
   .center-btn { width: 46px; height: 46px; border-radius: 50% !important; border: 2px solid var(--border) !important; background: var(--bg) !important; transform: translateY(-10px); display: flex; justify-content: center; align-items: center; }
   .center-btn .icon { font-size: 28px !important; }
 
-  /* Модальные окна */
   .view { display: none; }
   .view.active { display: block; animation: fadeIn 0.3s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -158,7 +151,6 @@
   input[type="text"], input[type="number"], select { width: 100%; padding: 10px; margin-bottom: 10px; background: transparent; border: 1px solid var(--border); color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; border-radius: 4px; outline: none; }
   .btn { width: 100%; padding: 10px; background: var(--text); color: var(--bg); border: none; font-family: 'Caveat', cursive; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 10px; }
   
-  /* Настройки */
   .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 10px; }
   .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
   .switch input { opacity: 0; width: 0; height: 0; }
@@ -167,7 +159,6 @@
   input:checked + .slider { background-color: var(--green); }
   input:checked + .slider:before { transform: translateX(26px); }
 
-  /* Тосты */
   .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
   .toast { background: var(--bg); border: 2px solid var(--text); padding: 12px; border-radius: 2px 15px 3px 15px / 15px 5px 15px 3px; text-align: center; font-size: 20px; font-weight: bold; box-shadow: 4px 4px 0px rgba(0,0,0,0.5); animation: slideDown 0.3s, fadeOut 0.3s 2.7s forwards; }
   .toast.success { border-color: var(--green); color: var(--green); }
@@ -187,7 +178,6 @@
 
 <div class="wrap">
   
-  <!-- ЭКРАН 1: КАЛЕНДАРЬ -->
   <div id="view-calendar" class="view active">
     <div class="app-header">
       <h1>Дневник</h1>
@@ -211,7 +201,6 @@
     </div>
   </div>
 
-  <!-- ЭКРАН 2: ЗАДАЧИ НА ДЕНЬ -->
   <div id="view-daily" class="view">
     <div class="day-header">
       <div class="back" onclick="switchView('calendar')">←</div>
@@ -228,7 +217,6 @@
     </div>
   </div>
 
-  <!-- ЭКРАН 3: СТАТИСТИКА (КАЛОРИИ) -->
   <div id="view-stats" class="view">
     <div class="app-header">
       <h1 style="font-size: 32px;">Статистика</h1>
@@ -260,7 +248,6 @@
     <ul id="foodList" style="margin-top:15px;"></ul>
   </div>
 
-  <!-- ЭКРАН 4: ПРОФИЛЬ -->
   <div id="view-profile" class="view">
     <div class="app-header">
       <h1 style="font-size: 32px;">Профиль</h1>
@@ -280,7 +267,6 @@
 
 </div>
 
-<!-- НИЖНЕЕ МЕНЮ -->
 <div class="bottom-nav">
   <button id="nav-calendar" class="active" onclick="switchView('calendar')">
     <span class="icon">📅</span>Календарь
@@ -299,7 +285,6 @@
   </button>
 </div>
 
-<!-- МОДАЛКА: ДОБАВЛЕНИЕ ПОВТОРЯЮЩЕЙСЯ ЗАДАЧИ (+) -->
 <div class="modal" id="plusModal">
   <div class="sheet">
     <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Новая задача на неделю</h2>
@@ -319,7 +304,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА: НАСТРОЙКИ -->
 <div class="modal" id="settingsModal">
   <div class="sheet">
     <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Настройки</h2>
@@ -343,14 +327,12 @@
 </div>
 
 <script>
-const KEY='diary_v8'; 
+const KEY='diary_v9'; 
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const DAILY_GOAL = 2500; 
 
-// ОГРОМНАЯ БАЗА ПРОДУКТОВ (200+)
 const basicFoods = {
-  // --- МЯСО И ПТИЦА ---
   "Баранина жирная": 316, "Баранина нежирная": 166, "Ветчина": 365, "Говядина тушеная": 180,
   "Говядина жареная": 170, "Говядина нежирная": 170, "Грудинка": 475, "Гусь": 300,
   "Индейка": 150, "Колбаса вареная": 250, "Колбаса полукопченая": 380, "Корейка": 430,
@@ -358,8 +340,6 @@ const basicFoods = {
   "Почки": 66, "Сардельки": 160, "Свинина отбивная": 265, "Свинина тушеная": 350,
   "Сердце": 87, "Сосиски": 135, "Телятина": 90, "Утка": 405, "Язык": 165,
   "Куриная грудка": 165, "Куриное бедро": 209, "Фарш куриный": 143, "Фарш говяжий": 254,
-
-  // --- РЫБА И МОРЕПРОДУКТЫ ---
   "Икра зернистая": 250, "Икра кетовая": 245, "Икра минтая": 130, "Кальмар": 75,
   "Карп": 46, "Карп жареный": 145, "Кета": 157, "Консервы рыбные в масле": 320,
   "Консервы рыбные в томате": 120, "Креветки": 85, "Крабы": 70, "Лещ": 48,
@@ -367,8 +347,6 @@ const basicFoods = {
   "Навага": 44, "Окунь": 95, "Раки": 75, "Салака": 98, "Севрюга": 137,
   "Сельдь атлантическая": 57, "Судак": 43, "Треска": 59, "Шпроты в масле": 250,
   "Щука": 41, "Камбала": 88, "Лосось": 208, "Тунец": 132, "Горбуша": 142, "Скумбрия": 191,
-
-  // --- МОЛОЧНЫЕ ПРОДУКТЫ И ЯЙЦА ---
   "Ацидофилин": 58, "Брынза коровья": 260, "Йогурт (1,5%)": 51, "Кефир жирный": 60,
   "Кефир (1%)": 38, "Кефир (0%)": 30, "Молоко (3,2%)": 60, "Молоко коровье цельное": 68,
   "Мороженое сливочное": 220, "Простокваша": 59, "Ряженка": 85, "Сливки (10%)": 120,
@@ -377,14 +355,10 @@ const basicFoods = {
   "Творог (18%)": 226, "Творог со сметаной": 260, "Творог нежирный": 80,
   "Яйцо куриное (1 шт.)": 65, "Яичный порошок": 540, "Молоко 2.5%": 52, "Молоко 3.2%": 60,
   "Сыр Моцарелла": 240, "Творог 5%": 121, "Творог 9%": 159, "Сметана 20%": 206,
-
-  // --- КРУПЫ, БОБОВЫЕ И МАКАРОНЫ ---
   "Горох зеленый": 280, "Какао-порошок": 375, "Крупа гречневая": 346, "Крупа манная": 340,
   "Крупа овсяная": 374, "Крупа перловая": 342, "Крупа пшеничная": 352, "Крупа ячневая": 343,
   "Кукурузные хлопья": 369, "Макароны": 350, "Овсяные хлопья": 305, "Рис": 337,
   "Фасоль": 328, "Ячменные хлопья": 315, "Пшено": 351, "Чечевица": 116,
-
-  // --- ОВОЩИ И ЗЕЛЕНЬ ---
   "Баклажаны": 28, "Зеленый горошек": 75, "Кабачки": 18, "Капуста белокочанная": 23,
   "Капуста квашеная": 28, "Капуста цветная": 18, "Картофель отварной": 60,
   "Морковь": 33, "Огурцы свежие": 15, "Перец сладкий": 19, "Помидоры": 20,
@@ -392,39 +366,25 @@ const basicFoods = {
   "Петрушка": 23, "Редис": 16, "Редька": 25, "Репа": 23, "Салат-лист": 11,
   "Тыква": 20, "Укроп": 30, "Хрен": 49, "Чеснок": 60, "Шпинат": 16, "Щавель": 27,
   "Авокадо": 160, "Брокколи": 34,
-
-  // --- ФРУКТЫ И ЯГОДЫ ---
   "Абрикосы": 47, "Айва": 30, "Альча": 38, "Ананас": 44, "Апельсин": 45, "Арбуз": 40,
   "Бананы": 90, "Виноград": 70, "Вишня": 25, "Грейпфрут": 30, "Груша": 42, "Дыня": 45,
   "Ежевика": 32, "Земляника": 38, "Киви": 50, "Кизил": 41, "Клюква": 33, "Крыжовник": 48,
   "Лимон": 30, "Малина": 45, "Мандарин": 41, "Персики": 45, "Слива": 44, "Смородина": 43,
   "Черешня": 53, "Черника": 44, "Яблоко": 52,
-
-  // --- ОРЕХИ И СУХОФРУКТЫ ---
   "Орехи грецкие": 650, "Арахис": 555, "Миндаль": 579, "Семечки": 580, "Кешью": 572,
   "Фисташки": 556, "Фундук": 704, "Изюм": 264, "Курага": 215, "Чернослив": 231,
   "Финики": 292, "Инжир сушеный": 257,
-
-  // --- СЛАДОСТИ И ВЫПЕЧКА ---
   "Сахар": 295, "Сдобная булка": 300, "Сушки, пряники": 330, "Мед": 304,
   "Шоколад молочный": 535, "Шоколад темный": 546, "Печенье овсяное": 437,
   "Мороженое": 207, "Варенье": 270, "Сгущенное молоко": 320, "Халва": 516,
   "Пирожное": 350, "Торт": 400, "Зефир": 326, "Мармелад": 300,
-
-  // --- ХЛЕБ ---
   "Хлеб ржаной": 210, "Хлеб пшеничный": 265, "Батон": 260, "Лаваш": 275, "Хлеб белый": 265,
-
-  // --- СОУСЫ, ЖИРЫ, ПРИПРАВЫ ---
   "Масло сливочное": 750, "Масло оливковое": 900, "Масло растительное": 824,
   "Маргарин": 745, "Майонез": 625, "Майонез легкий": 260, "Жир топленый": 930,
   "Кетчуп": 80,
-
-  // --- НАПИТКИ ---
   "Кофе с молоком": 35, "Чай без сахара": 0, "Кола": 42, "Сок яблочный": 46,
   "Энергетик": 45, "Пиво": 43, "Вино красное": 85, "Водка": 235, "Квас": 30,
   "Компот": 60, "Сок апельсиновый": 45,
-
-  // --- ФАСТФУД И ГОТОВЫЕ БЛЮДА ---
   "Суши Филадельфия": 180, "Пицца Пепперони": 270, "Бургер": 295,
   "Картофель фри": 312, "Шаурма": 215, "Греческий салат": 110,
   "Цезарь с курицей": 190, "Борщ": 50, "Суп куриный": 40, "Пельмени": 275,
@@ -444,7 +404,6 @@ const failPhrases = [
   "Хуёво. Ты можешь лучше!", "Обратный отсчёт пошёл. Не тупи.", "Слился? Ну и слабак."
 ];
 
-// --- ИНИЦИАЛИЗАЦИЯ ---
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(KEY));
@@ -464,8 +423,14 @@ const pad = n => n < 10 ? '0' + n : '' + n;
 let currentDateObj = new Date();
 let selectedDate = currentDateObj.getFullYear() + '-' + pad(currentDateObj.getMonth()+1) + '-' + pad(currentDateObj.getDate());
 
-// --- ЗВУКИ (Web Audio API) ---
+// --- ЗВУКИ ИЗ ИНТЕРНЕТА ---
 let audioCtx;
+const fanfareUrl = 'https://cdn.budgetpixel.com/audio-library/sfx/brassy-bright-crisp-short-triumphant-plnjy8.wav'; // Королевские фанфары
+const fartUrl = 'http://www.suonoelettronico.com/waves22/Fart01.mp3'; // Реальный пердеж
+
+let fanfareAudio = new Audio(fanfareUrl);
+let fartAudio = new Audio(fartUrl);
+
 function initAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -473,40 +438,16 @@ function initAudio() {
 
 function playVictorySound() {
   if (!state.settings.soundEnabled) return;
-  initAudio();
-  const notes = [523.25, 659.25, 783.99, 1046.50]; // До, Ми, Соль, До (мажор)
-  notes.forEach((freq, i) => {
-    let osc = audioCtx.createOscillator();
-    let gain = audioCtx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
-    gain.gain.setValueAtTime(0.15, audioCtx.currentTime + i * 0.1);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(audioCtx.currentTime + i * 0.1);
-    osc.stop(audioCtx.currentTime + i * 0.1 + 0.3);
-  });
+  fanfareAudio.currentTime = 0;
+  fanfareAudio.play().catch(e => console.log("Ошибка звука:", e));
 }
 
 function playFartSound() {
   if (!state.settings.soundEnabled) return;
-  initAudio();
-  let osc = audioCtx.createOscillator();
-  let gain = audioCtx.createGain();
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-  // Резкое падение частоты для эффекта пердежа
-  osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.4);
-  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.4);
+  fartAudio.currentTime = 0;
+  fartAudio.play().catch(e => console.log("Ошибка звука:", e));
 }
 
-// --- НАСТРОЙКИ ---
 function applySettings() {
   document.getElementById('soundToggle').checked = state.settings.soundEnabled;
   if (state.settings.customBg) {
@@ -534,7 +475,6 @@ function resetBg() {
   showToast("Обои сброшены", "success");
 }
 
-// --- ТОСТЫ ---
 function showToast(message, type) {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
@@ -544,7 +484,6 @@ function showToast(message, type) {
   setTimeout(() => { toast.remove(); }, 3000);
 }
 
-// --- НАВИГАЦИЯ ---
 function switchView(viewId) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
@@ -565,7 +504,6 @@ function goTodayTasks() {
   switchView('daily');
 }
 
-// --- КАЛЕНДАРЬ ---
 function renderCalendar() {
   const year = currentDateObj.getFullYear();
   const month = currentDateObj.getMonth();
@@ -590,7 +528,6 @@ function renderCalendar() {
 function shiftMonth(n) { currentDateObj.setMonth(currentDateObj.getMonth() + n); renderCalendar(); }
 function openDay(iso) { selectedDate = iso; switchView('daily'); }
 
-// --- ДЕНЬ ---
 function renderDaily() {
   const d = new Date(selectedDate);
   document.getElementById('dailyDateLabel').textContent = `${d.getDate()} ${MONTHS[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
@@ -632,9 +569,11 @@ function renderDaily() {
     
     groups[groupName].forEach(t => {
       html += `<li class="task-item ${t.done ? 'done' : ''}">
-        <div class="task-chk" onclick="toggleTask('${t.key}', ${t.done})">${t.done ? '✔' : ''}</div>
         <div class="task-text">${t.title}</div>
-        <button class="task-del" onclick="deleteTask('${t.key}')">✕</button>
+        <div class="task-actions">
+          <button class="btn-check" onclick="toggleTask('${t.key}', ${t.done})">✓</button>
+          <button class="btn-cross" onclick="deleteTask('${t.key}')">✕</button>
+        </div>
       </li>`;
     });
     html += `</ul></div>`;
@@ -647,13 +586,14 @@ function getTasksForDate(iso) {
   const skipped = state.skipped[iso] || {};
   const done = state.done[iso] || {};
   
-  const tpl = state.templates.filter(t => t.days.includes(wd) && !skipped[t.id]).map(t => ({ key: 't:'+t.id, title: t.title, done: !!done[t.id], id: t.id }));
-  const custom = (state.entries[iso] || []).map(e => ({ key: 'c:'+e.id, title: e.title, done: !!e.done, id: e.id }));
+  const tpl = state.templates.filter(t => t.days.includes(wd) && !skipped[t.id]).map(t => ({ key: 't_'+t.id, title: t.title, done: !!done[t.id], id: t.id }));
+  const custom = (state.entries[iso] || []).map(e => ({ key: 'c_'+e.id, title: e.title, done: !!e.done, id: e.id }));
   return [...tpl, ...custom];
 }
 
 function toggleTask(key, currentDone) {
-  const [type, id] = key.split(':');
+  const type = key.startsWith('t_') ? 't' : 'c';
+  const id = key.substring(2); // Убираем префикс
   const iso = selectedDate;
   
   if (type === 't') {
@@ -667,16 +607,17 @@ function toggleTask(key, currentDone) {
   renderDaily();
 
   if (!currentDone) {
-    playVictorySound(); // ЗВУК ПОБЕДЫ
+    playVictorySound();
     showToast(successPhrases[Math.floor(Math.random() * successPhrases.length)], 'success');
   } else {
-    playFartSound(); // ЗВУК ПЕРДЕЖА
+    playFartSound();
     showToast(failPhrases[Math.floor(Math.random() * failPhrases.length)], 'fail');
   }
 }
 
 function deleteTask(key) {
-  const [type, id] = key.split(':');
+  const type = key.startsWith('t_') ? 't' : 'c';
+  const id = key.substring(2);
   if (type === 't') {
     state.skipped[selectedDate] = state.skipped[selectedDate] || {};
     state.skipped[selectedDate][id] = true;
@@ -684,6 +625,7 @@ function deleteTask(key) {
     state.entries[selectedDate] = (state.entries[selectedDate] || []).filter(x => x.id !== id);
   }
   save(); renderDaily();
+  showToast("Задача удалена", "fail");
 }
 
 document.getElementById('dailyNotes').addEventListener('input', (e) => {
@@ -691,7 +633,6 @@ document.getElementById('dailyNotes').addEventListener('input', (e) => {
   save();
 });
 
-// --- ПЛЮС ---
 let selectedDays = [];
 function openPlusModal() {
   document.getElementById('tmplInput').value = '';
@@ -710,7 +651,7 @@ function toggleDay(day, btn) {
 }
 function saveTemplate() {
   const title = document.getElementById('tmplInput').value.trim();
-  if (!title || selectedDays.length === 0) { showToast("Заполни название и выбери дни, еб твою мать!", "fail"); return; }
+  if (!title || selectedDays.length === 0) { showToast("Заполни название и выбери дни!", "fail"); return; }
   state.templates.push({ id: uid(), title, days: selectedDays });
   save();
   document.getElementById('plusModal').classList.remove('open');
@@ -718,7 +659,6 @@ function saveTemplate() {
   renderDaily();
 }
 
-// --- КАЛОРИИ ---
 function renderCalories() {
   const foods = state.food[selectedDate] || [];
   const list = document.getElementById('foodList');
@@ -729,8 +669,8 @@ function renderCalories() {
     total += Number(f.totalKcal) || 0;
     list.innerHTML += `<li class="task-item" style="border-bottom:1px dashed var(--border);">
       <div class="task-text">${f.name} <small style="color:var(--muted)">(${f.weight}г)</small></div>
-      <div style="color:var(--text); font-weight:bold;">${f.totalKcal} ккал</div>
-      <button class="task-del" onclick="delFood('${f.id}')">✕</button>
+      <div style="color:var(--text); font-weight:bold; margin-right:10px;">${f.totalKcal} ккал</div>
+      <button class="btn-cross" onclick="delFood('${f.id}')">✕</button>
     </li>`;
   });
 
@@ -756,7 +696,7 @@ function addFood() {
   const name = document.getElementById('foodName').value.trim();
   const kcal100 = parseFloat(document.getElementById('foodKcal100').value);
   const weight = parseFloat(document.getElementById('foodWeight').value);
-  if (!name || isNaN(kcal100) || isNaN(weight)) { showToast("Заполни всё, долбоёб!", "fail"); return; }
+  if (!name || isNaN(kcal100) || isNaN(weight)) { showToast("Заполни всё!", "fail"); return; }
   
   const totalKcal = Math.round((kcal100 / 100) * weight);
   state.food[selectedDate] = state.food[selectedDate] || [];
@@ -771,7 +711,6 @@ function delFood(id) {
   save(); renderCalories();
 }
 
-// --- ПРОФИЛЬ И БЭКАПЫ ---
 function renderTemplates() {
   const list = document.getElementById('tmplList');
   list.innerHTML = '';
@@ -781,7 +720,7 @@ function renderTemplates() {
     const daysStr = t.days.map(d => WEEKDAYS[d]).join(', ');
     list.innerHTML += `<div class="tmpl-item">
       <div><b>${t.title}</b><br><small style="color:var(--muted)">${daysStr}</small></div>
-      <button class="task-del" onclick="delTmpl('${t.id}')">✕</button>
+      <button class="btn-cross" onclick="delTmpl('${t.id}')" style="width:28px;height:28px;font-size:14px;">✕</button>
     </div>`;
   });
 }
@@ -816,7 +755,6 @@ function importData(e) {
 applySettings();
 renderCalendar();
 switchView('calendar');
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
