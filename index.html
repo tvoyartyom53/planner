@@ -14,11 +14,11 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
     --bg:#1a1a1a;
-    --paper:rgba(30, 30, 30, 0.95);
+    --paper:rgba(25, 25, 25, 0.95);
     --text:#e0e0e0;
     --muted:#888;
     --accent:#f0f0f0;
-    --border:#555;
+    --border:#888; /* Сделал линии светлее */
     --green:#4CAF50;
     --red:#F44336;
   }
@@ -51,8 +51,8 @@
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
     
     background-color: var(--paper);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 0 20px rgba(0,0,0,0.8);
   }
   
@@ -62,74 +62,68 @@
   }
   .app-header h1 {
     font-family: 'Marck Script', cursive; font-size: 42px; margin: 0;
-    line-height: 1; position: relative;
+    line-height: 1;
   }
-  .app-header h1::after {
-    content: ''; position: absolute; bottom: 5px; left: 0; right: 0;
-    height: 3px; background: var(--border); transform: rotate(-2deg);
-    border-radius: 50%; opacity: 0.7;
-  }
-  .app-header .crown { font-size: 24px; position: absolute; top: -15px; left: 20px; transform: rotate(-15deg); }
+  .app-header .crown { font-size: 24px; position: absolute; top: 15px; left: 20px; transform: rotate(-15deg); }
   .settings-btn { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
   
   .month-nav { display: flex; justify-content: space-between; align-items: center; font-size: 26px; margin-bottom: 15px; font-family: 'Marck Script', cursive; }
   .month-nav button { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
   
-  .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 16px; color: var(--muted); margin-bottom: 5px; }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; border: 1px solid var(--border); border-radius: 2px 255px 3px 225px / 255px 5px 225px 3px; padding: 10px 5px;}
-  .cal-day { position: relative; padding: 8px 0; cursor: pointer; font-size: 18px; }
-  .cal-day.other { color: #444; }
+  .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 16px; color: var(--muted); margin-bottom: 5px; font-weight: 600;}
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; border: 2px solid var(--border); border-radius: 12px; padding: 10px 5px;}
+  .cal-day { position: relative; padding: 8px 0; cursor: pointer; font-size: 18px; border-radius: 8px; }
+  .cal-day.other { color: #555; }
   
-  .cal-day.selected::before {
-    content: ''; position: absolute; inset: 2px;
-    border: 2px solid var(--text); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-    transform: rotate(-10deg) scale(1.1); z-index: -1; opacity: 0.8;
-  }
-  .cal-day.today { font-weight: bold; color: #fff; }
+  .cal-day.selected { background: rgba(255,255,255,0.15); font-weight: bold; }
+  .cal-day.today { color: var(--green); font-weight: bold; }
   
   .day-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 24px; font-family: 'Marck Script', cursive; }
   .day-header .back { cursor: pointer; font-size: 28px; }
   
-  .week-strip { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; text-align: center; }
+  .week-strip { display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; text-align: center; }
   .week-strip .w-day { flex: 1; cursor: pointer; font-size: 14px; color: var(--muted); }
   .week-strip .w-day .num { font-size: 18px; margin-top: 4px; display: inline-block; width: 30px; height: 30px; line-height: 30px; border-radius: 50%; }
-  .week-strip .w-day.active .num { border: 2px solid var(--text); transform: rotate(-5deg); border-radius: 40% 60% 50% 50%; }
+  .week-strip .w-day.active .num { background: var(--text); color: var(--bg); font-weight: bold; }
   
   .time-block { margin-bottom: 20px; }
-  .time-title { display: flex; align-items: center; gap: 10px; font-size: 24px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; }
+  .time-title { display: flex; align-items: center; gap: 10px; font-size: 24px; margin-bottom: 10px; border-bottom: 2px dashed var(--border); padding-bottom: 5px; }
   
   ul { list-style: none; padding: 0; margin: 0; }
-  .task-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; position: relative; }
+  .task-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
   .task-text { flex: 1; line-height: 1.2; font-size: 20px; }
   .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
   
-  /* Новые кнопки действий */
+  /* Кнопки действий (справа) */
   .task-actions { display: flex; gap: 8px; flex-shrink: 0; }
   .btn-check, .btn-cross {
-    width: 32px; height: 32px; border-radius: 50%; border: none;
+    width: 34px; height: 34px; border-radius: 8px; border: 2px solid;
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: bold; cursor: pointer; transition: transform 0.1s;
+    font-size: 20px; font-weight: bold; cursor: pointer; transition: transform 0.1s;
   }
-  .btn-check { background: rgba(76, 175, 80, 0.2); color: var(--green); border: 2px solid var(--green); }
-  .btn-cross { background: rgba(244, 67, 54, 0.2); color: var(--red); border: 2px solid var(--red); }
+  .btn-check { background: rgba(76, 175, 80, 0.1); color: var(--green); border-color: var(--green); }
+  .btn-cross { background: rgba(244, 67, 54, 0.1); color: var(--red); border-color: var(--red); }
   .btn-check:active, .btn-cross:active { transform: scale(0.9); }
 
-  .notes-box { margin-top: 20px; border: 1px solid var(--border); padding: 10px; border-radius: 2px; background: rgba(0,0,0,0.2); }
-  .notes-box textarea { width: 100%; background: none; border: none; color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; resize: none; outline: none; }
+  /* Форма добавления на день */
+  .add-row { display: flex; gap: 8px; margin-bottom: 15px; }
+  .add-row input { flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 2px solid var(--border); color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; border-radius: 8px; outline: none; }
+  .add-row button { padding: 0 15px; background: var(--text); color: var(--bg); border: none; border-radius: 8px; font-size: 24px; cursor: pointer; }
 
+  /* Статистика */
   .kcal-dashboard { text-align: center; margin-bottom: 20px; }
   .ring-container { position: relative; width: 140px; height: 140px; margin: 0 auto; }
   .ring-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-  .ring-bg { fill: none; stroke: #333; stroke-width: 6; }
-  .ring-progress { fill: none; stroke: var(--text); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 283; transition: stroke-dashoffset 1s ease; }
+  .ring-bg { fill: none; stroke: #333; stroke-width: 8; }
+  .ring-progress { fill: none; stroke: var(--text); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 283; transition: stroke-dashoffset 1s ease; }
   .ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
   .ring-text .num { font-size: 32px; line-height: 1; }
 
   .bottom-nav {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 520px; z-index: 15;
-    background: rgba(10,10,10,0.9); backdrop-filter: blur(10px);
-    border-top: 1px solid var(--border);
+    background: rgba(10,10,10,0.95); backdrop-filter: blur(10px);
+    border-top: 2px solid var(--border);
     display: flex; justify-content: space-around; align-items: center;
     padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
   }
@@ -146,12 +140,12 @@
 
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 20; padding: 20px; }
   .modal.open { display: flex; }
-  .sheet { background: var(--bg); width: 100%; max-width: 400px; border-radius: 8px; padding: 20px; border: 2px solid var(--border); max-height: 90vh; overflow-y: auto; }
+  .sheet { background: var(--bg); width: 100%; max-width: 400px; border-radius: 12px; padding: 20px; border: 2px solid var(--border); max-height: 90vh; overflow-y: auto; }
   
-  input[type="text"], input[type="number"], select { width: 100%; padding: 10px; margin-bottom: 10px; background: transparent; border: 1px solid var(--border); color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; border-radius: 4px; outline: none; }
-  .btn { width: 100%; padding: 10px; background: var(--text); color: var(--bg); border: none; font-family: 'Caveat', cursive; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 10px; }
+  input[type="text"], input[type="number"], select { width: 100%; padding: 10px; margin-bottom: 10px; background: transparent; border: 2px solid var(--border); color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; border-radius: 8px; outline: none; }
+  .btn { width: 100%; padding: 10px; background: var(--text); color: var(--bg); border: none; font-family: 'Caveat', cursive; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 10px; }
   
-  .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 10px; }
+  .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
   .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
   .switch input { opacity: 0; width: 0; height: 0; }
   .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
@@ -160,16 +154,16 @@
   input:checked + .slider:before { transform: translateX(26px); }
 
   .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
-  .toast { background: var(--bg); border: 2px solid var(--text); padding: 12px; border-radius: 2px 15px 3px 15px / 15px 5px 15px 3px; text-align: center; font-size: 20px; font-weight: bold; box-shadow: 4px 4px 0px rgba(0,0,0,0.5); animation: slideDown 0.3s, fadeOut 0.3s 2.7s forwards; }
+  .toast { background: var(--bg); border: 2px solid var(--text); padding: 12px; border-radius: 8px; text-align: center; font-size: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); animation: slideDown 0.3s, fadeOut 0.3s 2.7s forwards; }
   .toast.success { border-color: var(--green); color: var(--green); }
   .toast.fail { border-color: var(--red); color: var(--red); }
   @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
   @keyframes fadeOut { to { opacity: 0; } }
 
   .days-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
-  .days-grid button { padding: 8px; background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Caveat', cursive; font-size: 16px; cursor: pointer; border-radius: 4px;}
+  .days-grid button { padding: 8px; background: transparent; border: 2px solid var(--border); color: var(--muted); font-family: 'Caveat', cursive; font-size: 16px; cursor: pointer; border-radius: 8px;}
   .days-grid button.on { background: var(--text); color: var(--bg); border-color: var(--text); }
-  .tmpl-item { border-bottom: 1px dashed var(--border); padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+  .tmpl-item { border-bottom: 1px solid var(--border); padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
 </style>
 </head>
 <body>
@@ -205,16 +199,18 @@
     <div class="day-header">
       <div class="back" onclick="switchView('calendar')">←</div>
       <div id="dailyDateLabel">13 октября 2026</div>
-      <div>...</div>
+      <div style="width: 28px;"></div> <!-- Пустой блок для центрирования -->
     </div>
     
     <div class="week-strip" id="weekStrip"></div>
-    <div id="tasksContainer"></div>
-
-    <div class="notes-box">
-      <div style="font-family: 'Marck Script', cursive; font-size: 22px; margin-bottom: 5px;">Заметки:</div>
-      <textarea id="dailyNotes" rows="3" placeholder="• не забыть тетради..."></textarea>
+    
+    <!-- Добавление задачи на конкретный день -->
+    <div class="add-row">
+      <input type="text" id="dailyTaskInput" placeholder="Добавить задачу на этот день...">
+      <button onclick="addDailyTask()">+</button>
     </div>
+
+    <div id="tasksContainer"></div>
   </div>
 
   <div id="view-stats" class="view">
@@ -242,7 +238,7 @@
       <datalist id="foodListData"></datalist>
       <input type="number" id="foodKcal100" placeholder="Ккал/100г" style="flex:1;">
       <input type="number" id="foodWeight" placeholder="Вес (г)" value="100" style="flex:1;">
-      <button onclick="addFood()" style="width: 40px; background:var(--text); color:var(--bg); border:none; font-size:24px; border-radius:4px; cursor:pointer;">+</button>
+      <button onclick="addFood()" style="width: 45px; background:var(--text); color:var(--bg); border:none; font-size:24px; border-radius:8px; cursor:pointer;">+</button>
     </div>
     
     <ul id="foodList" style="margin-top:15px;"></ul>
@@ -255,13 +251,13 @@
     </div>
     
     <div style="margin-bottom:20px;">
-      <h3 style="font-family: 'Marck Script', cursive; font-size: 24px;">Мои шаблоны задач</h3>
+      <h3 style="font-family: 'Marck Script', cursive; font-size: 24px;">Шаблоны задач</h3>
       <div id="tmplList"></div>
     </div>
     
     <hr style="border-color: var(--border); margin: 20px 0;">
-    <button class="btn" onclick="exportData()" style="background:transparent; border:1px solid var(--text); color:var(--text);">💾 Скачать бэкап</button>
-    <button class="btn" onclick="document.getElementById('importFile').click()" style="background:transparent; border:1px solid var(--text); color:var(--text);">📂 Загрузить бэкап</button>
+    <button class="btn" onclick="exportData()" style="background:transparent; border:2px solid var(--text); color:var(--text);">💾 Скачать бэкап</button>
+    <button class="btn" onclick="document.getElementById('importFile').click()" style="background:transparent; border:2px solid var(--text); color:var(--text);">📂 Загрузить бэкап</button>
     <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
   </div>
 
@@ -288,7 +284,7 @@
 <div class="modal" id="plusModal">
   <div class="sheet">
     <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Новая задача на неделю</h2>
-    <input type="text" id="tmplInput" placeholder="Название задачи (например: спортзал)">
+    <input type="text" id="tmplInput" placeholder="Название задачи">
     <div style="margin-bottom:5px; color:var(--muted);">Выбери дни:</div>
     <div class="days-grid" id="tmplDays">
       <button onclick="toggleDay(1, this)">Пн</button>
@@ -300,7 +296,7 @@
       <button onclick="toggleDay(0, this)">Вс</button>
     </div>
     <button class="btn" onclick="saveTemplate()">Создать задачу</button>
-    <button class="btn" onclick="document.getElementById('plusModal').classList.remove('open')" style="background:transparent; color:var(--muted); margin-top:5px;">Отмена</button>
+    <button class="btn" onclick="document.getElementById('plusModal').classList.remove('open')" style="background:transparent; border:2px solid var(--text); color:var(--text); margin-top:10px;">Отмена</button>
   </div>
 </div>
 
@@ -318,16 +314,16 @@
     
     <div style="margin-bottom:15px;">
       <span style="display:block; margin-bottom:5px;">Свои обои (из галереи)</span>
-      <input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="font-size:16px;">
+      <input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="font-size:16px; border:none; padding:0;">
     </div>
     
-    <button class="btn" onclick="resetBg()" style="background:transparent; border:1px solid var(--text); color:var(--text);">Сбросить обои на стандартные</button>
+    <button class="btn" onclick="resetBg()" style="background:transparent; border:2px solid var(--text); color:var(--text);">Сбросить обои</button>
     <button class="btn" onclick="document.getElementById('settingsModal').classList.remove('open')" style="background:var(--text); color:var(--bg); margin-top:10px;">Закрыть</button>
   </div>
 </div>
 
 <script>
-const KEY='diary_v9'; 
+const KEY='diary_v10'; 
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const DAILY_GOAL = 2500; 
@@ -409,11 +405,11 @@ function load() {
     const d = JSON.parse(localStorage.getItem(KEY));
     if (d) return { 
       templates: d.templates||[], entries: d.entries||{}, done: d.done||{}, skipped: d.skipped||{}, 
-      food: d.food||{}, notes: d.notes||{}, 
+      food: d.food||{}, 
       settings: d.settings || { soundEnabled: true, customBg: null } 
     };
   } catch {}
-  return { templates: [], entries: {}, done: {}, skipped: {}, food: {}, notes: {}, settings: { soundEnabled: true, customBg: null } };
+  return { templates: [], entries: {}, done: {}, skipped: {}, food: {}, settings: { soundEnabled: true, customBg: null } };
 }
 let state = load();
 const save = () => localStorage.setItem(KEY, JSON.stringify(state));
@@ -423,12 +419,9 @@ const pad = n => n < 10 ? '0' + n : '' + n;
 let currentDateObj = new Date();
 let selectedDate = currentDateObj.getFullYear() + '-' + pad(currentDateObj.getMonth()+1) + '-' + pad(currentDateObj.getDate());
 
-// --- ЗВУКИ ИЗ ИНТЕРНЕТА ---
+// --- ЗВУКИ ---
 let audioCtx;
-const fanfareUrl = 'https://cdn.budgetpixel.com/audio-library/sfx/brassy-bright-crisp-short-triumphant-plnjy8.wav'; // Королевские фанфары
-const fartUrl = 'http://www.suonoelettronico.com/waves22/Fart01.mp3'; // Реальный пердеж
-
-let fanfareAudio = new Audio(fanfareUrl);
+const fartUrl = 'https://www.myinstants.com/media/sounds/fart.mp3';
 let fartAudio = new Audio(fartUrl);
 
 function initAudio() {
@@ -438,8 +431,21 @@ function initAudio() {
 
 function playVictorySound() {
   if (!state.settings.soundEnabled) return;
-  fanfareAudio.currentTime = 0;
-  fanfareAudio.play().catch(e => console.log("Ошибка звука:", e));
+  initAudio();
+  // Генерируем четкий звук "Ta-da!" (победа)
+  const notes = [523.25, 659.25, 783.99, 1046.50];
+  notes.forEach((freq, i) => {
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.type = 'sine'; // Чистый звук
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.1);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(audioCtx.currentTime + i * 0.1);
+    osc.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+  });
 }
 
 function playFartSound() {
@@ -549,8 +555,6 @@ function renderDaily() {
     </div>`;
   }
   
-  document.getElementById('dailyNotes').value = state.notes[selectedDate] || '';
-  
   const tasks = getTasksForDate(selectedDate);
   const container = document.getElementById('tasksContainer');
   container.innerHTML = '';
@@ -581,6 +585,19 @@ function renderDaily() {
   });
 }
 
+function addDailyTask() {
+  const input = document.getElementById('dailyTaskInput');
+  const title = input.value.trim();
+  if (!title) return;
+  
+  state.entries[selectedDate] = state.entries[selectedDate] || [];
+  state.entries[selectedDate].push({ id: uid(), title, done: false });
+  
+  input.value = '';
+  save();
+  renderDaily();
+}
+
 function getTasksForDate(iso) {
   const wd = new Date(iso).getDay();
   const skipped = state.skipped[iso] || {};
@@ -593,7 +610,7 @@ function getTasksForDate(iso) {
 
 function toggleTask(key, currentDone) {
   const type = key.startsWith('t_') ? 't' : 'c';
-  const id = key.substring(2); // Убираем префикс
+  const id = key.substring(2);
   const iso = selectedDate;
   
   if (type === 't') {
@@ -627,11 +644,6 @@ function deleteTask(key) {
   save(); renderDaily();
   showToast("Задача удалена", "fail");
 }
-
-document.getElementById('dailyNotes').addEventListener('input', (e) => {
-  state.notes[selectedDate] = e.target.value;
-  save();
-});
 
 let selectedDays = [];
 function openPlusModal() {
@@ -667,7 +679,7 @@ function renderCalories() {
 
   foods.forEach(f => {
     total += Number(f.totalKcal) || 0;
-    list.innerHTML += `<li class="task-item" style="border-bottom:1px dashed var(--border);">
+    list.innerHTML += `<li class="task-item" style="border-bottom:1px solid var(--border);">
       <div class="task-text">${f.name} <small style="color:var(--muted)">(${f.weight}г)</small></div>
       <div style="color:var(--text); font-weight:bold; margin-right:10px;">${f.totalKcal} ккал</div>
       <button class="btn-cross" onclick="delFood('${f.id}')">✕</button>
