@@ -14,15 +14,25 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
     --bg:#1a1a1a;
-    --paper:rgba(25, 25, 25, 0.95);
+    --paper:rgba(20, 20, 20, 0.95);
     --text:#e0e0e0;
-    --muted:#888;
+    --muted:#aaa;
     --accent:#f0f0f0;
-    --border:#888; /* Сделал линии светлее */
+    --border:#aaa; /* Светлые линии */
     --green:#4CAF50;
     --red:#F44336;
   }
   
+  /* Общие настройки для "кривых" и толстых линий */
+  .crippled-border {
+    border: 3px dashed var(--border);
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  }
+  .crippled-border-alt {
+    border: 3px solid var(--border);
+    border-radius: 15px 255px 15px 225px / 225px 15px 255px 15px;
+  }
+
   body{
     margin:0;
     font-family: 'Caveat', cursive, sans-serif;
@@ -38,7 +48,6 @@
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-color: #000;
-    
     font-size: 20px;
   }
   
@@ -49,7 +58,6 @@
     overflow-y: auto;
     padding: 15px;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    
     background-color: var(--paper);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -65,50 +73,76 @@
     line-height: 1;
   }
   .app-header .crown { font-size: 24px; position: absolute; top: 15px; left: 20px; transform: rotate(-15deg); }
-  .settings-btn { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
   
-  .month-nav { display: flex; justify-content: space-between; align-items: center; font-size: 26px; margin-bottom: 15px; font-family: 'Marck Script', cursive; }
+  .month-nav { 
+    display: flex; justify-content: space-between; align-items: center; 
+    font-size: 26px; margin-bottom: 15px; font-family: 'Marck Script', cursive; 
+    border-bottom: 3px dashed var(--border); padding-bottom: 5px;
+  }
   .month-nav button { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
   
   .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 16px; color: var(--muted); margin-bottom: 5px; font-weight: 600;}
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; border: 2px solid var(--border); border-radius: 12px; padding: 10px 5px;}
-  .cal-day { position: relative; padding: 8px 0; cursor: pointer; font-size: 18px; border-radius: 8px; }
+  
+  .cal-grid { 
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; 
+    text-align: center; padding: 10px 5px;
+  }
+  .cal-day { position: relative; padding: 8px 0; cursor: pointer; font-size: 18px; }
   .cal-day.other { color: #555; }
   
-  .cal-day.selected { background: rgba(255,255,255,0.15); font-weight: bold; }
+  /* Выделение дня каракулями */
+  .cal-day.selected::before {
+    content: ''; position: absolute; inset: 0;
+    border: 3px solid var(--text); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    transform: rotate(-10deg) scale(1.1); z-index: -1; opacity: 0.8;
+  }
   .cal-day.today { color: var(--green); font-weight: bold; }
   
   .day-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 24px; font-family: 'Marck Script', cursive; }
   .day-header .back { cursor: pointer; font-size: 28px; }
   
-  .week-strip { display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; text-align: center; }
+  .week-strip { 
+    display: flex; justify-content: space-between; padding-bottom: 10px; margin-bottom: 15px; 
+    text-align: center; border-bottom: 3px dashed var(--border);
+  }
   .week-strip .w-day { flex: 1; cursor: pointer; font-size: 14px; color: var(--muted); }
   .week-strip .w-day .num { font-size: 18px; margin-top: 4px; display: inline-block; width: 30px; height: 30px; line-height: 30px; border-radius: 50%; }
   .week-strip .w-day.active .num { background: var(--text); color: var(--bg); font-weight: bold; }
   
-  .time-block { margin-bottom: 20px; }
-  .time-title { display: flex; align-items: center; gap: 10px; font-size: 24px; margin-bottom: 10px; border-bottom: 2px dashed var(--border); padding-bottom: 5px; }
+  .time-block { margin-bottom: 25px; }
+  .time-title { 
+    display: flex; align-items: center; gap: 10px; font-size: 24px; margin-bottom: 10px; 
+    border-bottom: 3px dashed var(--border); padding-bottom: 5px;
+  }
   
   ul { list-style: none; padding: 0; margin: 0; }
-  .task-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-  .task-text { flex: 1; line-height: 1.2; font-size: 20px; }
+  
+  .task-item { 
+    display: flex; align-items: center; gap: 10px; padding: 12px 0; 
+    border-bottom: 2px dashed rgba(255,255,255,0.2); 
+  }
+  .task-text { flex: 1; line-height: 1.2; font-size: 20px; cursor: pointer; }
+  
+  /* Стили для выполненных и невыполненных */
   .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
+  .task-item.failed .task-text { color: var(--red); text-decoration: line-through; opacity: 0.7; }
   
   /* Кнопки действий (справа) */
-  .task-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .task-actions { display: flex; gap: 12px; flex-shrink: 0; }
   .btn-check, .btn-cross {
-    width: 34px; height: 34px; border-radius: 8px; border: 2px solid;
+    width: 36px; height: 36px; border-radius: 50%; border: 3px solid;
     display: flex; align-items: center; justify-content: center;
     font-size: 20px; font-weight: bold; cursor: pointer; transition: transform 0.1s;
+    background: transparent;
   }
-  .btn-check { background: rgba(76, 175, 80, 0.1); color: var(--green); border-color: var(--green); }
-  .btn-cross { background: rgba(244, 67, 54, 0.1); color: var(--red); border-color: var(--red); }
-  .btn-check:active, .btn-cross:active { transform: scale(0.9); }
-
+  .btn-check { color: var(--green); border-color: var(--green); }
+  .btn-cross { color: var(--red); border-color: var(--red); }
+  .btn-check:active, .btn-cross:active { transform: scale(0.85); }
+  
   /* Форма добавления на день */
-  .add-row { display: flex; gap: 8px; margin-bottom: 15px; }
-  .add-row input { flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 2px solid var(--border); color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; border-radius: 8px; outline: none; }
-  .add-row button { padding: 0 15px; background: var(--text); color: var(--bg); border: none; border-radius: 8px; font-size: 24px; cursor: pointer; }
+  .add-row { display: flex; gap: 8px; margin-bottom: 20px; }
+  .add-row input { flex: 1; padding: 10px; background: transparent; color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; outline: none; }
+  .add-row button { padding: 0 20px; background: var(--text); color: var(--bg); border: none; font-size: 24px; cursor: pointer; border-radius: 8px; }
 
   /* Статистика */
   .kcal-dashboard { text-align: center; margin-bottom: 20px; }
@@ -119,11 +153,12 @@
   .ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
   .ring-text .num { font-size: 32px; line-height: 1; }
 
+  /* Меню */
   .bottom-nav {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 520px; z-index: 15;
     background: rgba(10,10,10,0.95); backdrop-filter: blur(10px);
-    border-top: 2px solid var(--border);
+    border-top: 3px dashed var(--border);
     display: flex; justify-content: space-around; align-items: center;
     padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
   }
@@ -131,7 +166,7 @@
   .bottom-nav button.active { color: var(--text); }
   .bottom-nav button .icon { font-size: 22px; filter: grayscale(1); transition: 0.2s; }
   .bottom-nav button.active .icon { filter: grayscale(0); transform: scale(1.1); }
-  .center-btn { width: 46px; height: 46px; border-radius: 50% !important; border: 2px solid var(--border) !important; background: var(--bg) !important; transform: translateY(-10px); display: flex; justify-content: center; align-items: center; }
+  .center-btn { width: 50px; height: 50px; border-radius: 50% !important; border: 3px dashed var(--border) !important; background: var(--bg) !important; transform: translateY(-10px); display: flex; justify-content: center; align-items: center; }
   .center-btn .icon { font-size: 28px !important; }
 
   .view { display: none; }
@@ -140,12 +175,22 @@
 
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 20; padding: 20px; }
   .modal.open { display: flex; }
-  .sheet { background: var(--bg); width: 100%; max-width: 400px; border-radius: 12px; padding: 20px; border: 2px solid var(--border); max-height: 90vh; overflow-y: auto; }
+  .sheet { 
+    background: var(--bg); width: 100%; max-width: 400px; padding: 20px; 
+    max-height: 90vh; overflow-y: auto;
+  }
   
-  input[type="text"], input[type="number"], select { width: 100%; padding: 10px; margin-bottom: 10px; background: transparent; border: 2px solid var(--border); color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; border-radius: 8px; outline: none; }
-  .btn { width: 100%; padding: 10px; background: var(--text); color: var(--bg); border: none; font-family: 'Caveat', cursive; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 10px; }
+  input[type="text"], input[type="number"], select { 
+    width: 100%; padding: 10px; margin-bottom: 10px; background: transparent; 
+    color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; outline: none; 
+  }
+  .btn { 
+    width: 100%; padding: 10px; background: var(--text); color: var(--bg); border: none; 
+    font-family: 'Caveat', cursive; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; 
+    border-radius: 8px;
+  }
   
-  .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+  .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px dashed var(--border); padding-bottom: 10px; }
   .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
   .switch input { opacity: 0; width: 0; height: 0; }
   .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
@@ -154,16 +199,26 @@
   input:checked + .slider:before { transform: translateX(26px); }
 
   .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
-  .toast { background: var(--bg); border: 2px solid var(--text); padding: 12px; border-radius: 8px; text-align: center; font-size: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); animation: slideDown 0.3s, fadeOut 0.3s 2.7s forwards; }
+  .toast { 
+    background: var(--bg); border: 3px dashed var(--text); padding: 12px; 
+    text-align: center; font-size: 20px; font-weight: bold; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5); animation: slideDown 0.3s, fadeOut 0.3s 2.7s forwards; 
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  }
   .toast.success { border-color: var(--green); color: var(--green); }
   .toast.fail { border-color: var(--red); color: var(--red); }
   @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
   @keyframes fadeOut { to { opacity: 0; } }
 
   .days-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
-  .days-grid button { padding: 8px; background: transparent; border: 2px solid var(--border); color: var(--muted); font-family: 'Caveat', cursive; font-size: 16px; cursor: pointer; border-radius: 8px;}
+  .days-grid button { 
+    padding: 8px; background: transparent; color: var(--muted); 
+    font-family: 'Caveat', cursive; font-size: 16px; cursor: pointer; 
+    border: 3px dashed var(--border); border-radius: 8px; 
+  }
   .days-grid button.on { background: var(--text); color: var(--bg); border-color: var(--text); }
-  .tmpl-item { border-bottom: 1px solid var(--border); padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+  
+  .tmpl-item { border-bottom: 2px dashed var(--border); padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
 </style>
 </head>
 <body>
@@ -176,7 +231,6 @@
     <div class="app-header">
       <h1>Дневник</h1>
       <div class="crown">♛</div>
-      <button class="settings-btn" onclick="openSettings()">⚙</button>
     </div>
     
     <div class="month-nav">
@@ -188,7 +242,7 @@
     <div class="cal-header">
       <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
     </div>
-    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-grid crippled-border" id="calGrid"></div>
     
     <div style="margin-top: 30px; font-style: italic; color: var(--muted); text-align: center;">
       Маленькие шаги<br>каждый день<br>= большие результаты<br>♡
@@ -199,14 +253,13 @@
     <div class="day-header">
       <div class="back" onclick="switchView('calendar')">←</div>
       <div id="dailyDateLabel">13 октября 2026</div>
-      <div style="width: 28px;"></div> <!-- Пустой блок для центрирования -->
+      <div style="width: 28px;"></div>
     </div>
     
     <div class="week-strip" id="weekStrip"></div>
     
-    <!-- Добавление задачи на конкретный день -->
     <div class="add-row">
-      <input type="text" id="dailyTaskInput" placeholder="Добавить задачу на этот день...">
+      <input type="text" id="dailyTaskInput" placeholder="Добавить задачу на этот день..." class="crippled-border">
       <button onclick="addDailyTask()">+</button>
     </div>
 
@@ -216,10 +269,9 @@
   <div id="view-stats" class="view">
     <div class="app-header">
       <h1 style="font-size: 32px;">Статистика</h1>
-      <button class="settings-btn" onclick="openSettings()">⚙</button>
     </div>
     
-    <div class="kcal-dashboard">
+    <div class="kcal-dashboard crippled-border" style="padding: 15px;">
       <div class="ring-container">
         <svg class="ring-svg" viewBox="0 0 100 100">
           <circle class="ring-bg" cx="50" cy="50" r="45"></circle>
@@ -233,31 +285,52 @@
       <div style="margin-top:10px; color:var(--muted);">Цель: 2500 ккал</div>
     </div>
     
-    <div style="display:flex; gap:5px; flex-wrap:wrap;">
-      <input type="text" id="foodName" placeholder="Что съел?" style="flex: 100%;" list="foodListData">
+    <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:20px;">
+      <input type="text" id="foodName" placeholder="Что съел?" style="flex: 100%;" list="foodListData" class="crippled-border">
       <datalist id="foodListData"></datalist>
-      <input type="number" id="foodKcal100" placeholder="Ккал/100г" style="flex:1;">
-      <input type="number" id="foodWeight" placeholder="Вес (г)" value="100" style="flex:1;">
-      <button onclick="addFood()" style="width: 45px; background:var(--text); color:var(--bg); border:none; font-size:24px; border-radius:8px; cursor:pointer;">+</button>
+      <input type="number" id="foodKcal100" placeholder="Ккал/100г" style="flex:1;" class="crippled-border">
+      <input type="number" id="foodWeight" placeholder="Вес (г)" value="100" style="flex:1;" class="crippled-border">
+      <button onclick="addFood()" style="width: 50px; background:var(--text); color:var(--bg); border:none; font-size:24px; border-radius:8px; cursor:pointer;">+</button>
     </div>
     
     <ul id="foodList" style="margin-top:15px;"></ul>
   </div>
 
+  <!-- ПРОФИЛЬ (сюда перенесены настройки) -->
   <div id="view-profile" class="view">
     <div class="app-header">
       <h1 style="font-size: 32px;">Профиль</h1>
-      <button class="settings-btn" onclick="openSettings()">⚙</button>
     </div>
     
+    <!-- Настройки -->
+    <div style="margin-bottom:30px;">
+      <h3 style="font-family: 'Marck Script', cursive; font-size: 24px; border-bottom: 3px dashed var(--border); padding-bottom:5px;">Настройки</h3>
+      
+      <div class="settings-row">
+        <span>Звуки (победа/пердеж)</span>
+        <label class="switch">
+          <input type="checkbox" id="soundToggle" onchange="toggleSound(this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
+      
+      <div style="margin-bottom:15px;">
+        <span style="display:block; margin-bottom:5px;">Свои обои (из галереи)</span>
+        <input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="font-size:16px; border:none; padding:0; border-bottom: 2px solid var(--border);">
+      </div>
+      
+      <button class="btn" onclick="resetBg()" style="background:transparent; border:3px dashed var(--text); color:var(--text);">Сбросить обои</button>
+    </div>
+
+    <hr style="border:none; border-top: 3px dashed var(--border); margin: 20px 0;">
+    
     <div style="margin-bottom:20px;">
-      <h3 style="font-family: 'Marck Script', cursive; font-size: 24px;">Шаблоны задач</h3>
+      <h3 style="font-family: 'Marck Script', cursive; font-size: 24px; border-bottom: 3px dashed var(--border); padding-bottom:5px;">Шаблоны задач</h3>
       <div id="tmplList"></div>
     </div>
     
-    <hr style="border-color: var(--border); margin: 20px 0;">
-    <button class="btn" onclick="exportData()" style="background:transparent; border:2px solid var(--text); color:var(--text);">💾 Скачать бэкап</button>
-    <button class="btn" onclick="document.getElementById('importFile').click()" style="background:transparent; border:2px solid var(--text); color:var(--text);">📂 Загрузить бэкап</button>
+    <button class="btn" onclick="exportData()" style="background:transparent; border:3px dashed var(--text); color:var(--text);">💾 Скачать бэкап</button>
+    <button class="btn" onclick="document.getElementById('importFile').click()" style="background:transparent; border:3px dashed var(--text); color:var(--text);">📂 Загрузить бэкап</button>
     <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
   </div>
 
@@ -282,9 +355,9 @@
 </div>
 
 <div class="modal" id="plusModal">
-  <div class="sheet">
+  <div class="sheet crippled-border">
     <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Новая задача на неделю</h2>
-    <input type="text" id="tmplInput" placeholder="Название задачи">
+    <input type="text" id="tmplInput" placeholder="Название задачи" class="crippled-border">
     <div style="margin-bottom:5px; color:var(--muted);">Выбери дни:</div>
     <div class="days-grid" id="tmplDays">
       <button onclick="toggleDay(1, this)">Пн</button>
@@ -296,34 +369,12 @@
       <button onclick="toggleDay(0, this)">Вс</button>
     </div>
     <button class="btn" onclick="saveTemplate()">Создать задачу</button>
-    <button class="btn" onclick="document.getElementById('plusModal').classList.remove('open')" style="background:transparent; border:2px solid var(--text); color:var(--text); margin-top:10px;">Отмена</button>
-  </div>
-</div>
-
-<div class="modal" id="settingsModal">
-  <div class="sheet">
-    <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Настройки</h2>
-    
-    <div class="settings-row">
-      <span>Звуки (победа/пердеж)</span>
-      <label class="switch">
-        <input type="checkbox" id="soundToggle" onchange="toggleSound(this.checked)">
-        <span class="slider"></span>
-      </label>
-    </div>
-    
-    <div style="margin-bottom:15px;">
-      <span style="display:block; margin-bottom:5px;">Свои обои (из галереи)</span>
-      <input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="font-size:16px; border:none; padding:0;">
-    </div>
-    
-    <button class="btn" onclick="resetBg()" style="background:transparent; border:2px solid var(--text); color:var(--text);">Сбросить обои</button>
-    <button class="btn" onclick="document.getElementById('settingsModal').classList.remove('open')" style="background:var(--text); color:var(--bg); margin-top:10px;">Закрыть</button>
+    <button class="btn" onclick="document.getElementById('plusModal').classList.remove('open')" style="background:transparent; border:3px dashed var(--text); color:var(--text); margin-top:10px;">Отмена</button>
   </div>
 </div>
 
 <script>
-const KEY='diary_v10'; 
+const KEY='diary_v11'; 
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const DAILY_GOAL = 2500; 
@@ -405,11 +456,12 @@ function load() {
     const d = JSON.parse(localStorage.getItem(KEY));
     if (d) return { 
       templates: d.templates||[], entries: d.entries||{}, done: d.done||{}, skipped: d.skipped||{}, 
+      failed: d.failed||{}, 
       food: d.food||{}, 
       settings: d.settings || { soundEnabled: true, customBg: null } 
     };
   } catch {}
-  return { templates: [], entries: {}, done: {}, skipped: {}, food: {}, settings: { soundEnabled: true, customBg: null } };
+  return { templates: [], entries: {}, done: {}, skipped: {}, failed: {}, food: {}, settings: { soundEnabled: true, customBg: null } };
 }
 let state = load();
 const save = () => localStorage.setItem(KEY, JSON.stringify(state));
@@ -432,12 +484,11 @@ function initAudio() {
 function playVictorySound() {
   if (!state.settings.soundEnabled) return;
   initAudio();
-  // Генерируем четкий звук "Ta-da!" (победа)
   const notes = [523.25, 659.25, 783.99, 1046.50];
   notes.forEach((freq, i) => {
     let osc = audioCtx.createOscillator();
     let gain = audioCtx.createGain();
-    osc.type = 'sine'; // Чистый звук
+    osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
     gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.1);
     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
@@ -462,7 +513,6 @@ function applySettings() {
     document.body.style.backgroundImage = `url('bg.jpg')`;
   }
 }
-function openSettings() { document.getElementById('settingsModal').classList.add('open'); }
 function toggleSound(val) { state.settings.soundEnabled = val; save(); }
 function changeBg(e) {
   const file = e.target.files[0];
@@ -572,11 +622,17 @@ function renderDaily() {
     let html = `<div class="time-block"><div class="time-title">${icons[groupName]} ${groupName}</div><ul>`;
     
     groups[groupName].forEach(t => {
-      html += `<li class="task-item ${t.done ? 'done' : ''}">
-        <div class="task-text">${t.title}</div>
+      let stateClass = '';
+      if (t.done) stateClass = 'done';
+      if (t.failed) stateClass = 'failed';
+
+      html += `<li class="task-item ${stateClass}">
+        <div class="task-text" onmousedown="startDeleteTimer('${t.key}')" onmouseup="clearDeleteTimer()" onmouseleave="clearDeleteTimer()" ontouchstart="startDeleteTimer('${t.key}')" ontouchend="clearDeleteTimer()">
+          ${t.title}
+        </div>
         <div class="task-actions">
-          <button class="btn-check" onclick="toggleTask('${t.key}', ${t.done})">✓</button>
-          <button class="btn-cross" onclick="deleteTask('${t.key}')">✕</button>
+          <button class="btn-check" onclick="toggleTask('${t.key}', ${t.done}, ${t.failed})">✓</button>
+          <button class="btn-cross" onclick="failTask('${t.key}', ${t.done}, ${t.failed})">✕</button>
         </div>
       </li>`;
     });
@@ -591,7 +647,7 @@ function addDailyTask() {
   if (!title) return;
   
   state.entries[selectedDate] = state.entries[selectedDate] || [];
-  state.entries[selectedDate].push({ id: uid(), title, done: false });
+  state.entries[selectedDate].push({ id: uid(), title, done: false, failed: false });
   
   input.value = '';
   save();
@@ -602,23 +658,30 @@ function getTasksForDate(iso) {
   const wd = new Date(iso).getDay();
   const skipped = state.skipped[iso] || {};
   const done = state.done[iso] || {};
+  const failed = state.failed[iso] || {};
   
-  const tpl = state.templates.filter(t => t.days.includes(wd) && !skipped[t.id]).map(t => ({ key: 't_'+t.id, title: t.title, done: !!done[t.id], id: t.id }));
-  const custom = (state.entries[iso] || []).map(e => ({ key: 'c_'+e.id, title: e.title, done: !!e.done, id: e.id }));
+  const tpl = state.templates.filter(t => t.days.includes(wd) && !skipped[t.id]).map(t => ({ 
+    key: 't_'+t.id, title: t.title, done: !!done[t.id], failed: !!failed[t.id], id: t.id 
+  }));
+  const custom = (state.entries[iso] || []).map(e => ({ 
+    key: 'c_'+e.id, title: e.title, done: !!e.done, failed: !!e.failed, id: e.id 
+  }));
   return [...tpl, ...custom];
 }
 
-function toggleTask(key, currentDone) {
+function toggleTask(key, currentDone, currentFailed) {
   const type = key.startsWith('t_') ? 't' : 'c';
   const id = key.substring(2);
   const iso = selectedDate;
   
   if (type === 't') {
     state.done[iso] = state.done[iso] || {};
-    state.done[iso][id] = !currentDone;
+    state.failed[iso] = state.failed[iso] || {};
+    state.done[iso][id] = true;
+    state.failed[iso][id] = false;
   } else {
     const e = (state.entries[iso] || []).find(x => x.id === id);
-    if (e) e.done = !currentDone;
+    if (e) { e.done = true; e.failed = false; }
   }
   save();
   renderDaily();
@@ -626,10 +689,44 @@ function toggleTask(key, currentDone) {
   if (!currentDone) {
     playVictorySound();
     showToast(successPhrases[Math.floor(Math.random() * successPhrases.length)], 'success');
+  }
+}
+
+function failTask(key, currentDone, currentFailed) {
+  const type = key.startsWith('t_') ? 't' : 'c';
+  const id = key.substring(2);
+  const iso = selectedDate;
+  
+  if (type === 't') {
+    state.done[iso] = state.done[iso] || {};
+    state.failed[iso] = state.failed[iso] || {};
+    state.done[iso][id] = false;
+    state.failed[iso][id] = true;
   } else {
+    const e = (state.entries[iso] || []).find(x => x.id === id);
+    if (e) { e.done = false; e.failed = true; }
+  }
+  save();
+  renderDaily();
+
+  if (!currentFailed) {
     playFartSound();
     showToast(failPhrases[Math.floor(Math.random() * failPhrases.length)], 'fail');
   }
+}
+
+// Удаление по долгому нажатию
+let deleteTimer = null;
+function startDeleteTimer(key) {
+  clearTimeout(deleteTimer);
+  deleteTimer = setTimeout(() => {
+    if (confirm("Удалить эту задачу?")) {
+      deleteTask(key);
+    }
+  }, 800); // 800мс для долгого нажатия
+}
+function clearDeleteTimer() {
+  clearTimeout(deleteTimer);
 }
 
 function deleteTask(key) {
@@ -679,10 +776,10 @@ function renderCalories() {
 
   foods.forEach(f => {
     total += Number(f.totalKcal) || 0;
-    list.innerHTML += `<li class="task-item" style="border-bottom:1px solid var(--border);">
+    list.innerHTML += `<li class="task-item" style="border-bottom: 2px dashed rgba(255,255,255,0.2);">
       <div class="task-text">${f.name} <small style="color:var(--muted)">(${f.weight}г)</small></div>
       <div style="color:var(--text); font-weight:bold; margin-right:10px;">${f.totalKcal} ккал</div>
-      <button class="btn-cross" onclick="delFood('${f.id}')">✕</button>
+      <button class="btn-cross" onclick="delFood('${f.id}')" style="width:28px;height:28px;font-size:14px;">✕</button>
     </li>`;
   });
 
