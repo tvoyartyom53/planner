@@ -379,7 +379,6 @@
   
   .tmpl-item { border-bottom: 2px dashed var(--border); padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
   
-  /* Font options */
   .font-option {
     width: 100%; padding: 14px; margin-bottom: 8px;
     background: rgba(255,255,255,0.05);
@@ -392,7 +391,6 @@
   }
   .font-option.selected { border-color: var(--accent); background: rgba(102,187,106,0.15); }
   
-  /* Layout options */
   .layout-option {
     width: 100%; padding: 14px; margin-bottom: 8px;
     background: rgba(255,255,255,0.05);
@@ -408,7 +406,6 @@
   .layout-option.selected { border-color: var(--accent); background: rgba(102,187,106,0.15); }
   .layout-option small { color: var(--muted); font-size: 14px; }
   
-  /* Palette */
   .palette {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -432,7 +429,7 @@
     width: 44px; height: 44px; border-radius: 50%; font-size: 24px;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
-  
+
   /* Layout variations */
   body.layout-minimal .app-header { border-bottom-width: 1px; border-bottom-style: solid; }
   body.layout-minimal .month-nav { border-bottom-width: 1px; border-bottom-style: solid; }
@@ -452,6 +449,38 @@
   body.layout-sketch .add-row input[type="text"] { border-width: 3px; }
   body.layout-sketch .btn-check, body.layout-sketch .btn-cross { border-width: 4px; }
   body.layout-sketch .kcal-dashboard { border-width: 4px; }
+  
+  body.layout-doodle .cal-grid { border-width: 4px; border-style: dashed; border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; }
+  body.layout-doodle .cal-day.selected::before { border-width: 4px; border-style: dashed; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: rotate(-15deg) scale(1.2); }
+  body.layout-doodle .app-header { border-bottom-width: 4px; border-bottom-style: dashed; }
+  body.layout-doodle .month-nav { border-bottom-width: 4px; border-bottom-style: dashed; }
+  body.layout-doodle .week-strip { border-bottom-width: 4px; border-bottom-style: dashed; }
+  body.layout-doodle .task-item { border-bottom: 2px dashed rgba(255,255,255,0.3); }
+  body.layout-doodle .add-row input[type="text"] { border-width: 3px; border-style: dashed; }
+  body.layout-doodle .btn-check, body.layout-doodle .btn-cross { border-width: 4px; border-style: dashed; }
+  body.layout-doodle .kcal-dashboard { border-width: 4px; border-style: dashed; }
+  
+  body.layout-retro .cal-grid { border: 3px solid var(--border); border-radius: 0; box-shadow: 4px 4px 0 var(--border); }
+  body.layout-retro .cal-day.selected::before { border: 3px solid var(--text); border-radius: 0; transform: none; background: rgba(255,255,255,0.1); }
+  body.layout-retro .app-header { border-bottom: 3px solid var(--border); }
+  body.layout-retro .month-nav { border-bottom: 2px solid var(--border); }
+  body.layout-retro .week-strip { border-bottom: 3px solid var(--border); }
+  body.layout-retro .task-item { border-bottom: 2px solid rgba(255,255,255,0.2); }
+  body.layout-retro .add-row input[type="text"] { border: 3px solid var(--border); border-radius: 0; box-shadow: 3px 3px 0 var(--border); }
+  body.layout-retro .btn-check, body.layout-retro .btn-cross { border-radius: 0; box-shadow: 2px 2px 0 var(--border); }
+  body.layout-retro .kcal-dashboard { border: 3px solid var(--border); border-radius: 0; box-shadow: 4px 4px 0 var(--border); }
+  body.layout-retro .settings-tile { border-radius: 0; box-shadow: 3px 3px 0 var(--border); }
+  
+  body.layout-neon .cal-grid { border: 3px solid var(--accent); box-shadow: 0 0 15px var(--accent), inset 0 0 15px var(--accent); border-radius: 12px; }
+  body.layout-neon .cal-day.selected::before { border-color: var(--accent); box-shadow: 0 0 10px var(--accent); border-radius: 50%; }
+  body.layout-neon .app-header { border-bottom: 3px solid var(--accent); box-shadow: 0 4px 10px -5px var(--accent); }
+  body.layout-neon .month-nav { border-bottom: 2px solid var(--accent); }
+  body.layout-neon .week-strip { border-bottom: 2px solid var(--accent); }
+  body.layout-neon .task-item { border-bottom: 1px solid rgba(102,187,106,0.3); }
+  body.layout-neon .add-row input[type="text"] { border: 2px solid var(--accent); box-shadow: 0 0 8px var(--accent); }
+  body.layout-neon .btn-check { box-shadow: 0 0 8px var(--green); }
+  body.layout-neon .btn-cross { box-shadow: 0 0 8px var(--red); }
+  body.layout-neon .kcal-dashboard { border: 2px solid var(--accent); box-shadow: 0 0 15px var(--accent); }
 </style>
 </head>
 <body>
@@ -537,11 +566,6 @@
       <h1 style="font-size: 36px;">Профиль</h1>
     </div>
     
-    <button class="settings-tile-full" onclick="openSettingsModal('templates')">
-      <span class="tile-icon">📋</span>
-      <span>Шаблоны задач</span>
-    </button>
-    
     <h3 class="section-title">Кастом</h3>
     <div class="settings-grid">
       <button class="settings-tile" onclick="openSettingsModal('wallpapers')">
@@ -625,9 +649,12 @@ const FONTS = [
 ];
 
 const LAYOUTS = [
-  { id: 'classic', label: 'Классика', desc: 'Волнистые линии, как в дневнике' },
+  { id: 'classic', label: 'Классика', desc: 'Как было изначально: волнистые линии' },
   { id: 'minimal', label: 'Минимал', desc: 'Тонкие ровные линии, аккуратный стиль' },
-  { id: 'sketch', label: 'Скетч', desc: 'Толстые линии, грубый рукописный вид' }
+  { id: 'sketch', label: 'Скетч', desc: 'Толстые линии, грубый рукописный вид' },
+  { id: 'doodle', label: 'Каракули', desc: 'Очень кривые и прерывистые линии' },
+  { id: 'retro', label: 'Ретро', desc: 'Рамки с обводкой, как в первом варианте' },
+  { id: 'neon', label: 'Неон', desc: 'Светящиеся акцентные линии' }
 ];
 
 const PALETTE = ['#66BB6A', '#42A5F5', '#EF5350', '#FF9800', '#AB47BC', '#EC407A', '#26C6DA', '#FFEB3B'];
@@ -706,7 +733,8 @@ const failPhrases = [
 
 const defaultSettings = {
   soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4, goalKcal: 2500,
-  fontFamily: 'Caveat', fontSize: 20, fontBold: false, layout: 'classic', accentColor: '#66BB6A'
+  fontFamily: 'Caveat', fontSize: 20, fontBold: false, layout: 'classic', 
+  accentColor: '#66BB6A', textColor: '#f0f0f0'
 };
 
 function load() {
@@ -732,6 +760,7 @@ let currentDateObj = new Date();
 let selectedDate = currentDateObj.getFullYear() + '-' + pad(currentDateObj.getMonth()+1) + '-' + pad(currentDateObj.getDate());
 let pendingDailyImage = null;
 let selectedDays = [];
+let colorTarget = 'accent';
 
 let audioCtx;
 const fartUrl = 'https://www.myinstants.com/media/sounds/fart.mp3';
@@ -801,17 +830,15 @@ function applySettings() {
   document.documentElement.style.setProperty('--bg-opacity', darkness / 100);
   document.documentElement.style.setProperty('--bg-blur', blur + 'px');
   
-  // Font
   document.documentElement.style.setProperty('--font-main', `'${state.settings.fontFamily}', cursive, sans-serif`);
   document.documentElement.style.setProperty('--font-size-base', state.settings.fontSize + 'px');
   document.documentElement.style.setProperty('--font-weight-base', state.settings.fontBold ? '600' : '400');
   
-  // Layout
-  document.body.classList.remove('layout-classic', 'layout-minimal', 'layout-sketch');
+  document.body.classList.remove('layout-classic', 'layout-minimal', 'layout-sketch', 'layout-doodle', 'layout-retro', 'layout-neon');
   document.body.classList.add('layout-' + (state.settings.layout || 'classic'));
   
-  // Accent
   document.documentElement.style.setProperty('--accent', state.settings.accentColor || '#66BB6A');
+  document.documentElement.style.setProperty('--text', state.settings.textColor || '#f0f0f0');
 }
 
 function toggleSound(val) { state.settings.soundEnabled = val; save(); }
@@ -1172,17 +1199,22 @@ function openSettingsModal(section) {
   }
   
   else if (section === 'colors') {
+    const currentColor = colorTarget === 'text' ? state.settings.textColor : state.settings.accentColor;
     let paletteHtml = PALETTE.map(c => `
-      <button class="color-swatch ${state.settings.accentColor === c ? 'selected' : ''}"
-              style="background:${c};" onclick="setAccent('${c}')"></button>
+      <button class="color-swatch ${currentColor === c ? 'selected' : ''}"
+              style="background:${c};" onclick="setColor('${c}')"></button>
     `).join('');
     
     content.innerHTML = `
       <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Цвета</h2>
-      <p style="color:var(--muted); font-size:16px;">Выбери акцентный цвет:</p>
+      <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <button class="tab-btn ${colorTarget === 'text' ? 'active' : ''}" onclick="setColorTarget('text')" style="flex:1; padding:10px; background:${colorTarget === 'text' ? 'var(--accent)' : 'transparent'}; color:${colorTarget === 'text' ? '#000' : 'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Цвет текста</button>
+        <button class="tab-btn ${colorTarget === 'accent' ? 'active' : ''}" onclick="setColorTarget('accent')" style="flex:1; padding:10px; background:${colorTarget === 'accent' ? 'var(--accent)' : 'transparent'}; color:${colorTarget === 'accent' ? '#000' : 'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Цвет оформления</button>
+      </div>
+      <p style="color:var(--muted); font-size:16px;">Выбери цвет:</p>
       <div class="palette">${paletteHtml}</div>
       <label style="display:block; color:var(--muted); margin-bottom:6px;">Свой цвет:</label>
-      <input type="color" value="${state.settings.accentColor}" onchange="setAccent(this.value)">
+      <input type="color" value="${currentColor}" onchange="setColor(this.value)">
     `;
   }
   
@@ -1289,10 +1321,19 @@ function setLayout(id) {
   openSettingsModal('layouts');
 }
 
-function setAccent(color) {
-  state.settings.accentColor = color;
+function setColorTarget(target) {
+  colorTarget = target;
+  openSettingsModal('colors');
+}
+function setColor(color) {
+  if (colorTarget === 'text') {
+    state.settings.textColor = color;
+    document.documentElement.style.setProperty('--text', color);
+  } else {
+    state.settings.accentColor = color;
+    document.documentElement.style.setProperty('--accent', color);
+  }
   save();
-  applySettings();
   openSettingsModal('colors');
 }
 
