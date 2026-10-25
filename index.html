@@ -2,7 +2,6 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<!-- Запрет на масштабирование и отскоки -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a1a">
 <title>Мой Дневник</title>
@@ -24,14 +23,13 @@
     --bg-blur: 4px;
   }
   
-  /* Строгий запрет прокрутки всей страницы */
   html, body {
     margin: 0;
     padding: 0;
     height: 100%;
     overflow: hidden;
-    overscroll-behavior: none; /* Отключает отскок (bounce) на iOS */
-    position: fixed; /* Фиксирует вьюпорт */
+    overscroll-behavior: none;
+    position: fixed;
     width: 100%;
     font-family: 'Caveat', cursive, sans-serif;
     color: var(--text);
@@ -39,16 +37,16 @@
     font-size: 20px;
   }
 
-  /* Слой для обоев */
   #bg-layer {
     position: fixed; inset: 0; z-index: -1;
     background-image: url('bg.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    transform: translateZ(0);
+    will-change: transform;
   }
 
-  /* Контейнер для контента (скроллится только он) */
   .wrap{
     width: 100%;
     max-width: 520px;
@@ -56,8 +54,8 @@
     margin: 0 auto;
     overflow-y: auto;
     overflow-x: hidden;
-    -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
-    overscroll-behavior-y: contain; /* Предотвращает передачу скролла родителю */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
     padding: 20px 15px 100px 15px;
     
     background-color: rgba(15, 15, 15, var(--bg-opacity));
@@ -67,51 +65,67 @@
     transition: background-color 0.3s, backdrop-filter 0.3s;
   }
   
-  /* Шапка */
+  #view-calendar.active {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 140px);
+  }
+
   .app-header {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; padding-bottom: 10px;
+    margin-bottom: 15px; padding-bottom: 8px;
     border-bottom: 3px solid var(--border);
+    flex-shrink: 0;
   }
   .app-header h1 {
-    font-family: 'Marck Script', cursive; font-size: 46px; margin: 0;
+    font-family: 'Marck Script', cursive; font-size: 42px; margin: 0;
     line-height: 1; position: relative;
   }
-  .app-header .crown { font-size: 26px; position: absolute; top: 15px; left: 20px; transform: rotate(-15deg); }
+  .app-header .crown { font-size: 24px; position: absolute; top: 15px; left: 20px; transform: rotate(-15deg); }
   
-  /* Навигация по месяцам */
   .month-nav { 
     display: flex; justify-content: space-between; align-items: center; 
-    font-size: 30px; margin-bottom: 15px; font-family: 'Marck Script', cursive; 
+    font-size: 28px; margin-bottom: 12px; font-family: 'Marck Script', cursive; 
     border-bottom: 2px dashed var(--border); padding-bottom: 5px;
     border-radius: 4px;
+    flex-shrink: 0;
   }
-  .month-nav button { background: none; border: none; color: var(--text); font-size: 28px; cursor: pointer; }
+  .month-nav button { background: none; border: none; color: var(--text); font-size: 26px; cursor: pointer; }
   
   .cal-header { 
     display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; 
-    font-size: 18px; color: var(--muted); margin-bottom: 10px; font-weight: 600;
+    font-size: 16px; color: var(--muted); margin-bottom: 8px; font-weight: 600;
+    flex-shrink: 0;
   }
   
-  /* Увеличенный календарь с неровной рамкой */
   .cal-grid { 
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; 
-    text-align: center; padding: 15px 5px;
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; 
+    text-align: center; padding: 10px 5px;
     border: 3px solid var(--border);
     border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    flex-shrink: 0;
   }
-  .cal-day { position: relative; padding: 12px 0; cursor: pointer; font-size: 22px; }
+  .cal-day { position: relative; padding: 8px 0; cursor: pointer; font-size: 20px; }
   .cal-day.other { color: #666; }
   
-  /* Выделение дня каракулями */
   .cal-day.selected::before {
     content: ''; position: absolute; inset: 2px;
     border: 3px solid var(--text); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
     transform: rotate(-10deg) scale(1.1); z-index: -1; opacity: 0.8;
+    pointer-events: none;
   }
   .cal-day.today { color: var(--green); font-weight: bold; }
   
-  /* Экран дня */
+  .calendar-quote {
+    margin-top: auto;
+    padding-top: 20px;
+    text-align: center;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1.4;
+  }
+  
   .day-header { 
     display: flex; align-items: center; justify-content: space-between; 
     margin-bottom: 15px; font-size: 28px; font-family: 'Marck Script', cursive; 
@@ -128,23 +142,27 @@
   .week-strip .w-day .num { font-size: 22px; margin-top: 6px; display: inline-block; width: 36px; height: 36px; line-height: 36px; border-radius: 50%; }
   .week-strip .w-day.active .num { background: var(--text); color: #000; font-weight: bold; }
   
-  .time-block { margin-bottom: 25px; }
-  .time-title { 
-    display: flex; align-items: center; gap: 10px; font-size: 26px; margin-bottom: 12px; 
-    border-bottom: 3px dashed var(--border);
-    padding-bottom: 5px; border-radius: 5px;
-  }
-  
   ul { list-style: none; padding: 0; margin: 0; }
   .task-item { 
     display: flex; align-items: center; gap: 10px; padding: 12px 0; 
     border-bottom: 1px solid rgba(255,255,255,0.15);
   }
-  .task-text { flex: 1; line-height: 1.2; font-size: 22px; cursor: pointer; }
+  
+  /* Контейнер для текста и фото */
+  .task-content { flex: 1; display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0; }
+  .task-text { line-height: 1.2; font-size: 22px; word-break: break-word; }
+  
   .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
   .task-item.failed .task-text { color: var(--red); text-decoration: line-through; opacity: 0.7; }
   
-  /* Кнопки действий строго справа */
+  /* Миниатюра фото */
+  .task-img-thumb {
+    width: 44px; height: 44px; border-radius: 8px; object-fit: cover;
+    border: 2px solid var(--border); flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .task-img-thumb:active { transform: scale(0.9); }
+  
   .task-actions { display: flex; gap: 12px; flex-shrink: 0; }
   .btn-check, .btn-cross {
     width: 38px; height: 38px; 
@@ -158,20 +176,25 @@
   .btn-cross { color: var(--red); border-color: var(--red); }
   .btn-check:active, .btn-cross:active { transform: scale(0.85); }
   
-  /* Форма добавления */
-  .add-row { display: flex; gap: 10px; margin-bottom: 20px; }
-  .add-row input { 
+  .add-row { display: flex; gap: 10px; margin-bottom: 20px; align-items: stretch; }
+  .add-row input[type="text"] { 
     flex: 1; padding: 12px; background: rgba(0,0,0,0.4); color: var(--text); 
     font-family: 'Caveat', cursive; font-size: 20px; outline: none;
     border: 2px solid var(--border);
     border-radius: 150px 15px 225px 15px / 15px 225px 15px 150px;
   }
-  .add-row button { 
+  .add-row button.btn-plus { 
     padding: 0 20px; background: var(--text); color: #000; border: none; 
     font-size: 26px; cursor: pointer; border-radius: 50% 40% 50% 40%; 
   }
+  
+  /* Кнопка добавления фото */
+  .btn-photo {
+    padding: 0 15px; background: transparent; color: var(--text); 
+    border: 2px solid var(--border); font-size: 24px; cursor: pointer; 
+    border-radius: 50% 40% 50% 40%; display: flex; align-items: center; justify-content: center;
+  }
 
-  /* Статистика */
   .kcal-dashboard { 
     text-align: center; margin-bottom: 20px; padding: 20px;
     border: 3px dashed var(--border); border-radius: 15px 100px 15px 100px;
@@ -183,7 +206,6 @@
   .ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
   .ring-text .num { font-size: 36px; line-height: 1; }
 
-  /* Меню */
   .bottom-nav {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 520px; z-index: 15;
@@ -200,10 +222,9 @@
   .center-btn .icon { font-size: 30px !important; }
 
   .view { display: none; }
-  .view.active { display: block; animation: fadeIn 0.3s; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* Модалки */
+  .view.active { display: block; }
+  #view-calendar.active { display: flex; }
+  
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 20; padding: 20px; }
   .modal.open { display: flex; }
   .sheet { 
@@ -224,7 +245,6 @@
     border-radius: 50px 10px 50px 10px;
   }
   
-  /* Профиль и ползунки */
   .settings-box { margin-bottom: 25px; padding: 15px; border: 2px dashed var(--border); border-radius: 10px; }
   .settings-row { display: flex; flex-direction: column; margin-bottom: 15px; }
   .settings-row label { margin-bottom: 8px; font-size: 18px; color: var(--muted); }
@@ -268,6 +288,25 @@
   .days-grid button.on { background: var(--text); color: #000; border-color: var(--text); }
   
   .tmpl-item { border-bottom: 2px dashed var(--border); padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
+
+  /* Модалка для просмотра фото */
+  #imageModal {
+    background: rgba(0,0,0,0.95);
+    z-index: 200;
+    padding: 10px;
+  }
+  #fullImage {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+    border: 3px solid var(--border);
+  }
+  .close-img {
+    position: absolute; top: 20px; right: 20px;
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    width: 44px; height: 44px; border-radius: 50%; font-size: 24px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
 </style>
 </head>
 <body>
@@ -294,8 +333,8 @@
     </div>
     <div class="cal-grid" id="calGrid"></div>
     
-    <div style="margin-top: 30px; font-style: italic; color: var(--muted); text-align: center; font-size: 22px;">
-      Маленькие шаги<br>каждый день<br>= большие результаты<br>♡
+    <div class="calendar-quote">
+      Маленькие шаги каждый день<br>= большие результаты ♡
     </div>
   </div>
 
@@ -309,9 +348,11 @@
     <div class="week-strip" id="weekStrip"></div>
     
     <div class="add-row">
-      <input type="text" id="dailyTaskInput" placeholder="Добавить задачу на этот день...">
-      <button onclick="addDailyTask()">+</button>
+      <input type="text" id="dailyTaskInput" placeholder="Добавить задачу или фото...">
+      <button class="btn-photo" onclick="document.getElementById('dailyImageInput').click()">📷</button>
+      <button class="btn-plus" onclick="addDailyTask()">+</button>
     </div>
+    <input type="file" id="dailyImageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
 
     <div id="tasksContainer"></div>
   </div>
@@ -346,7 +387,6 @@
     <ul id="foodList" style="margin-top:15px;"></ul>
   </div>
 
-  <!-- ПРОФИЛЬ -->
   <div id="view-profile" class="view">
     <div class="app-header">
       <h1 style="font-size: 36px;">Профиль</h1>
@@ -363,7 +403,6 @@
         </label>
       </div>
 
-      <!-- Настройка цели калорий -->
       <div class="settings-row">
         <label>Цель по калориям (ккал)</label>
         <input type="number" id="goalInput" value="2500" onchange="updateGoal(this.value)" style="margin-bottom:0;">
@@ -432,8 +471,14 @@
   </div>
 </div>
 
+<!-- Модалка просмотра фото -->
+<div class="modal" id="imageModal" onclick="closeImage(event)">
+  <button class="close-img" onclick="closeImage(event)">✕</button>
+  <img id="fullImage" src="" alt="Фото">
+</div>
+
 <script>
-const KEY='diary_v13'; 
+const KEY='diary_v15'; 
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
@@ -515,7 +560,7 @@ function load() {
     if (d) return { 
       templates: d.templates||[], entries: d.entries||{}, done: d.done||{}, skipped: d.skipped||{}, 
       failed: d.failed||{}, food: d.food||{}, 
-      customFoods: d.customFoods || {}, // Загружаем свои продукты
+      customFoods: d.customFoods || {},
       settings: d.settings || { soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4, goalKcal: 2500 } 
     };
   } catch {}
@@ -526,14 +571,24 @@ function load() {
   };
 }
 let state = load();
-const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+const save = () => {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state));
+  } catch (e) {
+    if (e.name === 'QuotaExceededError') {
+      showToast("Память заполнена! Удалите старые фото.", "fail");
+    }
+  }
+};
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const pad = n => n < 10 ? '0' + n : '' + n;
 
 let currentDateObj = new Date();
 let selectedDate = currentDateObj.getFullYear() + '-' + pad(currentDateObj.getMonth()+1) + '-' + pad(currentDateObj.getDate());
 
-// --- ЗВУКИ ---
+// Переменная для временного хранения фото при добавлении
+let pendingDailyImage = null;
+
 let audioCtx;
 const fartUrl = 'https://www.myinstants.com/media/sounds/fart.mp3';
 let fartAudio = new Audio(fartUrl);
@@ -552,7 +607,7 @@ async function loadFartBuffer() {
     initAudio();
     fartBuffer = await audioCtx.decodeAudioData(arrayBuffer);
   } catch (e) {
-    console.log("Не удалось загрузить звук в буфер. Ошибка:", e);
+    console.log("Не удалось загрузить звук в буфер:", e);
   }
 }
 
@@ -589,7 +644,6 @@ function playFartSound() {
   }
 }
 
-// --- НАСТРОЙКИ ---
 function applySettings() {
   document.getElementById('soundToggle').checked = state.settings.soundEnabled;
   document.getElementById('goalInput').value = state.settings.goalKcal || 2500;
@@ -617,27 +671,24 @@ function applySettings() {
 function toggleSound(val) { state.settings.soundEnabled = val; save(); }
 function updateGoal(val) {
   val = parseInt(val);
-  if (isNaN(val) || val < 500) val = 500; // минимальная цель
+  if (isNaN(val) || val < 500) val = 500;
   state.settings.goalKcal = val;
   document.getElementById('goalDisplay').textContent = val;
   save();
-  renderCalories(); // Обновляем прогресс-бар
+  renderCalories();
 }
-
 function updateBgDarkness(val) {
   state.settings.bgDarkness = val;
   document.getElementById('darknessVal').textContent = val;
   document.documentElement.style.setProperty('--bg-opacity', val / 100);
   save();
 }
-
 function updateBgBlur(val) {
   state.settings.bgBlur = val;
   document.getElementById('blurVal').textContent = val;
   document.documentElement.style.setProperty('--bg-blur', val + 'px');
   save();
 }
-
 function changeBg(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -649,7 +700,6 @@ function changeBg(e) {
   };
   reader.readAsDataURL(file);
 }
-
 function resetBg() {
   state.settings.customBg = null;
   save(); applySettings();
@@ -673,7 +723,6 @@ function switchView(viewId) {
   const navBtn = document.getElementById('nav-' + viewId);
   if (navBtn) navBtn.classList.add('active');
   
-  // Скролл вверх при смене вкладки
   document.querySelector('.wrap').scrollTop = 0;
 
   if (viewId === 'calendar') renderCalendar();
@@ -712,6 +761,69 @@ function renderCalendar() {
 function shiftMonth(n) { currentDateObj.setMonth(currentDateObj.getMonth() + n); renderCalendar(); }
 function openDay(iso) { selectedDate = iso; switchView('daily'); }
 
+// --- ОБРАБОТКА ИЗОБРАЖЕНИЙ ---
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Сжимаем картинку перед сохранением
+  compressImage(file).then(base64 => {
+    pendingDailyImage = base64;
+    showToast("Фото прикреплено! Напиши текст или жми +", "success");
+  }).catch(err => {
+    console.error(err);
+    showToast("Ошибка при загрузке фото", "fail");
+  });
+
+  // Сбрасываем инпут, чтобы можно было выбрать ту же картинку снова
+  event.target.value = '';
+}
+
+function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.6) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = (error) => reject(error);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+}
+
+function openImage(src) {
+  document.getElementById('fullImage').src = src;
+  document.getElementById('imageModal').classList.add('open');
+}
+function closeImage(e) {
+  if (e.target.id === 'imageModal' || e.target.classList.contains('close-img')) {
+    document.getElementById('imageModal').classList.remove('open');
+  }
+}
+
+// --- ЛОГИКА ДНЯ ---
 function renderDaily() {
   const d = new Date(selectedDate);
   document.getElementById('dailyDateLabel').textContent = `${d.getDate()} ${MONTHS[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
@@ -737,47 +849,58 @@ function renderDaily() {
   const container = document.getElementById('tasksContainer');
   container.innerHTML = '';
   
-  const groups = { "Утро": [], "День": [], "Вечер": [] };
-  tasks.forEach(t => {
-    if (t.title.toLowerCase().includes('зарядк') || t.title.toLowerCase().includes('кофе')) groups["Утро"].push(t);
-    else if (t.title.toLowerCase().includes('спать') || t.title.toLowerCase().includes('вечер')) groups["Вечер"].push(t);
-    else groups["День"].push(t);
-  });
+  // Рендерим единым списком
+  let html = `<ul>`;
+  tasks.forEach(t => { html += renderTaskItem(t); });
+  html += `</ul>`;
+  container.innerHTML = html;
+}
 
-  Object.keys(groups).forEach(groupName => {
-    if (groups[groupName].length === 0 && groupName !== 'День') return;
-    const icons = { "Утро": "☀️", "День": "🌤", "Вечер": "🌙" };
-    let html = `<div class="time-block"><div class="time-title">${icons[groupName]} ${groupName}</div><ul>`;
-    
-    groups[groupName].forEach(t => {
-      let stateClass = '';
-      if (t.done) stateClass = 'done';
-      if (t.failed) stateClass = 'failed';
+function renderTaskItem(t) {
+  let stateClass = '';
+  if (t.done) stateClass = 'done';
+  if (t.failed) stateClass = 'failed';
 
-      html += `<li class="task-item ${stateClass}">
-        <div class="task-text" onmousedown="startDeleteTimer('${t.key}')" onmouseup="clearDeleteTimer()" onmouseleave="clearDeleteTimer()" ontouchstart="startDeleteTimer('${t.key}')" ontouchend="clearDeleteTimer()">
-          ${t.title}
-        </div>
-        <div class="task-actions">
-          <button class="btn-check" onclick="toggleTask('${t.key}', ${t.done}, ${t.failed})">✓</button>
-          <button class="btn-cross" onclick="failTask('${t.key}', ${t.done}, ${t.failed})">✕</button>
-        </div>
-      </li>`;
-    });
-    html += `</ul></div>`;
-    container.innerHTML += html;
-  });
+  // Если есть картинка, показываем миниатюру
+  let imgHtml = '';
+  if (t.image) {
+    imgHtml = `<img src="${t.image}" class="task-img-thumb" onclick="openImage('${t.image}')" alt="Фото">`;
+  }
+
+  return `<li class="task-item ${stateClass}">
+    <div class="task-content" onmousedown="startDeleteTimer('${t.key}')" onmouseup="clearDeleteTimer()" onmouseleave="clearDeleteTimer()" ontouchstart="startDeleteTimer('${t.key}')" ontouchend="clearDeleteTimer()">
+      ${t.image ? `<div class="task-text" style="display:none">${t.title}</div>` : `<div class="task-text">${t.title}</div>`}
+      ${imgHtml}
+    </div>
+    <div class="task-actions">
+      <button class="btn-check" onclick="toggleTask('${t.key}', ${t.done}, ${t.failed})">✓</button>
+      <button class="btn-cross" onclick="failTask('${t.key}', ${t.done}, ${t.failed})">✕</button>
+    </div>
+  </li>`;
 }
 
 function addDailyTask() {
   const input = document.getElementById('dailyTaskInput');
-  const title = input.value.trim();
-  if (!title) return;
+  let title = input.value.trim();
+  
+  // Логика: если есть фото, но нет текста — делаем фотозаметку
+  if (pendingDailyImage && !title) {
+    title = "📸 Фотозаметка";
+  } else if (!pendingDailyImage && !title) {
+    return; // Ничего не ввели
+  }
   
   state.entries[selectedDate] = state.entries[selectedDate] || [];
-  state.entries[selectedDate].push({ id: uid(), title, done: false, failed: false });
+  state.entries[selectedDate].push({ 
+    id: uid(), 
+    title, 
+    done: false, 
+    failed: false,
+    image: pendingDailyImage // Сохраняем сжатое фото
+  });
   
   input.value = '';
+  pendingDailyImage = null; // Сбрасываем фото
   save();
   renderDaily();
 }
@@ -789,10 +912,10 @@ function getTasksForDate(iso) {
   const failed = state.failed[iso] || {};
   
   const tpl = state.templates.filter(t => t.days.includes(wd) && !skipped[t.id]).map(t => ({ 
-    key: 't_'+t.id, title: t.title, done: !!done[t.id], failed: !!failed[t.id], id: t.id 
+    key: 't_'+t.id, title: t.title, done: !!done[t.id], failed: !!failed[t.id], id: t.id, image: null 
   }));
   const custom = (state.entries[iso] || []).map(e => ({ 
-    key: 'c_'+e.id, title: e.title, done: !!e.done, failed: !!e.failed, id: e.id 
+    key: 'c_'+e.id, title: e.title, done: !!e.done, failed: !!e.failed, id: e.id, image: e.image 
   }));
   return [...tpl, ...custom];
 }
@@ -852,9 +975,7 @@ function startDeleteTimer(key) {
     }
   }, 800);
 }
-function clearDeleteTimer() {
-  clearTimeout(deleteTimer);
-}
+function clearDeleteTimer() { clearTimeout(deleteTimer); }
 
 function deleteTask(key) {
   const type = key.startsWith('t_') ? 't' : 'c';
@@ -866,7 +987,7 @@ function deleteTask(key) {
     state.entries[selectedDate] = (state.entries[selectedDate] || []).filter(x => x.id !== id);
   }
   save(); renderDaily();
-  showToast("Задача удалена", "fail");
+  showToast("Удалено", "fail");
 }
 
 let selectedDays = [];
@@ -904,7 +1025,9 @@ function renderCalories() {
   foods.forEach(f => {
     total += Number(f.totalKcal) || 0;
     list.innerHTML += `<li class="task-item" style="border-bottom:1px solid rgba(255,255,255,0.15);">
-      <div class="task-text">${f.name} <small style="color:var(--muted)">(${f.weight}г)</small></div>
+      <div class="task-content">
+        <div class="task-text">${f.name} <small style="color:var(--muted)">(${f.weight}г)</small></div>
+      </div>
       <div style="color:var(--text); font-weight:bold; margin-right:10px;">${f.totalKcal} ккал</div>
       <button class="btn-cross" onclick="delFood('${f.id}')" style="width:30px;height:30px;font-size:16px;">✕</button>
     </li>`;
@@ -914,12 +1037,10 @@ function renderCalories() {
   const progressCircle = document.getElementById('ringProgress');
   const circumference = 2 * Math.PI * 45; 
   
-  // Используем цель из настроек
   const goal = state.settings.goalKcal || 2500;
   let percent = Math.min(total / goal, 1);
   progressCircle.style.strokeDashoffset = circumference - (percent * circumference);
   
-  // Объединяем базовые продукты и пользовательские
   const allFoods = { ...basicFoods, ...state.customFoods };
   const datalist = document.getElementById('foodListData');
   datalist.innerHTML = '';
@@ -941,7 +1062,6 @@ function addFood() {
   
   if (!name || isNaN(kcal100) || isNaN(weight)) { showToast("Заполни всё!", "fail"); return; }
   
-  // СОХРАНЕНИЕ СВОЕГО ПРОДУКТА
   if (!basicFoods[name]) {
     state.customFoods[name] = kcal100;
   }
@@ -977,7 +1097,6 @@ function delTmpl(id) {
   save(); renderTemplates();
 }
 
-// --- СТАРТ ---
 applySettings();
 renderCalendar();
 switchView('calendar');
