@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Marck+Script&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Marck+Script&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600&family=Lobster&family=Pacifico&display=swap" rel="stylesheet">
 
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -19,8 +19,12 @@
     --border:#ccc;
     --green:#66BB6A;
     --red:#EF5350;
+    --accent:#66BB6A;
     --bg-opacity: 0.6;
     --bg-blur: 4px;
+    --font-main: 'Caveat', cursive, sans-serif;
+    --font-size-base: 20px;
+    --font-weight-base: 400;
   }
   
   html, body {
@@ -31,10 +35,10 @@
     overscroll-behavior: none;
     position: fixed;
     width: 100%;
-    font-family: 'Caveat', cursive, sans-serif;
+    font-family: var(--font-main);
     color: var(--text);
     background-color: #000;
-    font-size: 20px;
+    font-size: var(--font-size-base);
   }
 
   #bg-layer {
@@ -57,7 +61,6 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
     padding: 20px 15px 100px 15px;
-    
     background-color: rgba(15, 15, 15, var(--bg-opacity));
     backdrop-filter: blur(var(--bg-blur));
     -webkit-backdrop-filter: blur(var(--bg-blur));
@@ -68,44 +71,52 @@
   #view-calendar.active {
     display: flex;
     flex-direction: column;
+    align-items: center;
     min-height: calc(100vh - 140px);
+  }
+  
+  #view-calendar .app-header,
+  #view-calendar .month-nav,
+  #view-calendar .cal-header,
+  #view-calendar .cal-grid {
+    width: 100%;
   }
 
   .app-header {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 15px; padding-bottom: 8px;
+    margin-bottom: 20px; padding-bottom: 10px;
     border-bottom: 3px solid var(--border);
     flex-shrink: 0;
   }
   .app-header h1 {
-    font-family: 'Marck Script', cursive; font-size: 42px; margin: 0;
+    font-family: 'Marck Script', cursive; font-size: 46px; margin: 0;
     line-height: 1; position: relative;
   }
-  .app-header .crown { font-size: 24px; position: absolute; top: 15px; left: 20px; transform: rotate(-15deg); }
+  .app-header .crown { font-size: 26px; position: absolute; top: 18px; left: 20px; transform: rotate(-15deg); }
   
   .month-nav { 
     display: flex; justify-content: space-between; align-items: center; 
-    font-size: 28px; margin-bottom: 12px; font-family: 'Marck Script', cursive; 
-    border-bottom: 2px dashed var(--border); padding-bottom: 5px;
-    border-radius: 4px;
+    font-size: 30px; margin-bottom: 15px; font-family: 'Marck Script', cursive; 
+    border-bottom: 2px dashed var(--border); padding-bottom: 8px;
     flex-shrink: 0;
   }
-  .month-nav button { background: none; border: none; color: var(--text); font-size: 26px; cursor: pointer; }
+  .month-nav button { background: none; border: none; color: var(--text); font-size: 28px; cursor: pointer; }
   
   .cal-header { 
     display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; 
-    font-size: 16px; color: var(--muted); margin-bottom: 8px; font-weight: 600;
+    font-size: 18px; color: var(--muted); margin-bottom: 10px; font-weight: 600;
     flex-shrink: 0;
   }
   
   .cal-grid { 
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; 
-    text-align: center; padding: 10px 5px;
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; 
+    text-align: center; padding: 18px 10px;
     border: 3px solid var(--border);
     border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
     flex-shrink: 0;
+    max-width: 480px;
   }
-  .cal-day { position: relative; padding: 8px 0; cursor: pointer; font-size: 20px; }
+  .cal-day { position: relative; padding: 14px 0; cursor: pointer; font-size: 22px; }
   .cal-day.other { color: #666; }
   
   .cal-day.selected::before {
@@ -114,15 +125,15 @@
     transform: rotate(-10deg) scale(1.1); z-index: -1; opacity: 0.8;
     pointer-events: none;
   }
-  .cal-day.today { color: var(--green); font-weight: bold; }
+  .cal-day.today { color: var(--accent); font-weight: bold; }
   
   .calendar-quote {
     margin-top: auto;
-    padding-top: 20px;
+    padding-top: 25px;
     text-align: center;
     font-style: italic;
     color: var(--muted);
-    font-size: 20px;
+    font-size: 22px;
     line-height: 1.4;
   }
   
@@ -136,7 +147,6 @@
     display: flex; justify-content: space-between; padding-bottom: 10px; margin-bottom: 20px; 
     text-align: center; 
     border-bottom: 2px solid var(--border);
-    border-radius: 2px;
   }
   .week-strip .w-day { flex: 1; cursor: pointer; font-size: 16px; color: var(--muted); }
   .week-strip .w-day .num { font-size: 22px; margin-top: 6px; display: inline-block; width: 36px; height: 36px; line-height: 36px; border-radius: 50%; }
@@ -146,16 +156,35 @@
   .task-item { 
     display: flex; align-items: center; gap: 10px; padding: 12px 0; 
     border-bottom: 1px solid rgba(255,255,255,0.15);
+    position: relative;
+  }
+  .task-item.task-custom {
+    border-left: 3px solid var(--accent);
+    padding-left: 10px;
   }
   
-  /* Контейнер для текста и фото */
+  .task-badge {
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(102,187,106,0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    font-family: sans-serif;
+    font-weight: 600;
+  }
+  
   .task-content { flex: 1; display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0; }
-  .task-text { line-height: 1.2; font-size: 22px; word-break: break-word; }
+  .task-text { 
+    line-height: 1.2; font-size: 22px; word-break: break-word;
+    font-weight: var(--font-weight-base);
+  }
   
   .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
   .task-item.failed .task-text { color: var(--red); text-decoration: line-through; opacity: 0.7; }
   
-  /* Миниатюра фото */
   .task-img-thumb {
     width: 44px; height: 44px; border-radius: 8px; object-fit: cover;
     border: 2px solid var(--border); flex-shrink: 0;
@@ -179,16 +208,16 @@
   .add-row { display: flex; gap: 10px; margin-bottom: 20px; align-items: stretch; }
   .add-row input[type="text"] { 
     flex: 1; padding: 12px; background: rgba(0,0,0,0.4); color: var(--text); 
-    font-family: 'Caveat', cursive; font-size: 20px; outline: none;
+    font-family: var(--font-main); font-size: var(--font-size-base); outline: none;
     border: 2px solid var(--border);
     border-radius: 150px 15px 225px 15px / 15px 225px 15px 150px;
+    font-weight: var(--font-weight-base);
   }
   .add-row button.btn-plus { 
     padding: 0 20px; background: var(--text); color: #000; border: none; 
     font-size: 26px; cursor: pointer; border-radius: 50% 40% 50% 40%; 
   }
   
-  /* Кнопка добавления фото */
   .btn-photo {
     padding: 0 15px; background: transparent; color: var(--text); 
     border: 2px solid var(--border); font-size: 24px; cursor: pointer; 
@@ -214,7 +243,7 @@
     display: flex; justify-content: space-around; align-items: center;
     padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
   }
-  .bottom-nav button { background: transparent; border: 0; color: var(--muted); font-family: 'Caveat', cursive; font-size: 15px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+  .bottom-nav button { background: transparent; border: 0; color: var(--muted); font-family: var(--font-main); font-size: 15px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
   .bottom-nav button.active { color: var(--text); }
   .bottom-nav button .icon { font-size: 24px; filter: grayscale(1); transition: 0.2s; }
   .bottom-nav button.active .icon { filter: grayscale(0); transform: scale(1.1); }
@@ -225,29 +254,90 @@
   .view.active { display: block; }
   #view-calendar.active { display: flex; }
   
-  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 20; padding: 20px; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 20; padding: 20px; }
   .modal.open { display: flex; }
   .sheet { 
-    background: #151515; width: 100%; max-width: 400px; padding: 25px; 
+    background: #151515; width: 100%; max-width: 420px; padding: 25px; 
     max-height: 90vh; overflow-y: auto;
     border: 3px solid var(--border);
     border-radius: 20px 5px 25px 10px;
+    position: relative;
+  }
+  .close-settings-btn {
+    position: absolute; top: 12px; right: 12px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); border: none; color: var(--text);
+    font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
   
-  input[type="text"], input[type="number"], select { 
+  input[type="text"], input[type="number"], select, input[type="color"] { 
     width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.3); 
-    color: var(--text); font-family: 'Caveat', cursive; font-size: 20px; outline: none; 
+    color: var(--text); font-family: var(--font-main); font-size: var(--font-size-base); outline: none; 
     border: 2px solid var(--border); border-radius: 10px;
+    font-weight: var(--font-weight-base);
   }
   .btn { 
     width: 100%; padding: 12px; background: var(--text); color: #000; border: none; 
-    font-family: 'Caveat', cursive; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; 
+    font-family: var(--font-main); font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; 
     border-radius: 50px 10px 50px 10px;
   }
   
-  .settings-box { margin-bottom: 25px; padding: 15px; border: 2px dashed var(--border); border-radius: 10px; }
+  .settings-box { margin-bottom: 20px; padding: 15px; border: 2px dashed var(--border); border-radius: 10px; }
   .settings-row { display: flex; flex-direction: column; margin-bottom: 15px; }
   .settings-row label { margin-bottom: 8px; font-size: 18px; color: var(--muted); }
+  
+  .section-title {
+    font-family: 'Marck Script', cursive;
+    font-size: 26px;
+    margin: 20px 0 12px 0;
+    border-bottom: 2px dashed var(--border);
+    padding-bottom: 6px;
+  }
+  
+  .settings-tile-full {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 18px;
+    background: rgba(255,255,255,0.05);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 20px;
+    margin-bottom: 10px;
+    font-weight: var(--font-weight-base);
+  }
+  .settings-tile-full:active { transform: scale(0.97); }
+  
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .settings-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 10px;
+    background: rgba(255,255,255,0.05);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 16px;
+    gap: 8px;
+    font-weight: var(--font-weight-base);
+  }
+  .settings-tile:active { transform: scale(0.95); }
+  .settings-tile .tile-icon { font-size: 30px; line-height: 1; }
   
   input[type=range] {
     -webkit-appearance: none; width: 100%; background: transparent; margin-bottom: 10px;
@@ -282,31 +372,86 @@
   .days-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
   .days-grid button { 
     padding: 10px; background: transparent; color: var(--muted); 
-    font-family: 'Caveat', cursive; font-size: 18px; cursor: pointer; 
+    font-family: var(--font-main); font-size: 18px; cursor: pointer; 
     border: 2px solid var(--border); border-radius: 8px; 
   }
   .days-grid button.on { background: var(--text); color: #000; border-color: var(--text); }
   
   .tmpl-item { border-bottom: 2px dashed var(--border); padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
+  
+  /* Font options */
+  .font-option {
+    width: 100%; padding: 14px; margin-bottom: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .font-option.selected { border-color: var(--accent); background: rgba(102,187,106,0.15); }
+  
+  /* Layout options */
+  .layout-option {
+    width: 100%; padding: 14px; margin-bottom: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 18px;
+    cursor: pointer;
+    text-align: left;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .layout-option.selected { border-color: var(--accent); background: rgba(102,187,106,0.15); }
+  .layout-option small { color: var(--muted); font-size: 14px; }
+  
+  /* Palette */
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .color-swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+  }
+  .color-swatch.selected { border-color: var(--text); }
 
-  /* Модалка для просмотра фото */
-  #imageModal {
-    background: rgba(0,0,0,0.95);
-    z-index: 200;
-    padding: 10px;
-  }
-  #fullImage {
-    max-width: 100%;
-    max-height: 90vh;
-    border-radius: 8px;
-    border: 3px solid var(--border);
-  }
+  #imageModal { background: rgba(0,0,0,0.95); z-index: 200; padding: 10px; }
+  #fullImage { max-width: 100%; max-height: 90vh; border-radius: 8px; border: 3px solid var(--border); }
   .close-img {
     position: absolute; top: 20px; right: 20px;
     background: rgba(255,255,255,0.2); border: none; color: white;
     width: 44px; height: 44px; border-radius: 50%; font-size: 24px;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
+  
+  /* Layout variations */
+  body.layout-minimal .app-header { border-bottom-width: 1px; border-bottom-style: solid; }
+  body.layout-minimal .month-nav { border-bottom-width: 1px; border-bottom-style: solid; }
+  body.layout-minimal .week-strip { border-bottom-width: 1px; border-bottom-style: solid; }
+  body.layout-minimal .cal-grid { border-width: 1px; border-style: solid; border-radius: 12px; padding: 12px 8px; }
+  body.layout-minimal .cal-day.selected::before { border-width: 2px; border-radius: 50%; transform: none; }
+  body.layout-minimal .add-row input[type="text"] { border-radius: 8px; border-width: 1px; border-style: solid; }
+  body.layout-minimal .btn-check, body.layout-minimal .btn-cross { border-radius: 8px; border-width: 2px; }
+  body.layout-minimal .task-item { border-bottom: 1px solid rgba(255,255,255,0.1); }
+  body.layout-minimal .settings-tile, body.layout-minimal .settings-tile-full { border-radius: 8px; border-style: solid; }
+  body.layout-minimal .kcal-dashboard { border-style: solid; border-radius: 12px; }
+  
+  body.layout-sketch .app-header { border-bottom-width: 4px; }
+  body.layout-sketch .month-nav { border-bottom-width: 3px; }
+  body.layout-sketch .week-strip { border-bottom-width: 3px; }
+  body.layout-sketch .cal-grid { border-width: 4px; }
+  body.layout-sketch .add-row input[type="text"] { border-width: 3px; }
+  body.layout-sketch .btn-check, body.layout-sketch .btn-cross { border-width: 4px; }
+  body.layout-sketch .kcal-dashboard { border-width: 4px; }
 </style>
 </head>
 <body>
@@ -392,9 +537,29 @@
       <h1 style="font-size: 36px;">Профиль</h1>
     </div>
     
+    <button class="settings-tile-full" onclick="openSettingsModal('templates')">
+      <span class="tile-icon">📋</span>
+      <span>Шаблоны задач</span>
+    </button>
+    
+    <h3 class="section-title">Кастом</h3>
+    <div class="settings-grid">
+      <button class="settings-tile" onclick="openSettingsModal('wallpapers')">
+        <span class="tile-icon">🖼</span><span>Обои</span>
+      </button>
+      <button class="settings-tile" onclick="openSettingsModal('fonts')">
+        <span class="tile-icon" style="font-family: Georgia; font-weight: bold;">Aa</span><span>Шрифты</span>
+      </button>
+      <button class="settings-tile" onclick="openSettingsModal('layouts')">
+        <span class="tile-icon">📐</span><span>Макет</span>
+      </button>
+      <button class="settings-tile" onclick="openSettingsModal('colors')">
+        <span class="tile-icon">🎨</span><span>Цвета</span>
+      </button>
+    </div>
+    
+    <h3 class="section-title">Основные</h3>
     <div class="settings-box">
-      <h3 style="font-family: 'Marck Script', cursive; font-size: 26px; margin-top:0;">Настройки</h3>
-      
       <div class="settings-row">
         <label>Звуки (победа/пердеж)</label>
         <label class="switch">
@@ -402,33 +567,10 @@
           <span class="slider"></span>
         </label>
       </div>
-
-      <div class="settings-row">
+      <div class="settings-row" style="margin-bottom:0;">
         <label>Цель по калориям (ккал)</label>
         <input type="number" id="goalInput" value="2500" onchange="updateGoal(this.value)" style="margin-bottom:0;">
       </div>
-
-      <div class="settings-row">
-        <label>Затемнение обоев (<span id="darknessVal">60</span>%)</label>
-        <input type="range" id="bgDarkness" min="0" max="100" value="60" oninput="updateBgDarkness(this.value)">
-      </div>
-
-      <div class="settings-row">
-        <label>Размытие обоев (<span id="blurVal">4</span>px)</label>
-        <input type="range" id="bgBlur" min="0" max="20" value="4" oninput="updateBgBlur(this.value)">
-      </div>
-      
-      <div class="settings-row">
-        <label>Свои обои (из галереи)</label>
-        <input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="border:none; padding:0; margin-bottom:0;">
-      </div>
-      
-      <button class="btn" onclick="resetBg()" style="background:transparent; border:2px solid var(--text); color:var(--text);">Сбросить обои</button>
-    </div>
-
-    <div style="margin-bottom:20px;">
-      <h3 style="font-family: 'Marck Script', cursive; font-size: 26px; border-bottom: 2px dashed var(--border); padding-bottom:5px;">Шаблоны задач</h3>
-      <div id="tmplList"></div>
     </div>
   </div>
 
@@ -441,7 +583,7 @@
   <button id="nav-daily" onclick="goTodayTasks()">
     <span class="icon">📋</span>Сегодня
   </button>
-  <button class="center-btn" onclick="openPlusModal()">
+  <button class="center-btn" onclick="openSettingsModal('templates')">
     <span class="icon">➕</span>
   </button>
   <button id="nav-stats" onclick="switchView('stats')">
@@ -452,22 +594,11 @@
   </button>
 </div>
 
-<div class="modal" id="plusModal">
+<!-- Универсальная модалка настроек -->
+<div class="modal" id="settingsModal" onclick="if(event.target.id==='settingsModal') closeSettings()">
   <div class="sheet">
-    <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Новая задача на неделю</h2>
-    <input type="text" id="tmplInput" placeholder="Название задачи">
-    <div style="margin-bottom:10px; color:var(--muted);">Выбери дни:</div>
-    <div class="days-grid" id="tmplDays">
-      <button onclick="toggleDay(1, this)">Пн</button>
-      <button onclick="toggleDay(2, this)">Вт</button>
-      <button onclick="toggleDay(3, this)">Ср</button>
-      <button onclick="toggleDay(4, this)">Чт</button>
-      <button onclick="toggleDay(5, this)">Пт</button>
-      <button onclick="toggleDay(6, this)">Сб</button>
-      <button onclick="toggleDay(0, this)">Вс</button>
-    </div>
-    <button class="btn" onclick="saveTemplate()">Создать задачу</button>
-    <button class="btn" onclick="document.getElementById('plusModal').classList.remove('open')" style="background:transparent; border:2px solid var(--text); color:var(--text); margin-top:10px;">Отмена</button>
+    <button class="close-settings-btn" onclick="closeSettings()">✕</button>
+    <div id="settingsContent"></div>
   </div>
 </div>
 
@@ -478,9 +609,28 @@
 </div>
 
 <script>
-const KEY='diary_v15'; 
+const KEY='diary_v16'; 
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+const FONTS = [
+  { name: 'Caveat', label: 'Caveat (по умолчанию)' },
+  { name: 'Marck Script', label: 'Marck Script' },
+  { name: 'Roboto', label: 'Roboto' },
+  { name: 'Open Sans', label: 'Open Sans' },
+  { name: 'Lobster', label: 'Lobster' },
+  { name: 'Pacifico', label: 'Pacifico' },
+  { name: 'Georgia', label: 'Georgia (serif)' },
+  { name: 'Courier New', label: 'Courier New (mono)' }
+];
+
+const LAYOUTS = [
+  { id: 'classic', label: 'Классика', desc: 'Волнистые линии, как в дневнике' },
+  { id: 'minimal', label: 'Минимал', desc: 'Тонкие ровные линии, аккуратный стиль' },
+  { id: 'sketch', label: 'Скетч', desc: 'Толстые линии, грубый рукописный вид' }
+];
+
+const PALETTE = ['#66BB6A', '#42A5F5', '#EF5350', '#FF9800', '#AB47BC', '#EC407A', '#26C6DA', '#FFEB3B'];
 
 const basicFoods = {
   "Баранина жирная": 316, "Баранина нежирная": 166, "Ветчина": 365, "Говядина тушеная": 180,
@@ -554,40 +704,34 @@ const failPhrases = [
   "Хуёво. Ты можешь лучше!", "Обратный отсчёт пошёл. Не тупи.", "Слился? Ну и слабак."
 ];
 
+const defaultSettings = {
+  soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4, goalKcal: 2500,
+  fontFamily: 'Caveat', fontSize: 20, fontBold: false, layout: 'classic', accentColor: '#66BB6A'
+};
+
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(KEY));
     if (d) return { 
       templates: d.templates||[], entries: d.entries||{}, done: d.done||{}, skipped: d.skipped||{}, 
-      failed: d.failed||{}, food: d.food||{}, 
-      customFoods: d.customFoods || {},
-      settings: d.settings || { soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4, goalKcal: 2500 } 
+      failed: d.failed||{}, food: d.food||{}, customFoods: d.customFoods || {},
+      settings: Object.assign({}, defaultSettings, d.settings || {})
     };
   } catch {}
-  return { 
-    templates: [], entries: {}, done: {}, skipped: {}, failed: {}, food: {}, 
-    customFoods: {}, 
-    settings: { soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4, goalKcal: 2500 } 
-  };
+  return { templates: [], entries: {}, done: {}, skipped: {}, failed: {}, food: {}, customFoods: {}, settings: Object.assign({}, defaultSettings) };
 }
 let state = load();
 const save = () => {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(state));
-  } catch (e) {
-    if (e.name === 'QuotaExceededError') {
-      showToast("Память заполнена! Удалите старые фото.", "fail");
-    }
-  }
+  try { localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch (e) { if (e.name === 'QuotaExceededError') showToast("Память заполнена!", "fail"); }
 };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const pad = n => n < 10 ? '0' + n : '' + n;
 
 let currentDateObj = new Date();
 let selectedDate = currentDateObj.getFullYear() + '-' + pad(currentDateObj.getMonth()+1) + '-' + pad(currentDateObj.getDate());
-
-// Переменная для временного хранения фото при добавлении
 let pendingDailyImage = null;
+let selectedDays = [];
 
 let audioCtx;
 const fartUrl = 'https://www.myinstants.com/media/sounds/fart.mp3';
@@ -602,13 +746,11 @@ function initAudio() {
 async function loadFartBuffer() {
   try {
     const response = await fetch(fartUrl);
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) throw new Error('net');
     const arrayBuffer = await response.arrayBuffer();
     initAudio();
     fartBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-  } catch (e) {
-    console.log("Не удалось загрузить звук в буфер:", e);
-  }
+  } catch (e) { console.log("Fart buffer error:", e); }
 }
 
 function playVictorySound() {
@@ -640,7 +782,7 @@ function playFartSound() {
     source.start(0);
   } else {
     fartAudio.currentTime = 0;
-    fartAudio.play().catch(e => console.log("Ошибка звука:", e));
+    fartAudio.play().catch(e => console.log("Sound error:", e));
   }
 }
 
@@ -650,22 +792,26 @@ function applySettings() {
   document.getElementById('goalDisplay').textContent = state.settings.goalKcal || 2500;
   
   const bgLayer = document.getElementById('bg-layer');
-  if (state.settings.customBg) {
-    bgLayer.style.backgroundImage = `url(${state.settings.customBg})`;
-  } else {
-    bgLayer.style.backgroundImage = `url('bg.jpg')`;
-  }
+  bgLayer.style.backgroundImage = state.settings.customBg 
+    ? `url(${state.settings.customBg})` 
+    : `url('bg.jpg')`;
 
   const darkness = state.settings.bgDarkness !== undefined ? state.settings.bgDarkness : 60;
   const blur = state.settings.bgBlur !== undefined ? state.settings.bgBlur : 4;
-
-  document.getElementById('bgDarkness').value = darkness;
-  document.getElementById('darknessVal').textContent = darkness;
-  document.getElementById('bgBlur').value = blur;
-  document.getElementById('blurVal').textContent = blur;
-
   document.documentElement.style.setProperty('--bg-opacity', darkness / 100);
   document.documentElement.style.setProperty('--bg-blur', blur + 'px');
+  
+  // Font
+  document.documentElement.style.setProperty('--font-main', `'${state.settings.fontFamily}', cursive, sans-serif`);
+  document.documentElement.style.setProperty('--font-size-base', state.settings.fontSize + 'px');
+  document.documentElement.style.setProperty('--font-weight-base', state.settings.fontBold ? '600' : '400');
+  
+  // Layout
+  document.body.classList.remove('layout-classic', 'layout-minimal', 'layout-sketch');
+  document.body.classList.add('layout-' + (state.settings.layout || 'classic'));
+  
+  // Accent
+  document.documentElement.style.setProperty('--accent', state.settings.accentColor || '#66BB6A');
 }
 
 function toggleSound(val) { state.settings.soundEnabled = val; save(); }
@@ -676,34 +822,6 @@ function updateGoal(val) {
   document.getElementById('goalDisplay').textContent = val;
   save();
   renderCalories();
-}
-function updateBgDarkness(val) {
-  state.settings.bgDarkness = val;
-  document.getElementById('darknessVal').textContent = val;
-  document.documentElement.style.setProperty('--bg-opacity', val / 100);
-  save();
-}
-function updateBgBlur(val) {
-  state.settings.bgBlur = val;
-  document.getElementById('blurVal').textContent = val;
-  document.documentElement.style.setProperty('--bg-blur', val + 'px');
-  save();
-}
-function changeBg(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    state.settings.customBg = ev.target.result;
-    save(); applySettings();
-    showToast("Обои изменены!", "success");
-  };
-  reader.readAsDataURL(file);
-}
-function resetBg() {
-  state.settings.customBg = null;
-  save(); applySettings();
-  showToast("Обои сброшены", "success");
 }
 
 function showToast(message, type) {
@@ -728,7 +846,6 @@ function switchView(viewId) {
   if (viewId === 'calendar') renderCalendar();
   if (viewId === 'daily') renderDaily();
   if (viewId === 'stats') renderCalories();
-  if (viewId === 'profile') renderTemplates();
 }
 
 function goTodayTasks() {
@@ -761,21 +878,15 @@ function renderCalendar() {
 function shiftMonth(n) { currentDateObj.setMonth(currentDateObj.getMonth() + n); renderCalendar(); }
 function openDay(iso) { selectedDate = iso; switchView('daily'); }
 
-// --- ОБРАБОТКА ИЗОБРАЖЕНИЙ ---
 function handleImageUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-
-  // Сжимаем картинку перед сохранением
   compressImage(file).then(base64 => {
     pendingDailyImage = base64;
     showToast("Фото прикреплено! Напиши текст или жми +", "success");
   }).catch(err => {
-    console.error(err);
     showToast("Ошибка при загрузке фото", "fail");
   });
-
-  // Сбрасываем инпут, чтобы можно было выбрать ту же картинку снова
   event.target.value = '';
 }
 
@@ -790,15 +901,9 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.6) {
         let width = img.width;
         let height = img.height;
         if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
+          if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
         } else {
-          if (height > maxHeight) {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
+          if (height > maxHeight) { width = Math.round((width * maxHeight) / height); height = maxHeight; }
         }
         const canvas = document.createElement('canvas');
         canvas.width = width;
@@ -823,7 +928,6 @@ function closeImage(e) {
   }
 }
 
-// --- ЛОГИКА ДНЯ ---
 function renderDaily() {
   const d = new Date(selectedDate);
   document.getElementById('dailyDateLabel').textContent = `${d.getDate()} ${MONTHS[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
@@ -849,7 +953,6 @@ function renderDaily() {
   const container = document.getElementById('tasksContainer');
   container.innerHTML = '';
   
-  // Рендерим единым списком
   let html = `<ul>`;
   tasks.forEach(t => { html += renderTaskItem(t); });
   html += `</ul>`;
@@ -860,14 +963,16 @@ function renderTaskItem(t) {
   let stateClass = '';
   if (t.done) stateClass = 'done';
   if (t.failed) stateClass = 'failed';
+  
+  const isCustom = t.key.startsWith('c_');
 
-  // Если есть картинка, показываем миниатюру
   let imgHtml = '';
   if (t.image) {
     imgHtml = `<img src="${t.image}" class="task-img-thumb" onclick="openImage('${t.image}')" alt="Фото">`;
   }
 
-  return `<li class="task-item ${stateClass}">
+  return `<li class="task-item ${stateClass} ${isCustom ? 'task-custom' : ''}">
+    ${isCustom ? '<span class="task-badge">день</span>' : ''}
     <div class="task-content" onmousedown="startDeleteTimer('${t.key}')" onmouseup="clearDeleteTimer()" onmouseleave="clearDeleteTimer()" ontouchstart="startDeleteTimer('${t.key}')" ontouchend="clearDeleteTimer()">
       ${t.image ? `<div class="task-text" style="display:none">${t.title}</div>` : `<div class="task-text">${t.title}</div>`}
       ${imgHtml}
@@ -883,24 +988,14 @@ function addDailyTask() {
   const input = document.getElementById('dailyTaskInput');
   let title = input.value.trim();
   
-  // Логика: если есть фото, но нет текста — делаем фотозаметку
-  if (pendingDailyImage && !title) {
-    title = "📸 Фотозаметка";
-  } else if (!pendingDailyImage && !title) {
-    return; // Ничего не ввели
-  }
+  if (pendingDailyImage && !title) title = "📸 Фотозаметка";
+  else if (!pendingDailyImage && !title) return;
   
   state.entries[selectedDate] = state.entries[selectedDate] || [];
-  state.entries[selectedDate].push({ 
-    id: uid(), 
-    title, 
-    done: false, 
-    failed: false,
-    image: pendingDailyImage // Сохраняем сжатое фото
-  });
+  state.entries[selectedDate].push({ id: uid(), title, done: false, failed: false, image: pendingDailyImage });
   
   input.value = '';
-  pendingDailyImage = null; // Сбрасываем фото
+  pendingDailyImage = null;
   save();
   renderDaily();
 }
@@ -970,9 +1065,7 @@ let deleteTimer = null;
 function startDeleteTimer(key) {
   clearTimeout(deleteTimer);
   deleteTimer = setTimeout(() => {
-    if (confirm("Удалить эту задачу?")) {
-      deleteTask(key);
-    }
+    if (confirm("Удалить эту задачу?")) deleteTask(key);
   }, 800);
 }
 function clearDeleteTimer() { clearTimeout(deleteTimer); }
@@ -990,13 +1083,131 @@ function deleteTask(key) {
   showToast("Удалено", "fail");
 }
 
-let selectedDays = [];
-function openPlusModal() {
-  document.getElementById('tmplInput').value = '';
-  selectedDays = [];
-  document.querySelectorAll('#tmplDays button').forEach(b => b.classList.remove('on'));
-  document.getElementById('plusModal').classList.add('open');
+// --- МОДАЛКА НАСТРОЕК ---
+function openSettingsModal(section) {
+  const content = document.getElementById('settingsContent');
+  
+  if (section === 'templates') {
+    content.innerHTML = `
+      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Шаблоны задач</h2>
+      <input type="text" id="tmplInput" placeholder="Название задачи">
+      <div style="margin-bottom:10px; color:var(--muted);">Выбери дни:</div>
+      <div class="days-grid" id="tmplDays">
+        <button onclick="toggleDay(1, this)">Пн</button>
+        <button onclick="toggleDay(2, this)">Вт</button>
+        <button onclick="toggleDay(3, this)">Ср</button>
+        <button onclick="toggleDay(4, this)">Чт</button>
+        <button onclick="toggleDay(5, this)">Пт</button>
+        <button onclick="toggleDay(6, this)">Сб</button>
+        <button onclick="toggleDay(0, this)">Вс</button>
+      </div>
+      <button class="btn" onclick="saveTemplate()">Создать задачу</button>
+      <h3 style="margin-top:20px; font-size:20px;">Существующие:</h3>
+      <div id="tmplList"></div>
+    `;
+    selectedDays = [];
+    renderTmplList();
+  }
+  
+  else if (section === 'wallpapers') {
+    content.innerHTML = `
+      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Обои</h2>
+      <div class="settings-row">
+        <label>Затемнение обоев (<span id="darknessVal">${state.settings.bgDarkness}</span>%)</label>
+        <input type="range" id="bgDarkness" min="0" max="100" value="${state.settings.bgDarkness}" oninput="updateBgDarkness(this.value)">
+      </div>
+      <div class="settings-row">
+        <label>Размытие обоев (<span id="blurVal">${state.settings.bgBlur}</span>px)</label>
+        <input type="range" id="bgBlur" min="0" max="20" value="${state.settings.bgBlur}" oninput="updateBgBlur(this.value)">
+      </div>
+      <div class="settings-row">
+        <label>Загрузить свои обои:</label>
+        <input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="border:none;padding:0;margin-bottom:0;">
+      </div>
+      <button class="btn" onclick="resetBg()" style="background:transparent; border:2px solid var(--text); color:var(--text);">Сбросить обои</button>
+    `;
+  }
+  
+  else if (section === 'fonts') {
+    let fontOptionsHtml = FONTS.map(f => `
+      <button class="font-option ${state.settings.fontFamily === f.name ? 'selected' : ''}" 
+              style="font-family: '${f.name}', cursive, sans-serif;"
+              onclick="setFont('${f.name}')">
+        ${f.label}
+      </button>
+    `).join('');
+    
+    content.innerHTML = `
+      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Шрифты</h2>
+      <div style="margin-bottom:15px;">
+        ${fontOptionsHtml}
+      </div>
+      <div class="settings-row">
+        <label>Размер текста: <span id="fontSizeVal">${state.settings.fontSize}</span>px</label>
+        <input type="range" id="fontSize" min="16" max="30" value="${state.settings.fontSize}" oninput="updateFontSize(this.value)">
+      </div>
+      <div class="settings-row">
+        <label>Жирный шрифт</label>
+        <label class="switch">
+          <input type="checkbox" id="fontBold" ${state.settings.fontBold ? 'checked' : ''} onchange="updateFontBold(this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
+    `;
+  }
+  
+  else if (section === 'layouts') {
+    let layoutOptionsHtml = LAYOUTS.map(l => `
+      <button class="layout-option ${state.settings.layout === l.id ? 'selected' : ''}"
+              onclick="setLayout('${l.id}')">
+        <b>${l.label}</b>
+        <small>${l.desc}</small>
+      </button>
+    `).join('');
+    
+    content.innerHTML = `
+      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Макет</h2>
+      ${layoutOptionsHtml}
+    `;
+  }
+  
+  else if (section === 'colors') {
+    let paletteHtml = PALETTE.map(c => `
+      <button class="color-swatch ${state.settings.accentColor === c ? 'selected' : ''}"
+              style="background:${c};" onclick="setAccent('${c}')"></button>
+    `).join('');
+    
+    content.innerHTML = `
+      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Цвета</h2>
+      <p style="color:var(--muted); font-size:16px;">Выбери акцентный цвет:</p>
+      <div class="palette">${paletteHtml}</div>
+      <label style="display:block; color:var(--muted); margin-bottom:6px;">Свой цвет:</label>
+      <input type="color" value="${state.settings.accentColor}" onchange="setAccent(this.value)">
+    `;
+  }
+  
+  document.getElementById('settingsModal').classList.add('open');
 }
+
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('open');
+}
+
+function renderTmplList() {
+  const list = document.getElementById('tmplList');
+  if (!list) return;
+  list.innerHTML = '';
+  if (!state.templates.length) list.innerHTML = '<div style="color:var(--muted)">Нет шаблонов.</div>';
+  
+  state.templates.forEach(t => {
+    const daysStr = t.days.map(d => WEEKDAYS[d]).join(', ');
+    list.innerHTML += `<div class="tmpl-item">
+      <div><b>${t.title}</b><br><small style="color:var(--muted)">${daysStr}</small></div>
+      <button class="btn-cross" onclick="delTmpl('${t.id}')" style="width:30px;height:30px;font-size:16px;">✕</button>
+    </div>`;
+  });
+}
+
 function toggleDay(day, btn) {
   if (selectedDays.includes(day)) {
     selectedDays = selectedDays.filter(d => d !== day);
@@ -1011,11 +1222,81 @@ function saveTemplate() {
   if (!title || selectedDays.length === 0) { showToast("Заполни название и выбери дни!", "fail"); return; }
   state.templates.push({ id: uid(), title, days: selectedDays });
   save();
-  document.getElementById('plusModal').classList.remove('open');
-  showToast("Задача добавлена на неделю!", "success");
+  document.getElementById('tmplInput').value = '';
+  selectedDays = [];
+  document.querySelectorAll('#tmplDays button').forEach(b => b.classList.remove('on'));
+  showToast("Шаблон создан!", "success");
+  renderTmplList();
   renderDaily();
 }
+function delTmpl(id) {
+  state.templates = state.templates.filter(t => t.id !== id);
+  save(); renderTmplList(); renderDaily();
+}
 
+// --- КАСТОМ НАСТРОЙКИ ---
+function updateBgDarkness(val) {
+  state.settings.bgDarkness = val;
+  document.getElementById('darknessVal').textContent = val;
+  document.documentElement.style.setProperty('--bg-opacity', val / 100);
+  save();
+}
+function updateBgBlur(val) {
+  state.settings.bgBlur = val;
+  document.getElementById('blurVal').textContent = val;
+  document.documentElement.style.setProperty('--bg-blur', val + 'px');
+  save();
+}
+function changeBg(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    state.settings.customBg = ev.target.result;
+    save(); applySettings();
+    showToast("Обои изменены!", "success");
+  };
+  reader.readAsDataURL(file);
+}
+function resetBg() {
+  state.settings.customBg = null;
+  save(); applySettings();
+  showToast("Обои сброшены", "success");
+}
+
+function setFont(name) {
+  state.settings.fontFamily = name;
+  save();
+  applySettings();
+  openSettingsModal('fonts');
+}
+function updateFontSize(val) {
+  state.settings.fontSize = parseInt(val);
+  document.getElementById('fontSizeVal').textContent = val;
+  document.documentElement.style.setProperty('--font-size-base', val + 'px');
+  save();
+}
+function updateFontBold(val) {
+  state.settings.fontBold = val;
+  document.documentElement.style.setProperty('--font-weight-base', val ? '600' : '400');
+  save();
+}
+
+function setLayout(id) {
+  state.settings.layout = id;
+  save();
+  applySettings();
+  openSettingsModal('layouts');
+}
+
+function setAccent(color) {
+  state.settings.accentColor = color;
+  save();
+  applySettings();
+  openSettingsModal('colors');
+}
+
+// --- КАЛОРИИ ---
 function renderCalories() {
   const foods = state.food[selectedDate] || [];
   const list = document.getElementById('foodList');
@@ -1062,9 +1343,7 @@ function addFood() {
   
   if (!name || isNaN(kcal100) || isNaN(weight)) { showToast("Заполни всё!", "fail"); return; }
   
-  if (!basicFoods[name]) {
-    state.customFoods[name] = kcal100;
-  }
+  if (!basicFoods[name]) state.customFoods[name] = kcal100;
   
   const totalKcal = Math.round((kcal100 / 100) * weight);
   state.food[selectedDate] = state.food[selectedDate] || [];
@@ -1079,24 +1358,7 @@ function delFood(id) {
   save(); renderCalories();
 }
 
-function renderTemplates() {
-  const list = document.getElementById('tmplList');
-  list.innerHTML = '';
-  if (!state.templates.length) list.innerHTML = '<div style="color:var(--muted)">Нет повторяющихся задач.</div>';
-  
-  state.templates.forEach(t => {
-    const daysStr = t.days.map(d => WEEKDAYS[d]).join(', ');
-    list.innerHTML += `<div class="tmpl-item">
-      <div><b>${t.title}</b><br><small style="color:var(--muted)">${daysStr}</small></div>
-      <button class="btn-cross" onclick="delTmpl('${t.id}')" style="width:30px;height:30px;font-size:16px;">✕</button>
-    </div>`;
-  });
-}
-function delTmpl(id) {
-  state.templates = state.templates.filter(t => t.id !== id);
-  save(); renderTemplates();
-}
-
+// --- СТАРТ ---
 applySettings();
 renderCalendar();
 switchView('calendar');
