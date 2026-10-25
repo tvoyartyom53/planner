@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- Запрет на масштабирование и отскоки -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a1a">
 <title>Мой Дневник</title>
 <link rel="manifest" href="manifest.json">
@@ -23,15 +24,17 @@
     --bg-blur: 4px;
   }
   
-  body{
-    margin:0;
+  /* Строгий запрет прокрутки всей страницы */
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none; /* Отключает отскок (bounce) на iOS */
+    position: fixed; /* Фиксирует вьюпорт */
+    width: 100%;
     font-family: 'Caveat', cursive, sans-serif;
-    color:var(--text);
-    min-height:100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    
+    color: var(--text);
     background-color: #000;
     font-size: 20px;
   }
@@ -45,12 +48,16 @@
     background-repeat: no-repeat;
   }
 
-  /* Контейнер */
+  /* Контейнер для контента (скроллится только он) */
   .wrap{
     width: 100%;
     max-width: 520px;
-    min-height: 100vh;
+    height: 100%;
+    margin: 0 auto;
     overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+    overscroll-behavior-y: contain; /* Предотвращает передачу скролла родителю */
     padding: 20px 15px 100px 15px;
     
     background-color: rgba(15, 15, 15, var(--bg-opacity));
@@ -325,7 +332,7 @@
           <div style="font-size:16px; color:var(--muted);">ккал</div>
         </div>
       </div>
-      <div style="margin-top:10px; color:var(--muted); font-size:22px;">Цель: 2500 ккал</div>
+      <div style="margin-top:10px; color:var(--muted); font-size:22px;">Цель: <span id="goalDisplay">2500</span> ккал</div>
     </div>
     
     <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:20px;">
@@ -339,13 +346,12 @@
     <ul id="foodList" style="margin-top:15px;"></ul>
   </div>
 
-  <!-- ПРОФИЛЬ С НАСТРОЙКАМИ -->
+  <!-- ПРОФИЛЬ -->
   <div id="view-profile" class="view">
     <div class="app-header">
       <h1 style="font-size: 36px;">Профиль</h1>
     </div>
     
-    <!-- Настройки -->
     <div class="settings-box">
       <h3 style="font-family: 'Marck Script', cursive; font-size: 26px; margin-top:0;">Настройки</h3>
       
@@ -355,6 +361,12 @@
           <input type="checkbox" id="soundToggle" onchange="toggleSound(this.checked)">
           <span class="slider"></span>
         </label>
+      </div>
+
+      <!-- Настройка цели калорий -->
+      <div class="settings-row">
+        <label>Цель по калориям (ккал)</label>
+        <input type="number" id="goalInput" value="2500" onchange="updateGoal(this.value)" style="margin-bottom:0;">
       </div>
 
       <div class="settings-row">
@@ -379,10 +391,6 @@
       <h3 style="font-family: 'Marck Script', cursive; font-size: 26px; border-bottom: 2px dashed var(--border); padding-bottom:5px;">Шаблоны задач</h3>
       <div id="tmplList"></div>
     </div>
-    
-    <button class="btn" onclick="exportData()" style="background:transparent; border:2px dashed var(--text); color:var(--text);">💾 Скачать бэкап</button>
-    <button class="btn" onclick="document.getElementById('importFile').click()" style="background:transparent; border:2px dashed var(--text); color:var(--text);">📂 Загрузить бэкап</button>
-    <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
   </div>
 
 </div>
@@ -425,10 +433,9 @@
 </div>
 
 <script>
-const KEY='diary_v12'; 
+const KEY='diary_v13'; 
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-const DAILY_GOAL = 2500; 
 
 const basicFoods = {
   "Баранина жирная": 316, "Баранина нежирная": 166, "Ветчина": 365, "Говядина тушеная": 180,
@@ -508,10 +515,15 @@ function load() {
     if (d) return { 
       templates: d.templates||[], entries: d.entries||{}, done: d.done||{}, skipped: d.skipped||{}, 
       failed: d.failed||{}, food: d.food||{}, 
-      settings: d.settings || { soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4 } 
+      customFoods: d.customFoods || {}, // Загружаем свои продукты
+      settings: d.settings || { soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4, goalKcal: 2500 } 
     };
   } catch {}
-  return { templates: [], entries: {}, done: {}, skipped: {}, failed: {}, food: {}, settings: { soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4 } };
+  return { 
+    templates: [], entries: {}, done: {}, skipped: {}, failed: {}, food: {}, 
+    customFoods: {}, 
+    settings: { soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4, goalKcal: 2500 } 
+  };
 }
 let state = load();
 const save = () => localStorage.setItem(KEY, JSON.stringify(state));
@@ -525,14 +537,13 @@ let selectedDate = currentDateObj.getFullYear() + '-' + pad(currentDateObj.getMo
 let audioCtx;
 const fartUrl = 'https://www.myinstants.com/media/sounds/fart.mp3';
 let fartAudio = new Audio(fartUrl);
-let fartBuffer = null; // Буфер для Web Audio API
+let fartBuffer = null;
 
 function initAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
-// Загружаем звук пердежа в буфер Web Audio API (чтобы не срабатывал Dynamic Island на iOS)
 async function loadFartBuffer() {
   try {
     const response = await fetch(fartUrl);
@@ -540,16 +551,14 @@ async function loadFartBuffer() {
     const arrayBuffer = await response.arrayBuffer();
     initAudio();
     fartBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-    console.log("Звук пердежа загружен в буфер (Dynamic Island не сработает)");
   } catch (e) {
-    console.log("Не удалось загрузить звук в буфер, используем fallback на Audio. Ошибка:", e);
+    console.log("Не удалось загрузить звук в буфер. Ошибка:", e);
   }
 }
 
 function playVictorySound() {
   if (!state.settings.soundEnabled) return;
   initAudio();
-  // Синтезированный звук победы (Web Audio API)
   const notes = [523.25, 659.25, 783.99, 1046.50];
   notes.forEach((freq, i) => {
     let osc = audioCtx.createOscillator();
@@ -568,29 +577,24 @@ function playVictorySound() {
 function playFartSound() {
   if (!state.settings.soundEnabled) return;
   initAudio();
-  
-  // Отключаем вибрацию на Android (на iOS не поддерживается)
   if (navigator.vibrate) navigator.vibrate(0);
-  
   if (fartBuffer) {
-    // Играем через AudioBufferSourceNode — iOS не показывает Dynamic Island
     const source = audioCtx.createBufferSource();
     source.buffer = fartBuffer;
     source.connect(audioCtx.destination);
     source.start(0);
   } else {
-    // Fallback: обычный Audio (может вызвать Dynamic Island на iOS)
     fartAudio.currentTime = 0;
     fartAudio.play().catch(e => console.log("Ошибка звука:", e));
   }
 }
 
-// --- НАСТРОЙКИ ОБОЕВ ---
+// --- НАСТРОЙКИ ---
 function applySettings() {
-  // Звук
   document.getElementById('soundToggle').checked = state.settings.soundEnabled;
+  document.getElementById('goalInput').value = state.settings.goalKcal || 2500;
+  document.getElementById('goalDisplay').textContent = state.settings.goalKcal || 2500;
   
-  // Обои (картинка)
   const bgLayer = document.getElementById('bg-layer');
   if (state.settings.customBg) {
     bgLayer.style.backgroundImage = `url(${state.settings.customBg})`;
@@ -598,7 +602,6 @@ function applySettings() {
     bgLayer.style.backgroundImage = `url('bg.jpg')`;
   }
 
-  // Затемнение и размытие
   const darkness = state.settings.bgDarkness !== undefined ? state.settings.bgDarkness : 60;
   const blur = state.settings.bgBlur !== undefined ? state.settings.bgBlur : 4;
 
@@ -612,6 +615,14 @@ function applySettings() {
 }
 
 function toggleSound(val) { state.settings.soundEnabled = val; save(); }
+function updateGoal(val) {
+  val = parseInt(val);
+  if (isNaN(val) || val < 500) val = 500; // минимальная цель
+  state.settings.goalKcal = val;
+  document.getElementById('goalDisplay').textContent = val;
+  save();
+  renderCalories(); // Обновляем прогресс-бар
+}
 
 function updateBgDarkness(val) {
   state.settings.bgDarkness = val;
@@ -662,6 +673,9 @@ function switchView(viewId) {
   const navBtn = document.getElementById('nav-' + viewId);
   if (navBtn) navBtn.classList.add('active');
   
+  // Скролл вверх при смене вкладки
+  document.querySelector('.wrap').scrollTop = 0;
+
   if (viewId === 'calendar') renderCalendar();
   if (viewId === 'daily') renderDaily();
   if (viewId === 'stats') renderCalories();
@@ -899,26 +913,38 @@ function renderCalories() {
   document.getElementById('totalKcal').textContent = Math.round(total);
   const progressCircle = document.getElementById('ringProgress');
   const circumference = 2 * Math.PI * 45; 
-  let percent = Math.min(total / DAILY_GOAL, 1);
+  
+  // Используем цель из настроек
+  const goal = state.settings.goalKcal || 2500;
+  let percent = Math.min(total / goal, 1);
   progressCircle.style.strokeDashoffset = circumference - (percent * circumference);
   
+  // Объединяем базовые продукты и пользовательские
+  const allFoods = { ...basicFoods, ...state.customFoods };
   const datalist = document.getElementById('foodListData');
   datalist.innerHTML = '';
-  Object.keys(basicFoods).forEach(k => {
+  Object.keys(allFoods).forEach(k => {
     datalist.innerHTML += `<option value="${k}">`;
   });
 }
 
 document.getElementById('foodName').addEventListener('input', (e) => {
   const val = e.target.value;
-  if (basicFoods[val]) document.getElementById('foodKcal100').value = basicFoods[val];
+  const allFoods = { ...basicFoods, ...state.customFoods };
+  if (allFoods[val]) document.getElementById('foodKcal100').value = allFoods[val];
 });
 
 function addFood() {
   const name = document.getElementById('foodName').value.trim();
   const kcal100 = parseFloat(document.getElementById('foodKcal100').value);
   const weight = parseFloat(document.getElementById('foodWeight').value);
+  
   if (!name || isNaN(kcal100) || isNaN(weight)) { showToast("Заполни всё!", "fail"); return; }
+  
+  // СОХРАНЕНИЕ СВОЕГО ПРОДУКТА
+  if (!basicFoods[name]) {
+    state.customFoods[name] = kcal100;
+  }
   
   const totalKcal = Math.round((kcal100 / 100) * weight);
   state.food[selectedDate] = state.food[selectedDate] || [];
@@ -951,33 +977,11 @@ function delTmpl(id) {
   save(); renderTemplates();
 }
 
-function exportData() {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'diary-backup.json'; a.click();
-}
-function importData(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const data = JSON.parse(reader.result);
-      if (!confirm('Заменить текущие данные?')) return;
-      state = data;
-      save();
-      applySettings();
-      renderCalendar(); renderTemplates(); renderDaily();
-      showToast("Данные загружены!", "success");
-    } catch { showToast("Ошибка файла!", "fail"); }
-  };
-  reader.readAsText(file);
-}
-
 // --- СТАРТ ---
 applySettings();
 renderCalendar();
 switchView('calendar');
-loadFartBuffer(); // Загружаем звук в буфер для iOS
+loadFartBuffer();
 </script>
 </body>
 </html>
