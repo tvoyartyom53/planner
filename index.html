@@ -15,7 +15,7 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
     --bg:#1a1a1a;
-    --paper:#222222;
+    --paper:rgba(30, 30, 30, 0.95); /* Сделал бумагу полупрозрачной, чтобы обои были видны */
     --text:#e0e0e0;
     --muted:#888;
     --accent:#f0f0f0;
@@ -28,15 +28,36 @@
     margin:0;
     font-family: 'Caveat', cursive, sans-serif;
     color:var(--text);
-    padding:env(safe-area-inset-top) 0 calc(80px + env(safe-area-inset-bottom));
     min-height:100vh;
-    background-color: var(--bg);
-    /* Текстура шума для эффекта бумаги */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+    display: flex;
+    justify-content: center; /* Центрирование по горизонтали */
+    align-items: flex-start; /* Начинаем сверху */
+    
+    /* ТВОИ ОБОИ. Если настройки не задали другие */
+    background-image: url('bg.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: #000;
+    
     font-size: 20px;
   }
   
-  .wrap{max-width:520px;margin:0 auto;padding:15px;position:relative}
+  /* Контейнер на весь экран с прокруткой */
+  .wrap{
+    width: 100%;
+    max-width: 520px;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 15px;
+    padding-bottom: calc(90px + env(safe-area-inset-bottom)); /* Место под меню */
+    
+    background-color: var(--paper);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  }
   
   /* Шапка Дневника */
   .app-header {
@@ -53,6 +74,7 @@
     border-radius: 50%; opacity: 0.7;
   }
   .app-header .crown { font-size: 24px; position: absolute; top: -15px; left: 20px; transform: rotate(-15deg); }
+  .settings-btn { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
   
   /* Календарь */
   .month-nav { display: flex; justify-content: space-between; align-items: center; font-size: 26px; margin-bottom: 15px; font-family: 'Marck Script', cursive; }
@@ -63,7 +85,6 @@
   .cal-day { position: relative; padding: 8px 0; cursor: pointer; font-size: 18px; }
   .cal-day.other { color: #444; }
   
-  /* Эффект каракулей на выбранном дне */
   .cal-day.selected::before {
     content: ''; position: absolute; inset: 2px;
     border: 2px solid var(--text); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
@@ -75,13 +96,11 @@
   .day-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 24px; font-family: 'Marck Script', cursive; }
   .day-header .back { cursor: pointer; font-size: 28px; }
   
-  /* Полоса дней недели */
   .week-strip { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; text-align: center; }
   .week-strip .w-day { flex: 1; cursor: pointer; font-size: 14px; color: var(--muted); }
   .week-strip .w-day .num { font-size: 18px; margin-top: 4px; display: inline-block; width: 30px; height: 30px; line-height: 30px; border-radius: 50%; }
   .week-strip .w-day.active .num { border: 2px solid var(--text); transform: rotate(-5deg); border-radius: 40% 60% 50% 50%; }
   
-  /* Блоки Утро/День/Вечер */
   .time-block { margin-bottom: 20px; }
   .time-title { display: flex; align-items: center; gap: 10px; font-size: 24px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; }
   
@@ -96,14 +115,13 @@
   .task-item.done .task-chk { background: var(--text); color: var(--bg); }
   .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
   .task-text { flex: 1; line-height: 1.2; }
-  .task-time { font-size: 14px; color: var(--muted); margin-left: auto; white-space: nowrap; }
   .task-del { background: none; border: none; color: #555; font-size: 18px; cursor: pointer; padding: 0 5px; }
   
-  /* Заметки внизу */
+  /* Заметки */
   .notes-box { margin-top: 20px; border: 1px solid var(--border); padding: 10px; border-radius: 2px; background: rgba(0,0,0,0.2); }
   .notes-box textarea { width: 100%; background: none; border: none; color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; resize: none; outline: none; }
 
-  /* Статистика (Калории) */
+  /* Статистика */
   .kcal-dashboard { text-align: center; margin-bottom: 20px; }
   .ring-container { position: relative; width: 140px; height: 140px; margin: 0 auto; }
   .ring-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -114,8 +132,10 @@
 
   /* Нижнее меню */
   .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 15;
-    background: var(--bg); border-top: 1px solid var(--border);
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 520px; z-index: 15;
+    background: rgba(10,10,10,0.9); backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
     display: flex; justify-content: space-around; align-items: center;
     padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
   }
@@ -123,7 +143,7 @@
   .bottom-nav button.active { color: var(--text); }
   .bottom-nav button .icon { font-size: 22px; filter: grayscale(1); transition: 0.2s; }
   .bottom-nav button.active .icon { filter: grayscale(0); transform: scale(1.1); }
-  .center-btn { width: 46px; height: 46px; border-radius: 50% !important; border: 2px solid var(--border) !important; background: var(--paper) !important; transform: translateY(-10px); display: flex; justify-content: center; align-items: center; }
+  .center-btn { width: 46px; height: 46px; border-radius: 50% !important; border: 2px solid var(--border) !important; background: var(--bg) !important; transform: translateY(-10px); display: flex; justify-content: center; align-items: center; }
   .center-btn .icon { font-size: 28px !important; }
 
   /* Модальные окна */
@@ -133,24 +153,31 @@
 
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 20; padding: 20px; }
   .modal.open { display: flex; }
-  .sheet { background: var(--paper); width: 100%; max-width: 400px; border-radius: 4px; padding: 20px; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto;}
+  .sheet { background: var(--bg); width: 100%; max-width: 400px; border-radius: 8px; padding: 20px; border: 2px solid var(--border); max-height: 90vh; overflow-y: auto; }
   
-  input, select { width: 100%; padding: 10px; margin-bottom: 10px; background: transparent; border: 1px solid var(--border); color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; border-radius: 4px; outline: none; }
+  input[type="text"], input[type="number"], select { width: 100%; padding: 10px; margin-bottom: 10px; background: transparent; border: 1px solid var(--border); color: var(--text); font-family: 'Caveat', cursive; font-size: 18px; border-radius: 4px; outline: none; }
   .btn { width: 100%; padding: 10px; background: var(--text); color: var(--bg); border: none; font-family: 'Caveat', cursive; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 10px; }
+  
+  /* Настройки */
+  .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 10px; }
+  .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
+  .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--green); }
+  input:checked + .slider:before { transform: translateX(26px); }
 
   /* Тосты */
   .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
-  .toast { background: var(--paper); border: 2px solid var(--text); padding: 12px; border-radius: 2px 15px 3px 15px / 15px 5px 15px 3px; text-align: center; font-size: 20px; font-weight: bold; box-shadow: 4px 4px 0px rgba(0,0,0,0.5); animation: slideDown 0.3s, fadeOut 0.3s 2.7s forwards; }
+  .toast { background: var(--bg); border: 2px solid var(--text); padding: 12px; border-radius: 2px 15px 3px 15px / 15px 5px 15px 3px; text-align: center; font-size: 20px; font-weight: bold; box-shadow: 4px 4px 0px rgba(0,0,0,0.5); animation: slideDown 0.3s, fadeOut 0.3s 2.7s forwards; }
   .toast.success { border-color: var(--green); color: var(--green); }
   .toast.fail { border-color: var(--red); color: var(--red); }
   @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
   @keyframes fadeOut { to { opacity: 0; } }
 
-  /* Сетка дней для шаблона */
   .days-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
   .days-grid button { padding: 8px; background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Caveat', cursive; font-size: 16px; cursor: pointer; border-radius: 4px;}
   .days-grid button.on { background: var(--text); color: var(--bg); border-color: var(--text); }
-
   .tmpl-item { border-bottom: 1px dashed var(--border); padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
 </style>
 </head>
@@ -165,7 +192,7 @@
     <div class="app-header">
       <h1>Дневник</h1>
       <div class="crown">♛</div>
-      <div style="font-size:24px;">⚙</div>
+      <button class="settings-btn" onclick="openSettings()">⚙</button>
     </div>
     
     <div class="month-nav">
@@ -188,17 +215,13 @@
   <div id="view-daily" class="view">
     <div class="day-header">
       <div class="back" onclick="switchView('calendar')">←</div>
-      <div id="dailyDateLabel" style="text-decoration: underline wavy var(--border) 1px;">13 октября 2026</div>
+      <div id="dailyDateLabel">13 октября 2026</div>
       <div>...</div>
     </div>
     
-    <!-- Полоса с днями недели -->
     <div class="week-strip" id="weekStrip"></div>
-    
-    <!-- Блоки задач -->
     <div id="tasksContainer"></div>
 
-    <!-- Заметки на день -->
     <div class="notes-box">
       <div style="font-family: 'Marck Script', cursive; font-size: 22px; margin-bottom: 5px;">Заметки:</div>
       <textarea id="dailyNotes" rows="3" placeholder="• не забыть тетради..."></textarea>
@@ -207,7 +230,10 @@
 
   <!-- ЭКРАН 3: СТАТИСТИКА (КАЛОРИИ) -->
   <div id="view-stats" class="view">
-    <div class="app-header"><h1 style="font-size: 32px;">Статистика</h1></div>
+    <div class="app-header">
+      <h1 style="font-size: 32px;">Статистика</h1>
+      <button class="settings-btn" onclick="openSettings()">⚙</button>
+    </div>
     
     <div class="kcal-dashboard">
       <div class="ring-container">
@@ -236,7 +262,10 @@
 
   <!-- ЭКРАН 4: ПРОФИЛЬ -->
   <div id="view-profile" class="view">
-    <div class="app-header"><h1 style="font-size: 32px;">Профиль</h1></div>
+    <div class="app-header">
+      <h1 style="font-size: 32px;">Профиль</h1>
+      <button class="settings-btn" onclick="openSettings()">⚙</button>
+    </div>
     
     <div style="margin-bottom:20px;">
       <h3 style="font-family: 'Marck Script', cursive; font-size: 24px;">Мои шаблоны задач</h3>
@@ -290,63 +319,142 @@
   </div>
 </div>
 
+<!-- МОДАЛКА: НАСТРОЙКИ -->
+<div class="modal" id="settingsModal">
+  <div class="sheet">
+    <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Настройки</h2>
+    
+    <div class="settings-row">
+      <span>Звуки (победа/пердеж)</span>
+      <label class="switch">
+        <input type="checkbox" id="soundToggle" onchange="toggleSound(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    
+    <div style="margin-bottom:15px;">
+      <span style="display:block; margin-bottom:5px;">Свои обои (из галереи)</span>
+      <input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="font-size:16px;">
+    </div>
+    
+    <button class="btn" onclick="resetBg()" style="background:transparent; border:1px solid var(--text); color:var(--text);">Сбросить обои на стандартные</button>
+    <button class="btn" onclick="document.getElementById('settingsModal').classList.remove('open')" style="background:var(--text); color:var(--bg); margin-top:10px;">Закрыть</button>
+  </div>
+</div>
+
 <script>
-const KEY='diary_v7'; 
+const KEY='diary_v8'; 
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const DAILY_GOAL = 2500; 
 
-// ОГРОМНАЯ БАЗА ПРОДУКТОВ
+// ОГРОМНАЯ БАЗА ПРОДУКТОВ (200+)
 const basicFoods = {
-  "Яблоко": 52, "Банан": 89, "Апельсин": 47, "Груша": 57, "Виноград": 69, "Киви": 61, "Мандарин": 33, "Ананас": 50,
-  "Куриная грудка": 165, "Куриное бедро": 209, "Куриное яйцо": 157, "Говядина": 250, "Свинина": 263, "Индейка": 144, "Фарш куриный": 143,
-  "Рис отварной": 130, "Гречка отварная": 110, "Овсянка на воде": 88, "Макароны отварные": 131, "Картофель отварной": 82,
-  "Хлеб белый": 265, "Хлеб черный": 210, "Батон": 260, "Лаваш": 275,
-  "Кофе с молоком": 35, "Чай без сахара": 0, "Кола": 42, "Сок яблочный": 46, "Молоко 2.5%": 52, "Молоко 3.2%": 60,
-  "Сыр Российский": 363, "Сыр Моцарелла": 240, "Творог 5%": 121, "Творог 9%": 159, "Йогурт натуральный": 60, "Кефир 1%": 40,
-  "Сметана 20%": 206, "Майонез": 600, "Масло сливочное": 748, "Масло оливковое": 898,
-  "Протеиновый батончик": 380, "Миндаль": 579, "Грецкий орех": 654, "Арахис": 567, "Семечки": 580,
-  "Шоколад молочный": 535, "Шоколад темный": 546, "Печенье овсяное": 437, "Мороженое": 207, "Сахар": 400, "Мед": 304,
-  "Помидор": 20, "Огурец": 15, "Капуста": 25, "Морковь": 35, "Лук": 40, "Перец болгарский": 27, "Брокколи": 34, "Авокадо": 160,
-  "Суши Филадельфия": 180, "Пицца Пепперони": 270, "Бургер": 295, "Картофель фри": 312, "Шаурма": 215,
-  "Греческий салат": 110, "Цезарь с курицей": 190, "Борщ": 50, "Суп куриный": 40, "Пельмени": 275, "Вареники": 250,
-  "Рисовая каша": 100, "Пшенная каша": 90, "Кукурузная каша": 85, "Манная каша": 100, "Тушенка": 220,
-  "Креветки": 99, "Лосось": 208, "Тунец": 132, "Сельдь": 217, "Горбуша": 142, "Скумбрия": 191,
-  "Энергетик": 45, "Пиво": 43, "Вино красное": 85, "Водка": 235, "Квас": 30, "Компот": 60,
-  "Оливки": 115, "Маслины": 115, "Кукуруза консерв.": 88, "Горошек": 73, "Фасоль": 123, "Чечевица": 116
+  // --- МЯСО И ПТИЦА ---
+  "Баранина жирная": 316, "Баранина нежирная": 166, "Ветчина": 365, "Говядина тушеная": 180,
+  "Говядина жареная": 170, "Говядина нежирная": 170, "Грудинка": 475, "Гусь": 300,
+  "Индейка": 150, "Колбаса вареная": 250, "Колбаса полукопченая": 380, "Корейка": 430,
+  "Крольчатина": 115, "Курица вареная": 135, "Курица жареная": 210, "Печень говяжья": 100,
+  "Почки": 66, "Сардельки": 160, "Свинина отбивная": 265, "Свинина тушеная": 350,
+  "Сердце": 87, "Сосиски": 135, "Телятина": 90, "Утка": 405, "Язык": 165,
+  "Куриная грудка": 165, "Куриное бедро": 209, "Фарш куриный": 143, "Фарш говяжий": 254,
+
+  // --- РЫБА И МОРЕПРОДУКТЫ ---
+  "Икра зернистая": 250, "Икра кетовая": 245, "Икра минтая": 130, "Кальмар": 75,
+  "Карп": 46, "Карп жареный": 145, "Кета": 157, "Консервы рыбные в масле": 320,
+  "Консервы рыбные в томате": 120, "Креветки": 85, "Крабы": 70, "Лещ": 48,
+  "Лососина жареная": 145, "Лососина копченая": 385, "Минтай": 70, "Морская капуста": 16,
+  "Навага": 44, "Окунь": 95, "Раки": 75, "Салака": 98, "Севрюга": 137,
+  "Сельдь атлантическая": 57, "Судак": 43, "Треска": 59, "Шпроты в масле": 250,
+  "Щука": 41, "Камбала": 88, "Лосось": 208, "Тунец": 132, "Горбуша": 142, "Скумбрия": 191,
+
+  // --- МОЛОЧНЫЕ ПРОДУКТЫ И ЯЙЦА ---
+  "Ацидофилин": 58, "Брынза коровья": 260, "Йогурт (1,5%)": 51, "Кефир жирный": 60,
+  "Кефир (1%)": 38, "Кефир (0%)": 30, "Молоко (3,2%)": 60, "Молоко коровье цельное": 68,
+  "Мороженое сливочное": 220, "Простокваша": 59, "Ряженка": 85, "Сливки (10%)": 120,
+  "Сливки (20%)": 300, "Сметана (10%)": 115, "Сметана (20%)": 210, "Сыр голландский": 357,
+  "Сыр Ламбер": 377, "Сыр Пармезан": 330, "Сыр Российский": 371, "Сырки творожные": 380,
+  "Творог (18%)": 226, "Творог со сметаной": 260, "Творог нежирный": 80,
+  "Яйцо куриное (1 шт.)": 65, "Яичный порошок": 540, "Молоко 2.5%": 52, "Молоко 3.2%": 60,
+  "Сыр Моцарелла": 240, "Творог 5%": 121, "Творог 9%": 159, "Сметана 20%": 206,
+
+  // --- КРУПЫ, БОБОВЫЕ И МАКАРОНЫ ---
+  "Горох зеленый": 280, "Какао-порошок": 375, "Крупа гречневая": 346, "Крупа манная": 340,
+  "Крупа овсяная": 374, "Крупа перловая": 342, "Крупа пшеничная": 352, "Крупа ячневая": 343,
+  "Кукурузные хлопья": 369, "Макароны": 350, "Овсяные хлопья": 305, "Рис": 337,
+  "Фасоль": 328, "Ячменные хлопья": 315, "Пшено": 351, "Чечевица": 116,
+
+  // --- ОВОЩИ И ЗЕЛЕНЬ ---
+  "Баклажаны": 28, "Зеленый горошек": 75, "Кабачки": 18, "Капуста белокочанная": 23,
+  "Капуста квашеная": 28, "Капуста цветная": 18, "Картофель отварной": 60,
+  "Морковь": 33, "Огурцы свежие": 15, "Перец сладкий": 19, "Помидоры": 20,
+  "Салат": 11, "Свекла": 40, "Яблоки": 45, "Лук зеленый": 18, "Лук репчатый": 43,
+  "Петрушка": 23, "Редис": 16, "Редька": 25, "Репа": 23, "Салат-лист": 11,
+  "Тыква": 20, "Укроп": 30, "Хрен": 49, "Чеснок": 60, "Шпинат": 16, "Щавель": 27,
+  "Авокадо": 160, "Брокколи": 34,
+
+  // --- ФРУКТЫ И ЯГОДЫ ---
+  "Абрикосы": 47, "Айва": 30, "Альча": 38, "Ананас": 44, "Апельсин": 45, "Арбуз": 40,
+  "Бананы": 90, "Виноград": 70, "Вишня": 25, "Грейпфрут": 30, "Груша": 42, "Дыня": 45,
+  "Ежевика": 32, "Земляника": 38, "Киви": 50, "Кизил": 41, "Клюква": 33, "Крыжовник": 48,
+  "Лимон": 30, "Малина": 45, "Мандарин": 41, "Персики": 45, "Слива": 44, "Смородина": 43,
+  "Черешня": 53, "Черника": 44, "Яблоко": 52,
+
+  // --- ОРЕХИ И СУХОФРУКТЫ ---
+  "Орехи грецкие": 650, "Арахис": 555, "Миндаль": 579, "Семечки": 580, "Кешью": 572,
+  "Фисташки": 556, "Фундук": 704, "Изюм": 264, "Курага": 215, "Чернослив": 231,
+  "Финики": 292, "Инжир сушеный": 257,
+
+  // --- СЛАДОСТИ И ВЫПЕЧКА ---
+  "Сахар": 295, "Сдобная булка": 300, "Сушки, пряники": 330, "Мед": 304,
+  "Шоколад молочный": 535, "Шоколад темный": 546, "Печенье овсяное": 437,
+  "Мороженое": 207, "Варенье": 270, "Сгущенное молоко": 320, "Халва": 516,
+  "Пирожное": 350, "Торт": 400, "Зефир": 326, "Мармелад": 300,
+
+  // --- ХЛЕБ ---
+  "Хлеб ржаной": 210, "Хлеб пшеничный": 265, "Батон": 260, "Лаваш": 275, "Хлеб белый": 265,
+
+  // --- СОУСЫ, ЖИРЫ, ПРИПРАВЫ ---
+  "Масло сливочное": 750, "Масло оливковое": 900, "Масло растительное": 824,
+  "Маргарин": 745, "Майонез": 625, "Майонез легкий": 260, "Жир топленый": 930,
+  "Кетчуп": 80,
+
+  // --- НАПИТКИ ---
+  "Кофе с молоком": 35, "Чай без сахара": 0, "Кола": 42, "Сок яблочный": 46,
+  "Энергетик": 45, "Пиво": 43, "Вино красное": 85, "Водка": 235, "Квас": 30,
+  "Компот": 60, "Сок апельсиновый": 45,
+
+  // --- ФАСТФУД И ГОТОВЫЕ БЛЮДА ---
+  "Суши Филадельфия": 180, "Пицца Пепперони": 270, "Бургер": 295,
+  "Картофель фри": 312, "Шаурма": 215, "Греческий салат": 110,
+  "Цезарь с курицей": 190, "Борщ": 50, "Суп куриный": 40, "Пельмени": 275,
+  "Вареники": 250, "Рисовая каша": 100, "Пшенная каша": 90, "Кукурузная каша": 85,
+  "Манная каша": 100, "Тушенка": 220, "Оливки": 115, "Маслины": 115,
+  "Кукуруза консервированная": 88, "Горошек": 73
 };
 
-// МАТНЫЕ ФРАЗЫ
 const successPhrases = [
-  "Охуенно! Так держать! 🔥",
-  "Красавчик, ебать! Продолжай!",
-  "Выполнено! Ты просто лучший! 💪",
-  "Пиздато! Идём дальше!",
-  "Есть! Отлично сделано, блять!",
-  "Молодец! Не зря жрешь свой хлеб.",
-  "Сделано! Горжусь тобой, чертяка!",
-  "Збс! Ещё на шаг ближе к цели.",
-  "Выполнил, красава! Не зазнавайся только."
+  "Охуенно! Так держать! 🔥", "Красавчик, ебать! Продолжай!", "Выполнено! Ты просто лучший! 💪",
+  "Пиздато! Идём дальше!", "Есть! Отлично сделано, блять!", "Молодец! Не зря жрешь свой хлеб.",
+  "Сделано! Горжусь тобой, чертяка!", "Збс! Ещё на шаг ближе к цели.", "Выполнил, красава! Не зазнавайся только."
 ];
 const failPhrases = [
-  "Ну и хуйня. Соберись! 😤",
-  "Опять забил? Пидорас что ли?",
-  "Не выполнил... грустно, блять. 📉",
-  "Пиздец, не сдавайся! Верни галочку!",
-  "Минус балл, блять. Иди работай.",
-  "Руки из жопы? Исправляй давай.",
-  "Хуёво. Ты можешь лучше!",
-  "Обратный отсчёт пошёл. Не тупи.",
-  "Слился? Ну и слабак."
+  "Ну и хуйня. Соберись! 😤", "Опять забил? Пидорас что ли?", "Не выполнил... грустно, блять. 📉",
+  "Пиздец, не сдавайся! Верни галочку!", "Минус балл, блять. Иди работай.", "Руки из жопы? Исправляй давай.",
+  "Хуёво. Ты можешь лучше!", "Обратный отсчёт пошёл. Не тупи.", "Слился? Ну и слабак."
 ];
 
-// --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
+// --- ИНИЦИАЛИЗАЦИЯ ---
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(KEY));
-    if (d) return { templates: d.templates||[], entries: d.entries||{}, done: d.done||{}, skipped: d.skipped||{}, food: d.food||{}, notes: d.notes||{} };
+    if (d) return { 
+      templates: d.templates||[], entries: d.entries||{}, done: d.done||{}, skipped: d.skipped||{}, 
+      food: d.food||{}, notes: d.notes||{}, 
+      settings: d.settings || { soundEnabled: true, customBg: null } 
+    };
   } catch {}
-  return { templates: [], entries: {}, done: {}, skipped: {}, food: {}, notes: {} };
+  return { templates: [], entries: {}, done: {}, skipped: {}, food: {}, notes: {}, settings: { soundEnabled: true, customBg: null } };
 }
 let state = load();
 const save = () => localStorage.setItem(KEY, JSON.stringify(state));
@@ -355,6 +463,76 @@ const pad = n => n < 10 ? '0' + n : '' + n;
 
 let currentDateObj = new Date();
 let selectedDate = currentDateObj.getFullYear() + '-' + pad(currentDateObj.getMonth()+1) + '-' + pad(currentDateObj.getDate());
+
+// --- ЗВУКИ (Web Audio API) ---
+let audioCtx;
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playVictorySound() {
+  if (!state.settings.soundEnabled) return;
+  initAudio();
+  const notes = [523.25, 659.25, 783.99, 1046.50]; // До, Ми, Соль, До (мажор)
+  notes.forEach((freq, i) => {
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime + i * 0.1);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(audioCtx.currentTime + i * 0.1);
+    osc.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+  });
+}
+
+function playFartSound() {
+  if (!state.settings.soundEnabled) return;
+  initAudio();
+  let osc = audioCtx.createOscillator();
+  let gain = audioCtx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+  // Резкое падение частоты для эффекта пердежа
+  osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.4);
+  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.4);
+}
+
+// --- НАСТРОЙКИ ---
+function applySettings() {
+  document.getElementById('soundToggle').checked = state.settings.soundEnabled;
+  if (state.settings.customBg) {
+    document.body.style.backgroundImage = `url(${state.settings.customBg})`;
+  } else {
+    document.body.style.backgroundImage = `url('bg.jpg')`;
+  }
+}
+function openSettings() { document.getElementById('settingsModal').classList.add('open'); }
+function toggleSound(val) { state.settings.soundEnabled = val; save(); }
+function changeBg(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    state.settings.customBg = ev.target.result;
+    save(); applySettings();
+    showToast("Обои изменены!", "success");
+  };
+  reader.readAsDataURL(file);
+}
+function resetBg() {
+  state.settings.customBg = null;
+  save(); applySettings();
+  showToast("Обои сброшены", "success");
+}
 
 // --- ТОСТЫ ---
 function showToast(message, type) {
@@ -381,14 +559,13 @@ function switchView(viewId) {
   if (viewId === 'profile') renderTemplates();
 }
 
-// Функция для кнопки "Сегодня" в меню
 function goTodayTasks() {
   const today = new Date();
   selectedDate = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
   switchView('daily');
 }
 
-// --- ЛОГИКА КАЛЕНДАРЯ ---
+// --- КАЛЕНДАРЬ ---
 function renderCalendar() {
   const year = currentDateObj.getFullYear();
   const month = currentDateObj.getMonth();
@@ -401,10 +578,8 @@ function renderCalendar() {
   if (firstDay === 0) firstDay = 7;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   
-  // Пустые ячейки
   for (let i = 1; i < firstDay; i++) grid.innerHTML += `<div class="cal-day other"></div>`;
   
-  // Дни
   for (let i = 1; i <= daysInMonth; i++) {
     const iso = `${year}-${pad(month+1)}-${pad(i)}`;
     const isSelected = iso === selectedDate ? 'selected' : '';
@@ -415,15 +590,14 @@ function renderCalendar() {
 function shiftMonth(n) { currentDateObj.setMonth(currentDateObj.getMonth() + n); renderCalendar(); }
 function openDay(iso) { selectedDate = iso; switchView('daily'); }
 
-// --- ЛОГИКА ДНЯ ---
+// --- ДЕНЬ ---
 function renderDaily() {
   const d = new Date(selectedDate);
   document.getElementById('dailyDateLabel').textContent = `${d.getDate()} ${MONTHS[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
   
-  // Полоса дней
   const strip = document.getElementById('weekStrip');
   strip.innerHTML = '';
-  const dayOfWeek = d.getDay() === 0 ? 7 : d.getDay(); // Пн=1, Вс=7
+  const dayOfWeek = d.getDay() === 0 ? 7 : d.getDay();
   const monday = new Date(d);
   monday.setDate(d.getDate() - dayOfWeek + 1);
   
@@ -438,15 +612,12 @@ function renderDaily() {
     </div>`;
   }
   
-  // Заметки
   document.getElementById('dailyNotes').value = state.notes[selectedDate] || '';
   
-  // Задачи
   const tasks = getTasksForDate(selectedDate);
   const container = document.getElementById('tasksContainer');
   container.innerHTML = '';
   
-  // Группировка (Утро / День / Вечер)
   const groups = { "Утро": [], "День": [], "Вечер": [] };
   tasks.forEach(t => {
     if (t.title.toLowerCase().includes('зарядк') || t.title.toLowerCase().includes('кофе')) groups["Утро"].push(t);
@@ -495,8 +666,13 @@ function toggleTask(key, currentDone) {
   save();
   renderDaily();
 
-  if (!currentDone) showToast(successPhrases[Math.floor(Math.random() * successPhrases.length)], 'success');
-  else showToast(failPhrases[Math.floor(Math.random() * failPhrases.length)], 'fail');
+  if (!currentDone) {
+    playVictorySound(); // ЗВУК ПОБЕДЫ
+    showToast(successPhrases[Math.floor(Math.random() * successPhrases.length)], 'success');
+  } else {
+    playFartSound(); // ЗВУК ПЕРДЕЖА
+    showToast(failPhrases[Math.floor(Math.random() * failPhrases.length)], 'fail');
+  }
 }
 
 function deleteTask(key) {
@@ -510,13 +686,12 @@ function deleteTask(key) {
   save(); renderDaily();
 }
 
-// Сохранение заметок при вводе
 document.getElementById('dailyNotes').addEventListener('input', (e) => {
   state.notes[selectedDate] = e.target.value;
   save();
 });
 
-// --- ПЛЮС (ДОБАВЛЕНИЕ ШАБЛОНОВ) ---
+// --- ПЛЮС ---
 let selectedDays = [];
 function openPlusModal() {
   document.getElementById('tmplInput').value = '';
@@ -565,7 +740,6 @@ function renderCalories() {
   let percent = Math.min(total / DAILY_GOAL, 1);
   progressCircle.style.strokeDashoffset = circumference - (percent * circumference);
   
-  // Автодополнение
   const datalist = document.getElementById('foodListData');
   datalist.innerHTML = '';
   Object.keys(basicFoods).forEach(k => {
@@ -630,6 +804,7 @@ function importData(e) {
       if (!confirm('Заменить текущие данные?')) return;
       state = data;
       save();
+      applySettings();
       renderCalendar(); renderTemplates(); renderDaily();
       showToast("Данные загружены!", "success");
     } catch { showToast("Ошибка файла!", "fail"); }
@@ -638,6 +813,7 @@ function importData(e) {
 }
 
 // --- СТАРТ ---
+applySettings();
 renderCalendar();
 switchView('calendar');
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
