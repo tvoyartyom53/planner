@@ -8,535 +8,465 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Marck+Script&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600&family=Lobster&family=Pacifico&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Marck+Script&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600&family=Lobster&family=Pacifico&family=Neucha&family=Pattaya&family=Amatic+SC:wght@400;700&family=Playfair+Display:wght@400;700&family=Yeseva+One&family=Bad+Script&family=Ruslan+Display&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
-    --bg:#1a1a1a;
-    --text:#f0f0f0;
-    --muted:#aaa;
-    --border:#ccc;
-    --green:#66BB6A;
-    --red:#EF5350;
-    --accent:#66BB6A;
-    --bg-opacity: 0.6;
-    --bg-blur: 4px;
+    --bg:#1a1a1a; --text:#f0f0f0; --muted:#aaa; --border:#ccc;
+    --green:#66BB6A; --red:#EF5350; --accent:#66BB6A;
+    --bg-opacity: 0.6; --bg-blur: 4px;
     --font-main: 'Caveat', cursive, sans-serif;
-    --font-size-base: 20px;
-    --font-weight-base: 400;
+    --font-size-base: 20px; --font-weight-base: 400;
   }
-  
   html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-    overscroll-behavior: none;
-    position: fixed;
-    width: 100%;
-    font-family: var(--font-main);
-    color: var(--text);
-    background-color: #000;
-    font-size: var(--font-size-base);
+    margin:0; padding:0; height:100%; overflow:hidden;
+    overscroll-behavior:none; position:fixed; width:100%;
+    font-family: var(--font-main); color: var(--text);
+    background-color:#000; font-size: var(--font-size-base);
   }
-
   #bg-layer {
-    position: fixed; inset: 0; z-index: -1;
-    background-image: url('bg.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    transform: translateZ(0);
-    will-change: transform;
+    position:fixed; inset:0; z-index:-1;
+    background-image:url('bg.jpg'); background-size:cover;
+    background-position:center; background-repeat:no-repeat;
+    transform:translateZ(0); will-change:transform;
   }
-
   .wrap{
-    width: 100%;
-    max-width: 520px;
-    height: 100%;
-    margin: 0 auto;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-    padding: 20px 15px 100px 15px;
-    background-color: rgba(15, 15, 15, var(--bg-opacity));
-    backdrop-filter: blur(var(--bg-blur));
-    -webkit-backdrop-filter: blur(var(--bg-blur));
-    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    width:100%; max-width:520px; height:100%; margin:0 auto;
+    overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain; padding:20px 15px 100px 15px;
+    background-color:rgba(15,15,15,var(--bg-opacity));
+    backdrop-filter:blur(var(--bg-blur)); -webkit-backdrop-filter:blur(var(--bg-blur));
+    box-shadow:0 0 30px rgba(0,0,0,0.6);
     transition: background-color 0.3s, backdrop-filter 0.3s;
   }
-  
   #view-calendar.active {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: calc(100vh - 140px);
+    display:flex; flex-direction:column; align-items:center;
+    min-height:calc(100vh - 140px);
   }
-  
   #view-calendar .app-header,
   #view-calendar .month-nav,
   #view-calendar .cal-header,
-  #view-calendar .cal-grid {
-    width: 100%;
-  }
+  #view-calendar .cal-grid { width:100%; }
 
   .app-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; padding-bottom: 10px;
-    border-bottom: 3px solid var(--border);
-    flex-shrink: 0;
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:20px; padding-bottom:10px;
+    border-bottom:3px solid var(--border); flex-shrink:0;
   }
   .app-header h1 {
-    font-family: 'Marck Script', cursive; font-size: 46px; margin: 0;
-    line-height: 1; position: relative;
+    font-family:'Marck Script', cursive; font-size:46px; margin:0;
+    line-height:1; position:relative;
   }
-  .app-header .crown { font-size: 26px; position: absolute; top: 18px; left: 20px; transform: rotate(-15deg); }
-  
-  .month-nav { 
-    display: flex; justify-content: space-between; align-items: center; 
-    font-size: 30px; margin-bottom: 15px; font-family: 'Marck Script', cursive; 
-    border-bottom: 2px dashed var(--border); padding-bottom: 8px;
-    flex-shrink: 0;
+  .app-header .crown { font-size:26px; position:absolute; top:18px; left:20px; transform:rotate(-15deg); }
+  .month-nav {
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:30px; margin-bottom:15px; font-family:'Marck Script', cursive;
+    border-bottom:2px dashed var(--border); padding-bottom:8px; flex-shrink:0;
   }
-  .month-nav button { background: none; border: none; color: var(--text); font-size: 28px; cursor: pointer; }
-  
-  .cal-header { 
-    display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; 
-    font-size: 18px; color: var(--muted); margin-bottom: 10px; font-weight: 600;
-    flex-shrink: 0;
+  .month-nav button { background:none; border:none; color:var(--text); font-size:28px; cursor:pointer; }
+  .cal-header {
+    display:grid; grid-template-columns:repeat(7,1fr); text-align:center;
+    font-size:18px; color:var(--muted); margin-bottom:10px; font-weight:600; flex-shrink:0;
   }
-  
-  .cal-grid { 
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; 
-    text-align: center; padding: 18px 10px;
-    border: 3px solid var(--border);
-    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-    flex-shrink: 0;
-    max-width: 480px;
+  .cal-grid {
+    display:grid; grid-template-columns:repeat(7,1fr); gap:6px;
+    text-align:center; padding:18px 10px;
+    border:3px solid var(--border);
+    border-radius:255px 15px 225px 15px / 15px 225px 15px 255px;
+    flex-shrink:0; max-width:480px;
   }
-  .cal-day { position: relative; padding: 14px 0; cursor: pointer; font-size: 22px; }
-  .cal-day.other { color: #666; }
-  
+  .cal-day { position:relative; padding:14px 0; cursor:pointer; font-size:22px; }
+  .cal-day.other { color:#666; }
   .cal-day.selected::before {
-    content: ''; position: absolute; inset: 2px;
-    border: 3px solid var(--text); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-    transform: rotate(-10deg) scale(1.1); z-index: -1; opacity: 0.8;
-    pointer-events: none;
+    content:''; position:absolute; inset:2px;
+    border:3px solid var(--text); border-radius:40% 60% 70% 30% / 40% 50% 60% 50%;
+    transform:rotate(-10deg) scale(1.1); z-index:-1; opacity:0.8; pointer-events:none;
   }
-  .cal-day.today { color: var(--accent); font-weight: bold; }
-  
+  .cal-day.today { color:var(--accent); font-weight:bold; }
   .calendar-quote {
-    margin-top: auto;
-    padding-top: 25px;
-    text-align: center;
-    font-style: italic;
-    color: var(--muted);
-    font-size: 22px;
-    line-height: 1.4;
+    margin-top:auto; padding-top:25px; text-align:center;
+    font-style:italic; color:var(--muted); font-size:22px; line-height:1.4;
   }
-  
-  .day-header { 
-    display: flex; align-items: center; justify-content: space-between; 
-    margin-bottom: 15px; font-size: 28px; font-family: 'Marck Script', cursive; 
+  .day-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:15px; font-size:28px; font-family:'Marck Script', cursive;
   }
-  .day-header .back { cursor: pointer; font-size: 32px; }
-  
-  .week-strip { 
-    display: flex; justify-content: space-between; padding-bottom: 10px; margin-bottom: 20px; 
-    text-align: center; 
-    border-bottom: 2px solid var(--border);
+  .day-header .back { cursor:pointer; font-size:32px; }
+  .week-strip {
+    display:flex; justify-content:space-between; padding-bottom:10px; margin-bottom:20px;
+    text-align:center; border-bottom:2px solid var(--border);
   }
-  .week-strip .w-day { flex: 1; cursor: pointer; font-size: 16px; color: var(--muted); }
-  .week-strip .w-day .num { font-size: 22px; margin-top: 6px; display: inline-block; width: 36px; height: 36px; line-height: 36px; border-radius: 50%; }
-  .week-strip .w-day.active .num { background: var(--text); color: #000; font-weight: bold; }
-  
-  ul { list-style: none; padding: 0; margin: 0; }
-  .task-item { 
-    display: flex; align-items: center; gap: 10px; padding: 12px 0; 
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    position: relative;
+  .week-strip .w-day { flex:1; cursor:pointer; font-size:16px; color:var(--muted); }
+  .week-strip .w-day .num { font-size:22px; margin-top:6px; display:inline-block; width:36px; height:36px; line-height:36px; border-radius:50%; }
+  .week-strip .w-day.active .num { background:var(--text); color:#000; font-weight:bold; }
+  ul { list-style:none; padding:0; margin:0; }
+  .task-item {
+    display:flex; align-items:center; gap:10px; padding:12px 0;
+    border-bottom:1px solid rgba(255,255,255,0.15); position:relative;
   }
-  .task-item.task-custom {
-    border-left: 3px solid var(--accent);
-    padding-left: 10px;
-  }
-  
+  .task-item.task-custom { border-left:3px solid var(--accent); padding-left:10px; }
   .task-badge {
-    font-size: 10px;
-    color: var(--accent);
-    background: rgba(102,187,106,0.15);
-    padding: 2px 6px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
-    font-family: sans-serif;
-    font-weight: 600;
+    font-size:10px; color:var(--accent); background:rgba(102,187,106,0.15);
+    padding:2px 6px; border-radius:4px; text-transform:uppercase;
+    letter-spacing:0.5px; flex-shrink:0; font-family:sans-serif; font-weight:600;
   }
-  
-  .task-content { flex: 1; display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0; }
-  .task-text { 
-    line-height: 1.2; font-size: 22px; word-break: break-word;
-    font-weight: var(--font-weight-base);
+  .task-content { flex:1; display:flex; align-items:center; min-width:0; }
+  .task-main { flex:1; display:flex; flex-direction:column; gap:6px; min-width:0; cursor:pointer; }
+  .task-text {
+    line-height:1.2; font-size:22px; word-break:break-word;
+    font-weight:var(--font-weight-base);
   }
-  
-  .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
-  .task-item.failed .task-text { color: var(--red); text-decoration: line-through; opacity: 0.7; }
-  
+  .task-item.done .task-text { color:var(--muted); text-decoration:line-through; }
+  .task-item.failed .task-text { color:var(--red); text-decoration:line-through; opacity:0.7; }
+  .task-imgs { display:flex; gap:4px; flex-wrap:wrap; }
   .task-img-thumb {
-    width: 44px; height: 44px; border-radius: 8px; object-fit: cover;
-    border: 2px solid var(--border); flex-shrink: 0;
-    transition: transform 0.2s;
+    width:44px; height:44px; border-radius:8px; object-fit:cover;
+    border:2px solid var(--border); flex-shrink:0; transition:transform 0.2s;
   }
-  .task-img-thumb:active { transform: scale(0.9); }
-  
-  .task-actions { display: flex; gap: 12px; flex-shrink: 0; }
-  .btn-check, .btn-cross {
-    width: 38px; height: 38px; 
-    border-radius: 45% 55% 50% 50% / 50% 45% 55% 50%;
-    border: 3px solid;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; font-weight: bold; cursor: pointer; transition: transform 0.1s;
-    background: transparent;
+  .task-img-thumb:active { transform:scale(0.9); }
+  .task-actions { display:flex; gap:6px; flex-shrink:0; align-items:center; }
+  .btn-check, .btn-cross, .btn-edit {
+    width:36px; height:36px;
+    border-radius:45% 55% 50% 50% / 50% 45% 55% 50%;
+    border:3px solid;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:bold; cursor:pointer; transition:transform 0.1s;
+    background:transparent; padding:0;
   }
-  .btn-check { color: var(--green); border-color: var(--green); }
-  .btn-cross { color: var(--red); border-color: var(--red); }
-  .btn-check:active, .btn-cross:active { transform: scale(0.85); }
-  
-  .add-row { display: flex; gap: 10px; margin-bottom: 20px; align-items: stretch; }
-  .add-row input[type="text"] { 
-    flex: 1; padding: 12px; background: rgba(0,0,0,0.4); color: var(--text); 
-    font-family: var(--font-main); font-size: var(--font-size-base); outline: none;
-    border: 2px solid var(--border);
-    border-radius: 150px 15px 225px 15px / 15px 225px 15px 150px;
-    font-weight: var(--font-weight-base);
+  .btn-check { color:var(--green); border-color:var(--green); }
+  .btn-cross { color:var(--red); border-color:var(--red); }
+  .btn-edit { color:var(--text); border-color:var(--border); width:30px; height:30px; font-size:14px; border-width:2px; }
+  .btn-check:active, .btn-cross:active, .btn-edit:active { transform:scale(0.85); }
+  .add-row { display:flex; gap:10px; margin-bottom:20px; align-items:stretch; }
+  .add-row input[type="text"] {
+    flex:1; padding:12px; background:rgba(0,0,0,0.4); color:var(--text);
+    font-family:var(--font-main); font-size:var(--font-size-base); outline:none;
+    border:2px solid var(--border);
+    border-radius:150px 15px 225px 15px / 15px 225px 15px 150px;
+    font-weight:var(--font-weight-base);
   }
-  .add-row button.btn-plus { 
-    padding: 0 20px; background: var(--text); color: #000; border: none; 
-    font-size: 26px; cursor: pointer; border-radius: 50% 40% 50% 40%; 
+  .add-row button.btn-plus {
+    padding:0 20px; background:var(--text); color:#000; border:none;
+    font-size:26px; cursor:pointer; border-radius:50% 40% 50% 40%;
   }
-  
   .btn-photo {
-    padding: 0 15px; background: transparent; color: var(--text); 
-    border: 2px solid var(--border); font-size: 24px; cursor: pointer; 
-    border-radius: 50% 40% 50% 40%; display: flex; align-items: center; justify-content: center;
+    padding:0 15px; background:transparent; color:var(--text);
+    border:2px solid var(--border); font-size:24px; cursor:pointer;
+    border-radius:50% 40% 50% 40%; display:flex; align-items:center; justify-content:center;
+    position:relative;
   }
-
-  .kcal-dashboard { 
-    text-align: center; margin-bottom: 20px; padding: 20px;
-    border: 3px dashed var(--border); border-radius: 15px 100px 15px 100px;
+  .photo-count {
+    position:absolute; top:-4px; right:-4px;
+    background:var(--accent); color:#000; font-size:11px;
+    min-width:18px; height:18px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:bold; font-family:sans-serif; padding:0 4px;
   }
-  .ring-container { position: relative; width: 150px; height: 150px; margin: 0 auto; }
-  .ring-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-  .ring-bg { fill: none; stroke: #333; stroke-width: 10; }
-  .ring-progress { fill: none; stroke: var(--text); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 283; transition: stroke-dashoffset 1s ease; }
-  .ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-  .ring-text .num { font-size: 36px; line-height: 1; }
-
+  .kcal-dashboard {
+    text-align:center; margin-bottom:20px; padding:20px;
+    border:3px dashed var(--border); border-radius:15px 100px 15px 100px;
+  }
+  .ring-container { position:relative; width:150px; height:150px; margin:0 auto; }
+  .ring-svg { position:absolute; top:0; left:0; width:100%; height:100%; transform:rotate(-90deg); }
+  .ring-bg { fill:none; stroke:#333; stroke-width:10; }
+  .ring-progress { fill:none; stroke:var(--text); stroke-width:10; stroke-linecap:round; stroke-dasharray:283; transition:stroke-dashoffset 1s ease; }
+  .ring-text { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
+  .ring-text .num { font-size:36px; line-height:1; }
   .bottom-nav {
-    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 520px; z-index: 15;
-    background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px);
-    border-top: 3px solid var(--border);
-    display: flex; justify-content: space-around; align-items: center;
-    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:520px; z-index:15;
+    background:rgba(15,15,15,0.95); backdrop-filter:blur(10px);
+    border-top:3px solid var(--border);
+    display:flex; justify-content:space-around; align-items:center;
+    padding:10px 0 calc(10px + env(safe-area-inset-bottom));
   }
-  .bottom-nav button { background: transparent; border: 0; color: var(--muted); font-family: var(--font-main); font-size: 15px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
-  .bottom-nav button.active { color: var(--text); }
-  .bottom-nav button .icon { font-size: 24px; filter: grayscale(1); transition: 0.2s; }
-  .bottom-nav button.active .icon { filter: grayscale(0); transform: scale(1.1); }
-  .center-btn { width: 54px; height: 54px; border-radius: 50% !important; border: 3px solid var(--border) !important; background: var(--bg) !important; transform: translateY(-12px); display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-  .center-btn .icon { font-size: 30px !important; }
-
-  .view { display: none; }
-  .view.active { display: block; }
-  #view-calendar.active { display: flex; }
-  
-  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 20; padding: 20px; }
-  .modal.open { display: flex; }
-  .sheet { 
-    background: #151515; width: 100%; max-width: 420px; padding: 25px; 
-    max-height: 90vh; overflow-y: auto;
-    border: 3px solid var(--border);
-    border-radius: 20px 5px 25px 10px;
-    position: relative;
+  .bottom-nav button { background:transparent; border:0; color:var(--muted); font-family:var(--font-main); font-size:15px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; }
+  .bottom-nav button.active { color:var(--text); }
+  .bottom-nav button .icon { font-size:24px; filter:grayscale(1); transition:0.2s; }
+  .bottom-nav button.active .icon { filter:grayscale(0); transform:scale(1.1); }
+  .center-btn { width:54px; height:54px; border-radius:50% !important; border:3px solid var(--border) !important; background:var(--bg) !important; transform:translateY(-12px); display:flex; justify-content:center; align-items:center; box-shadow:0 4px 10px rgba(0,0,0,0.5); }
+  .center-btn .icon { font-size:30px !important; }
+  .view { display:none; }
+  .view.active { display:block; }
+  #view-calendar.active { display:flex; }
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; z-index:20; padding:20px; }
+  .modal.open { display:flex; }
+  .sheet {
+    background:#151515; width:100%; max-width:420px; padding:25px;
+    max-height:90vh; overflow-y:auto;
+    border:3px solid var(--border); border-radius:20px 5px 25px 10px;
+    position:relative;
   }
   .close-settings-btn {
-    position: absolute; top: 12px; right: 12px;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: rgba(255,255,255,0.1); border: none; color: var(--text);
-    font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    position:absolute; top:12px; right:12px;
+    width:32px; height:32px; border-radius:50%;
+    background:rgba(255,255,255,0.1); border:none; color:var(--text);
+    font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
   }
-  
-  input[type="text"], input[type="number"], select, input[type="color"] { 
-    width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.3); 
-    color: var(--text); font-family: var(--font-main); font-size: var(--font-size-base); outline: none; 
-    border: 2px solid var(--border); border-radius: 10px;
-    font-weight: var(--font-weight-base);
+  input[type="text"], input[type="number"], select, input[type="color"] {
+    width:100%; padding:12px; margin-bottom:15px; background:rgba(0,0,0,0.3);
+    color:var(--text); font-family:var(--font-main); font-size:var(--font-size-base); outline:none;
+    border:2px solid var(--border); border-radius:10px; font-weight:var(--font-weight-base);
   }
-  .btn { 
-    width: 100%; padding: 12px; background: var(--text); color: #000; border: none; 
-    font-family: var(--font-main); font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; 
-    border-radius: 50px 10px 50px 10px;
+  .btn {
+    width:100%; padding:12px; background:var(--text); color:#000; border:none;
+    font-family:var(--font-main); font-size:22px; font-weight:bold; cursor:pointer; margin-top:10px;
+    border-radius:50px 10px 50px 10px;
   }
-  
-  .settings-box { margin-bottom: 20px; padding: 15px; border: 2px dashed var(--border); border-radius: 10px; }
-  .settings-row { display: flex; flex-direction: column; margin-bottom: 15px; }
-  .settings-row label { margin-bottom: 8px; font-size: 18px; color: var(--muted); }
-  
+  .settings-box { margin-bottom:20px; padding:15px; border:2px dashed var(--border); border-radius:10px; }
+  .settings-row { display:flex; flex-direction:column; margin-bottom:15px; }
+  .settings-row label { margin-bottom:8px; font-size:18px; color:var(--muted); }
   .section-title {
-    font-family: 'Marck Script', cursive;
-    font-size: 26px;
-    margin: 20px 0 12px 0;
-    border-bottom: 2px dashed var(--border);
-    padding-bottom: 6px;
+    font-family:'Marck Script', cursive; font-size:26px;
+    margin:20px 0 12px 0; border-bottom:2px dashed var(--border); padding-bottom:6px;
   }
-  
   .settings-tile-full {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 18px;
-    background: rgba(255,255,255,0.05);
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    cursor: pointer;
-    color: var(--text);
-    font-family: var(--font-main);
-    font-size: 20px;
-    margin-bottom: 10px;
-    font-weight: var(--font-weight-base);
+    width:100%; display:flex; flex-direction:row; align-items:center;
+    justify-content:center; gap:12px; padding:18px;
+    background:rgba(255,255,255,0.05); border:2px dashed var(--border);
+    border-radius:12px; cursor:pointer; color:var(--text);
+    font-family:var(--font-main); font-size:20px; margin-bottom:10px;
+    font-weight:var(--font-weight-base);
   }
-  .settings-tile-full:active { transform: scale(0.97); }
-  
-  .settings-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+  .settings-tile-full:active { transform:scale(0.97); }
+  .settings-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:20px; }
   .settings-tile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 10px;
-    background: rgba(255,255,255,0.05);
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    cursor: pointer;
-    color: var(--text);
-    font-family: var(--font-main);
-    font-size: 16px;
-    gap: 8px;
-    font-weight: var(--font-weight-base);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:20px 10px; background:rgba(255,255,255,0.05);
+    border:2px dashed var(--border); border-radius:12px;
+    cursor:pointer; color:var(--text); font-family:var(--font-main); font-size:16px; gap:8px;
+    font-weight:var(--font-weight-base);
   }
-  .settings-tile:active { transform: scale(0.95); }
-  .settings-tile .tile-icon { font-size: 30px; line-height: 1; }
-  
-  input[type=range] {
-    -webkit-appearance: none; width: 100%; background: transparent; margin-bottom: 10px;
-  }
+  .settings-tile:active { transform:scale(0.95); }
+  .settings-tile .tile-icon { font-size:30px; line-height:1; }
+  input[type=range] { -webkit-appearance:none; width:100%; background:transparent; margin-bottom:10px; }
   input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
-    background: var(--text); cursor: pointer; margin-top: -8px; border: 2px solid #000;
+    -webkit-appearance:none; height:24px; width:24px; border-radius:50%;
+    background:var(--text); cursor:pointer; margin-top:-8px; border:2px solid #000;
   }
   input[type=range]::-webkit-slider-runnable-track {
-    width: 100%; height: 8px; cursor: pointer; background: #333; border-radius: 4px;
+    width:100%; height:8px; cursor:pointer; background:#333; border-radius:4px;
   }
-
-  .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 26px; }
-  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-  input:checked + .slider { background-color: var(--green); }
-  input:checked + .slider:before { transform: translateX(24px); }
-
-  .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
-  .toast { 
-    background: #151515; border: 3px solid var(--text); padding: 15px; 
-    text-align: center; font-size: 22px; font-weight: bold; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.8); animation: slideDown 0.3s, fadeOut 0.3s 2.7s forwards; 
-    border-radius: 15px 5px 15px 5px;
+  .switch { position:relative; display:inline-block; width:50px; height:26px; }
+  .switch input { opacity:0; width:0; height:0; }
+  .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#333; transition:.4s; border-radius:26px; }
+  .slider:before { position:absolute; content:""; height:18px; width:18px; left:4px; bottom:4px; background-color:white; transition:.4s; border-radius:50%; }
+  input:checked + .slider { background-color:var(--green); }
+  input:checked + .slider:before { transform:translateX(24px); }
+  .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:100; display:flex; flex-direction:column; gap:10px; width:90%; max-width:400px; }
+  .toast {
+    background:#151515; border:3px solid var(--text); padding:15px;
+    text-align:center; font-size:22px; font-weight:bold;
+    box-shadow:0 4px 12px rgba(0,0,0,0.8); animation:slideDown 0.3s, fadeOut 0.3s 2.7s forwards;
+    border-radius:15px 5px 15px 5px;
   }
-  .toast.success { border-color: var(--green); color: var(--green); }
-  .toast.fail { border-color: var(--red); color: var(--red); }
-  @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
-  @keyframes fadeOut { to { opacity: 0; } }
-
-  .days-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
-  .days-grid button { 
-    padding: 10px; background: transparent; color: var(--muted); 
-    font-family: var(--font-main); font-size: 18px; cursor: pointer; 
-    border: 2px solid var(--border); border-radius: 8px; 
+  .toast.success { border-color:var(--green); color:var(--green); }
+  .toast.fail { border-color:var(--red); color:var(--red); }
+  @keyframes slideDown { from { top:-50px; opacity:0; } to { top:20px; opacity:1; } }
+  @keyframes fadeOut { to { opacity:0; } }
+  .days-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:15px; }
+  .days-grid button {
+    padding:10px; background:transparent; color:var(--muted);
+    font-family:var(--font-main); font-size:18px; cursor:pointer;
+    border:2px solid var(--border); border-radius:8px;
   }
-  .days-grid button.on { background: var(--text); color: #000; border-color: var(--text); }
-  
-  .tmpl-item { border-bottom: 2px dashed var(--border); padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
-  
+  .days-grid button.on { background:var(--text); color:#000; border-color:var(--text); }
+  .tmpl-item { border-bottom:2px dashed var(--border); padding:12px 0; display:flex; justify-content:space-between; align-items:center; }
   .font-option {
-    width: 100%; padding: 14px; margin-bottom: 8px;
-    background: rgba(255,255,255,0.05);
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-size: 20px;
-    cursor: pointer;
-    text-align: left;
+    width:100%; padding:14px; margin-bottom:8px;
+    background:rgba(255,255,255,0.05); border:2px solid var(--border);
+    border-radius:10px; color:var(--text); font-size:20px;
+    cursor:pointer; text-align:left;
   }
-  .font-option.selected { border-color: var(--accent); background: rgba(102,187,106,0.15); }
-  
+  .font-option.selected { border-color:var(--accent); background:rgba(102,187,106,0.15); }
   .layout-option {
-    width: 100%; padding: 14px; margin-bottom: 8px;
-    background: rgba(255,255,255,0.05);
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: var(--font-main);
-    font-size: 18px;
-    cursor: pointer;
-    text-align: left;
-    display: flex; flex-direction: column; gap: 4px;
+    width:100%; padding:14px; margin-bottom:8px;
+    background:rgba(255,255,255,0.05); border:2px solid var(--border);
+    border-radius:10px; color:var(--text); font-family:var(--font-main);
+    font-size:18px; cursor:pointer; text-align:left;
+    display:flex; flex-direction:column; gap:4px;
   }
-  .layout-option.selected { border-color: var(--accent); background: rgba(102,187,106,0.15); }
-  .layout-option small { color: var(--muted); font-size: 14px; }
-  
-  .palette {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  .color-swatch {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    cursor: pointer;
-  }
-  .color-swatch.selected { border-color: var(--text); }
-
-  #imageModal { background: rgba(0,0,0,0.95); z-index: 200; padding: 10px; }
-  #fullImage { max-width: 100%; max-height: 90vh; border-radius: 8px; border: 3px solid var(--border); }
+  .layout-option.selected { border-color:var(--accent); background:rgba(102,187,106,0.15); }
+  .layout-option small { color:var(--muted); font-size:14px; }
+  .palette { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+  .color-swatch { width:100%; aspect-ratio:1; border-radius:50%; border:3px solid transparent; cursor:pointer; }
+  .color-swatch.selected { border-color:var(--text); }
+  #imageModal { background:rgba(0,0,0,0.95); z-index:200; padding:10px; }
+  #fullImage { max-width:100%; max-height:90vh; border-radius:8px; border:3px solid var(--border); }
   .close-img {
-    position: absolute; top: 20px; right: 20px;
-    background: rgba(255,255,255,0.2); border: none; color: white;
-    width: 44px; height: 44px; border-radius: 50%; font-size: 24px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    position:absolute; top:20px; right:20px;
+    background:rgba(255,255,255,0.2); border:none; color:white;
+    width:44px; height:44px; border-radius:50%; font-size:24px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
   }
-
-  /* Layout variations */
-  body.layout-minimal .app-header { border-bottom-width: 1px; border-bottom-style: solid; }
-  body.layout-minimal .month-nav { border-bottom-width: 1px; border-bottom-style: solid; }
-  body.layout-minimal .week-strip { border-bottom-width: 1px; border-bottom-style: solid; }
-  body.layout-minimal .cal-grid { border-width: 1px; border-style: solid; border-radius: 12px; padding: 12px 8px; }
-  body.layout-minimal .cal-day.selected::before { border-width: 2px; border-radius: 50%; transform: none; }
-  body.layout-minimal .add-row input[type="text"] { border-radius: 8px; border-width: 1px; border-style: solid; }
-  body.layout-minimal .btn-check, body.layout-minimal .btn-cross { border-radius: 8px; border-width: 2px; }
-  body.layout-minimal .task-item { border-bottom: 1px solid rgba(255,255,255,0.1); }
-  body.layout-minimal .settings-tile, body.layout-minimal .settings-tile-full { border-radius: 8px; border-style: solid; }
-  body.layout-minimal .kcal-dashboard { border-style: solid; border-radius: 12px; }
-  
-  body.layout-sketch .app-header { border-bottom-width: 4px; }
-  body.layout-sketch .month-nav { border-bottom-width: 3px; }
-  body.layout-sketch .week-strip { border-bottom-width: 3px; }
-  body.layout-sketch .cal-grid { border-width: 4px; }
-  body.layout-sketch .add-row input[type="text"] { border-width: 3px; }
-  body.layout-sketch .btn-check, body.layout-sketch .btn-cross { border-width: 4px; }
-  body.layout-sketch .kcal-dashboard { border-width: 4px; }
-  
-  body.layout-doodle .cal-grid { border-width: 4px; border-style: dashed; border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; }
-  body.layout-doodle .cal-day.selected::before { border-width: 4px; border-style: dashed; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: rotate(-15deg) scale(1.2); }
-  body.layout-doodle .app-header { border-bottom-width: 4px; border-bottom-style: dashed; }
-  body.layout-doodle .month-nav { border-bottom-width: 4px; border-bottom-style: dashed; }
-  body.layout-doodle .week-strip { border-bottom-width: 4px; border-bottom-style: dashed; }
-  body.layout-doodle .task-item { border-bottom: 2px dashed rgba(255,255,255,0.3); }
-  body.layout-doodle .add-row input[type="text"] { border-width: 3px; border-style: dashed; }
-  body.layout-doodle .btn-check, body.layout-doodle .btn-cross { border-width: 4px; border-style: dashed; }
-  body.layout-doodle .kcal-dashboard { border-width: 4px; border-style: dashed; }
-  
-  body.layout-retro .cal-grid { border: 3px solid var(--border); border-radius: 0; box-shadow: 4px 4px 0 var(--border); }
-  body.layout-retro .cal-day.selected::before { border: 3px solid var(--text); border-radius: 0; transform: none; background: rgba(255,255,255,0.1); }
-  body.layout-retro .app-header { border-bottom: 3px solid var(--border); }
-  body.layout-retro .month-nav { border-bottom: 2px solid var(--border); }
-  body.layout-retro .week-strip { border-bottom: 3px solid var(--border); }
-  body.layout-retro .task-item { border-bottom: 2px solid rgba(255,255,255,0.2); }
-  body.layout-retro .add-row input[type="text"] { border: 3px solid var(--border); border-radius: 0; box-shadow: 3px 3px 0 var(--border); }
-  body.layout-retro .btn-check, body.layout-retro .btn-cross { border-radius: 0; box-shadow: 2px 2px 0 var(--border); }
-  body.layout-retro .kcal-dashboard { border: 3px solid var(--border); border-radius: 0; box-shadow: 4px 4px 0 var(--border); }
-  body.layout-retro .settings-tile { border-radius: 0; box-shadow: 3px 3px 0 var(--border); }
-  
-  body.layout-neon .cal-grid { border: 3px solid var(--accent); box-shadow: 0 0 15px var(--accent), inset 0 0 15px var(--accent); border-radius: 12px; }
-  body.layout-neon .cal-day.selected::before { border-color: var(--accent); box-shadow: 0 0 10px var(--accent); border-radius: 50%; }
-  body.layout-neon .app-header { border-bottom: 3px solid var(--accent); box-shadow: 0 4px 10px -5px var(--accent); }
-  body.layout-neon .month-nav { border-bottom: 2px solid var(--accent); }
-  body.layout-neon .week-strip { border-bottom: 2px solid var(--accent); }
-  body.layout-neon .task-item { border-bottom: 1px solid rgba(102,187,106,0.3); }
-  body.layout-neon .add-row input[type="text"] { border: 2px solid var(--accent); box-shadow: 0 0 8px var(--accent); }
-  body.layout-neon .btn-check { box-shadow: 0 0 8px var(--green); }
-  body.layout-neon .btn-cross { box-shadow: 0 0 8px var(--red); }
-  body.layout-neon .kcal-dashboard { border: 2px solid var(--accent); box-shadow: 0 0 15px var(--accent); }
+  .edit-img-wrap { position:relative; display:inline-block; }
+  .edit-img-wrap img {
+    width:70px; height:70px; object-fit:cover;
+    border-radius:8px; border:2px solid var(--border);
+  }
+  .edit-img-remove {
+    position:absolute; top:-6px; right:-6px;
+    width:24px; height:24px; border-radius:50%;
+    background:var(--red); color:#fff; border:2px solid #151515;
+    font-size:12px; cursor:pointer; padding:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  body.drag-mode .bottom-nav { opacity:0.3; pointer-events:none; }
+  body.drag-mode [data-draggable] {
+    touch-action:none; outline:2px dashed var(--accent); outline-offset:4px;
+    cursor:grab; user-select:none; -webkit-user-select:none;
+    position:relative; z-index:10;
+  }
+  body.drag-mode [data-draggable] * { pointer-events:none; }
+  body.drag-mode [data-draggable].dragging { cursor:grabbing; opacity:0.85; z-index:100; }
+  #dragExitBtn {
+    display:none; position:fixed; bottom:90px; left:50%;
+    transform:translateX(-50%); z-index:250;
+    background:var(--accent); color:#000; padding:12px 28px;
+    border-radius:24px; font-weight:bold; cursor:pointer;
+    box-shadow:0 4px 15px rgba(0,0,0,0.5);
+    font-family:var(--font-main); font-size:20px; border:none;
+  }
+  /* Layouts */
+  body.layout-minimal .app-header { border-bottom-width:1px; border-bottom-style:solid; }
+  body.layout-minimal .month-nav { border-bottom-width:1px; border-bottom-style:solid; }
+  body.layout-minimal .week-strip { border-bottom-width:1px; border-bottom-style:solid; }
+  body.layout-minimal .cal-grid { border-width:1px; border-style:solid; border-radius:12px; padding:12px 8px; }
+  body.layout-minimal .cal-day.selected::before { border-width:2px; border-radius:50%; transform:none; }
+  body.layout-minimal .add-row input[type="text"] { border-radius:8px; border-width:1px; border-style:solid; }
+  body.layout-minimal .btn-check, body.layout-minimal .btn-cross { border-radius:8px; border-width:2px; }
+  body.layout-minimal .kcal-dashboard { border-style:solid; border-radius:12px; }
+  body.layout-sketch .app-header { border-bottom-width:4px; }
+  body.layout-sketch .month-nav { border-bottom-width:3px; }
+  body.layout-sketch .week-strip { border-bottom-width:3px; }
+  body.layout-sketch .cal-grid { border-width:4px; }
+  body.layout-sketch .add-row input[type="text"] { border-width:3px; }
+  body.layout-sketch .btn-check, body.layout-sketch .btn-cross { border-width:4px; }
+  body.layout-sketch .kcal-dashboard { border-width:4px; }
+  body.layout-doodle .cal-grid { border-width:4px; border-style:dashed; border-radius:255px 15px 225px 15px / 15px 225px 15px 255px; }
+  body.layout-doodle .cal-day.selected::before { border-width:4px; border-style:dashed; border-radius:40% 60% 70% 30% / 40% 50% 60% 50%; transform:rotate(-15deg) scale(1.2); }
+  body.layout-doodle .app-header, body.layout-doodle .month-nav, body.layout-doodle .week-strip { border-bottom-style:dashed; border-bottom-width:4px; }
+  body.layout-doodle .task-item { border-bottom:2px dashed rgba(255,255,255,0.3); }
+  body.layout-doodle .add-row input[type="text"] { border-width:3px; border-style:dashed; }
+  body.layout-doodle .btn-check, body.layout-doodle .btn-cross { border-width:4px; border-style:dashed; }
+  body.layout-doodle .kcal-dashboard { border-width:4px; border-style:dashed; }
+  body.layout-retro .cal-grid { border:3px solid var(--border); border-radius:0; box-shadow:4px 4px 0 var(--border); }
+  body.layout-retro .cal-day.selected::before { border:3px solid var(--text); border-radius:0; transform:none; background:rgba(255,255,255,0.1); }
+  body.layout-retro .app-header, body.layout-retro .week-strip { border-bottom:3px solid var(--border); }
+  body.layout-retro .month-nav { border-bottom:2px solid var(--border); }
+  body.layout-retro .add-row input[type="text"] { border:3px solid var(--border); border-radius:0; box-shadow:3px 3px 0 var(--border); }
+  body.layout-retro .btn-check, body.layout-retro .btn-cross { border-radius:0; box-shadow:2px 2px 0 var(--border); }
+  body.layout-retro .kcal-dashboard { border:3px solid var(--border); border-radius:0; box-shadow:4px 4px 0 var(--border); }
+  body.layout-retro .settings-tile { border-radius:0; box-shadow:3px 3px 0 var(--border); }
+  body.layout-neon .cal-grid { border:3px solid var(--accent); box-shadow:0 0 15px var(--accent), inset 0 0 15px var(--accent); border-radius:12px; }
+  body.layout-neon .cal-day.selected::before { border-color:var(--accent); box-shadow:0 0 10px var(--accent); border-radius:50%; }
+  body.layout-neon .app-header { border-bottom:3px solid var(--accent); box-shadow:0 4px 10px -5px var(--accent); }
+  body.layout-neon .month-nav, body.layout-neon .week-strip { border-bottom:2px solid var(--accent); }
+  body.layout-neon .task-item { border-bottom:1px solid rgba(102,187,106,0.3); }
+  body.layout-neon .add-row input[type="text"] { border:2px solid var(--accent); box-shadow:0 0 8px var(--accent); }
+  body.layout-neon .btn-check { box-shadow:0 0 8px var(--green); }
+  body.layout-neon .btn-cross { box-shadow:0 0 8px var(--red); }
+  body.layout-neon .kcal-dashboard { border:2px solid var(--accent); box-shadow:0 0 15px var(--accent); }
+  body.layout-paper .cal-grid {
+    border:2px solid var(--border); border-radius:4px;
+    background:repeating-linear-gradient(transparent, transparent 27px, rgba(255,255,255,0.1) 28px);
+  }
+  body.layout-paper .kcal-dashboard { border:2px solid var(--border); border-radius:4px; }
+  body.layout-paper .app-header, body.layout-paper .month-nav, body.layout-paper .week-strip { border-bottom:3px double var(--border); }
+  body.layout-paper .task-item { border-bottom:1px dashed rgba(255,255,255,0.2); }
+  body.layout-paper .add-row input[type="text"] { border-radius:3px; }
+  body.layout-paper .btn-check, body.layout-paper .btn-cross { border-radius:4px; }
+  body.layout-paper .settings-tile, body.layout-paper .settings-tile-full { border-radius:4px; }
+  body.layout-glass .cal-grid,
+  body.layout-glass .kcal-dashboard,
+  body.layout-glass .settings-box,
+  body.layout-glass .settings-tile,
+  body.layout-glass .settings-tile-full,
+  body.layout-glass .add-row input[type="text"],
+  body.layout-glass .font-option,
+  body.layout-glass .layout-option {
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.2); border-radius:16px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.3);
+  }
+  body.layout-glass .app-header, body.layout-glass .month-nav, body.layout-glass .week-strip { border-bottom:1px solid rgba(255,255,255,0.2); }
+  body.layout-gradient .cal-grid, body.layout-gradient .kcal-dashboard {
+    border:3px solid transparent;
+    background:rgba(15,15,15,0.7) padding-box,
+               linear-gradient(135deg, var(--accent), var(--text), var(--accent)) border-box;
+    border-radius:18px;
+  }
+  body.layout-gradient .app-header, body.layout-gradient .month-nav, body.layout-gradient .week-strip {
+    border-bottom:3px solid transparent;
+    background:linear-gradient(90deg, var(--accent), var(--text)) bottom / 100% 3px no-repeat;
+  }
+  body.layout-wavy .cal-grid {
+    border:3px solid var(--border);
+    border-radius:63% 37% 54% 46% / 55% 48% 52% 45%;
+    padding:24px 14px;
+  }
+  body.layout-wavy .kcal-dashboard {
+    border:3px solid var(--border);
+    border-radius:40% 60% 50% 50% / 50% 40% 60% 50%;
+    padding:28px 20px;
+  }
+  body.layout-wavy .app-header, body.layout-wavy .month-nav, body.layout-wavy .week-strip {
+    border-bottom:3px dashed var(--border);
+    border-radius:0 0 50% 50% / 0 0 15px 15px;
+    padding-bottom:14px;
+  }
+  body.layout-wavy .task-item { border-bottom:2px dotted rgba(255,255,255,0.3); }
+  body.layout-wavy .add-row input[type="text"] { border-radius:50% 50% 50% 50% / 30px 30px 30px 30px; }
 </style>
 </head>
 <body>
 
 <div id="bg-layer"></div>
 <div class="toast-container" id="toastContainer"></div>
+<button id="dragExitBtn" onclick="toggleDragMode()">✓ Готово</button>
 
 <div class="wrap">
-  
   <div id="view-calendar" class="view active">
-    <div class="app-header">
+    <div class="app-header" data-draggable="cal-header">
       <h1>Дневник</h1>
       <div class="crown">♛</div>
     </div>
-    
-    <div class="month-nav">
+    <div class="month-nav" data-draggable="cal-month">
       <button onclick="shiftMonth(-1)">←</button>
       <span id="calMonthYear">Октябрь 2026</span>
       <button onclick="shiftMonth(1)">→</button>
     </div>
-    
-    <div class="cal-header">
-      <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
-    </div>
-    <div class="cal-grid" id="calGrid"></div>
-    
-    <div class="calendar-quote">
+    <div class="cal-header"><div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div></div>
+    <div class="cal-grid" id="calGrid" data-draggable="cal-grid"></div>
+    <div class="calendar-quote" data-draggable="cal-quote">
       Маленькие шаги каждый день<br>= большие результаты ♡
     </div>
   </div>
 
   <div id="view-daily" class="view">
-    <div class="day-header">
+    <div class="day-header" data-draggable="daily-header">
       <div class="back" onclick="switchView('calendar')">←</div>
       <div id="dailyDateLabel">13 октября 2026</div>
-      <div style="width: 32px;"></div>
+      <div style="width:32px;"></div>
     </div>
-    
-    <div class="week-strip" id="weekStrip"></div>
-    
-    <div class="add-row">
+    <div class="week-strip" id="weekStrip" data-draggable="daily-week"></div>
+    <div class="add-row" data-draggable="daily-add">
       <input type="text" id="dailyTaskInput" placeholder="Добавить задачу или фото...">
-      <button class="btn-photo" onclick="document.getElementById('dailyImageInput').click()">📷</button>
+      <button class="btn-photo" id="dailyPhotoBtn" onclick="document.getElementById('dailyImageInput').click()">
+        📷<span class="photo-count" id="pendingPhotoCount" style="display:none;">0</span>
+      </button>
       <button class="btn-plus" onclick="addDailyTask()">+</button>
     </div>
-    <input type="file" id="dailyImageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
-
-    <div id="tasksContainer"></div>
+    <input type="file" id="dailyImageInput" accept="image/*" multiple style="display:none" onchange="handleImageUpload(event)">
+    <div id="tasksContainer" data-draggable="daily-tasks"></div>
   </div>
 
   <div id="view-stats" class="view">
-    <div class="app-header">
-      <h1 style="font-size: 36px;">Статистика</h1>
+    <div class="app-header" data-draggable="stats-header">
+      <h1 style="font-size:36px;">Статистика</h1>
     </div>
-    
-    <div class="kcal-dashboard">
+    <div class="kcal-dashboard" data-draggable="stats-kcal">
       <div class="ring-container">
         <svg class="ring-svg" viewBox="0 0 100 100">
           <circle class="ring-bg" cx="50" cy="50" r="45"></circle>
@@ -549,30 +479,25 @@
       </div>
       <div style="margin-top:10px; color:var(--muted); font-size:22px;">Цель: <span id="goalDisplay">2500</span> ккал</div>
     </div>
-    
-    <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:20px;">
-      <input type="text" id="foodName" placeholder="Что съел?" style="flex: 100%;" list="foodListData">
+    <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:20px;" data-draggable="stats-foodinput">
+      <input type="text" id="foodName" placeholder="Что съел?" style="flex:100%;" list="foodListData">
       <datalist id="foodListData"></datalist>
       <input type="number" id="foodKcal100" placeholder="Ккал/100г" style="flex:1;">
       <input type="number" id="foodWeight" placeholder="Вес (г)" value="100" style="flex:1;">
-      <button onclick="addFood()" style="width: 50px; background:var(--text); color:#000; border:none; font-size:26px; border-radius:50% 40% 50% 40%; cursor:pointer;">+</button>
+      <button onclick="addFood()" style="width:50px; background:var(--text); color:#000; border:none; font-size:26px; border-radius:50% 40% 50% 40%; cursor:pointer;">+</button>
     </div>
-    
-    <ul id="foodList" style="margin-top:15px;"></ul>
+    <ul id="foodList" style="margin-top:15px;" data-draggable="stats-foodlist"></ul>
   </div>
 
   <div id="view-profile" class="view">
-    <div class="app-header">
-      <h1 style="font-size: 36px;">Профиль</h1>
-    </div>
-    
+    <div class="app-header"><h1 style="font-size:36px;">Профиль</h1></div>
     <h3 class="section-title">Кастом</h3>
     <div class="settings-grid">
       <button class="settings-tile" onclick="openSettingsModal('wallpapers')">
         <span class="tile-icon">🖼</span><span>Обои</span>
       </button>
       <button class="settings-tile" onclick="openSettingsModal('fonts')">
-        <span class="tile-icon" style="font-family: Georgia; font-weight: bold;">Aa</span><span>Шрифты</span>
+        <span class="tile-icon" style="font-family:Georgia; font-weight:bold;">Aa</span><span>Шрифты</span>
       </button>
       <button class="settings-tile" onclick="openSettingsModal('layouts')">
         <span class="tile-icon">📐</span><span>Макет</span>
@@ -581,23 +506,32 @@
         <span class="tile-icon">🎨</span><span>Цвета</span>
       </button>
     </div>
-    
+    <h3 class="section-title">Интерфейс</h3>
+    <button class="settings-tile-full" onclick="toggleDragMode()">
+      <span class="tile-icon">✋</span><span>Режим перемещения элементов</span>
+    </button>
+    <button class="settings-tile-full" onclick="resetAllPositions()">
+      <span class="tile-icon">↺</span><span>Сбросить позиции</span>
+    </button>
     <h3 class="section-title">Основные</h3>
     <div class="settings-box">
       <div class="settings-row">
         <label>Звуки (победа/пердеж)</label>
-        <label class="switch">
-          <input type="checkbox" id="soundToggle" onchange="toggleSound(this.checked)">
-          <span class="slider"></span>
-        </label>
+        <label class="switch"><input type="checkbox" id="soundToggle" onchange="toggleSound(this.checked)"><span class="slider"></span></label>
       </div>
+      <div class="settings-row">
+        <label>Голосовое озвучивание фраз</label>
+        <label class="switch"><input type="checkbox" id="voiceToggle" onchange="toggleVoice(this.checked)"><span class="slider"></span></label>
+      </div>
+      <button class="settings-tile-full" onclick="testVoice()">
+        <span class="tile-icon">🔊</span><span>Проверить голос</span>
+      </button>
       <div class="settings-row" style="margin-bottom:0;">
         <label>Цель по калориям (ккал)</label>
         <input type="number" id="goalInput" value="2500" onchange="updateGoal(this.value)" style="margin-bottom:0;">
       </div>
     </div>
   </div>
-
 </div>
 
 <div class="bottom-nav">
@@ -618,7 +552,6 @@
   </button>
 </div>
 
-<!-- Универсальная модалка настроек -->
 <div class="modal" id="settingsModal" onclick="if(event.target.id==='settingsModal') closeSettings()">
   <div class="sheet">
     <button class="close-settings-btn" onclick="closeSettings()">✕</button>
@@ -626,141 +559,177 @@
   </div>
 </div>
 
-<!-- Модалка просмотра фото -->
+<div class="modal" id="editModal" onclick="if(event.target.id==='editModal') closeEdit()">
+  <div class="sheet">
+    <button class="close-settings-btn" onclick="closeEdit()">✕</button>
+    <h2 style="font-family:'Marck Script', cursive; margin-top:0;">Редактировать</h2>
+    <input type="text" id="editTitle" placeholder="Заголовок заметки">
+    <div style="margin-bottom:10px; color:var(--muted);">Фотографии:</div>
+    <div id="editImages" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px; min-height:10px;"></div>
+    <button class="btn" onclick="document.getElementById('editImageInput').click()" style="background:transparent; border:2px solid var(--text); color:var(--text);">+ Добавить фото</button>
+    <input type="file" id="editImageInput" accept="image/*" multiple style="display:none" onchange="handleEditImageUpload(event)">
+    <button class="btn" onclick="saveEdit()">Сохранить</button>
+  </div>
+</div>
+
 <div class="modal" id="imageModal" onclick="closeImage(event)">
   <button class="close-img" onclick="closeImage(event)">✕</button>
   <img id="fullImage" src="" alt="Фото">
 </div>
 
 <script>
-const KEY='diary_v16'; 
+const KEY='diary_v16';
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
 const FONTS = [
-  { name: 'Caveat', label: 'Caveat (по умолчанию)' },
-  { name: 'Marck Script', label: 'Marck Script' },
+  { name: 'Caveat', label: 'Caveat (рукописный)' },
+  { name: 'Marck Script', label: 'Marck Script (курсив)' },
+  { name: 'Neucha', label: 'Neucha (небрежный)' },
+  { name: 'Pattaya', label: 'Pattaya (элегантный)' },
+  { name: 'Bad Script', label: 'Bad Script (плохой)' },
+  { name: 'Ruslan Display', label: 'Ruslan Display (декор)' },
+  { name: 'Lobster', label: 'Lobster (курсивный)' },
+  { name: 'Pacifico', label: 'Pacifico (лёгкий)' },
+  { name: 'Amatic SC', label: 'Amatic SC (тонкий)' },
+  { name: 'Playfair Display', label: 'Playfair Display (классика)' },
+  { name: 'Yeseva One', label: 'Yeseva One (стильный)' },
   { name: 'Roboto', label: 'Roboto' },
   { name: 'Open Sans', label: 'Open Sans' },
-  { name: 'Lobster', label: 'Lobster' },
-  { name: 'Pacifico', label: 'Pacifico' },
   { name: 'Georgia', label: 'Georgia (serif)' },
   { name: 'Courier New', label: 'Courier New (mono)' }
 ];
 
 const LAYOUTS = [
-  { id: 'classic', label: 'Классика', desc: 'Как было изначально: волнистые линии' },
-  { id: 'minimal', label: 'Минимал', desc: 'Тонкие ровные линии, аккуратный стиль' },
-  { id: 'sketch', label: 'Скетч', desc: 'Толстые линии, грубый рукописный вид' },
-  { id: 'doodle', label: 'Каракули', desc: 'Очень кривые и прерывистые линии' },
-  { id: 'retro', label: 'Ретро', desc: 'Рамки с обводкой, как в первом варианте' },
-  { id: 'neon', label: 'Неон', desc: 'Светящиеся акцентные линии' }
+  { id: 'classic', label: 'Классика', desc: 'Волнистые линии' },
+  { id: 'minimal', label: 'Минимал', desc: 'Тонкие ровные линии' },
+  { id: 'sketch', label: 'Скетч', desc: 'Толстые линии' },
+  { id: 'doodle', label: 'Каракули', desc: 'Кривые прерывистые' },
+  { id: 'retro', label: 'Ретро', desc: 'Рамки с обводкой' },
+  { id: 'neon', label: 'Неон', desc: 'Светящиеся линии' },
+  { id: 'paper', label: 'Бумага', desc: 'Лист в линию' },
+  { id: 'glass', label: 'Стекло', desc: 'Полупрозрачные блоки' },
+  { id: 'gradient', label: 'Градиент', desc: 'Градиентные рамки' },
+  { id: 'wavy', label: 'Волны', desc: 'Сильно волнистые' }
 ];
 
-const PALETTE = ['#66BB6A', '#42A5F5', '#EF5350', '#FF9800', '#AB47BC', '#EC407A', '#26C6DA', '#FFEB3B'];
+const PALETTE = ['#66BB6A','#42A5F5','#EF5350','#FF9800','#AB47BC','#EC407A','#26C6DA','#FFEB3B'];
 
 const basicFoods = {
-  "Баранина жирная": 316, "Баранина нежирная": 166, "Ветчина": 365, "Говядина тушеная": 180,
-  "Говядина жареная": 170, "Говядина нежирная": 170, "Грудинка": 475, "Гусь": 300,
-  "Индейка": 150, "Колбаса вареная": 250, "Колбаса полукопченая": 380, "Корейка": 430,
-  "Крольчатина": 115, "Курица вареная": 135, "Курица жареная": 210, "Печень говяжья": 100,
-  "Почки": 66, "Сардельки": 160, "Свинина отбивная": 265, "Свинина тушеная": 350,
-  "Сердце": 87, "Сосиски": 135, "Телятина": 90, "Утка": 405, "Язык": 165,
-  "Куриная грудка": 165, "Куриное бедро": 209, "Фарш куриный": 143, "Фарш говяжий": 254,
-  "Икра зернистая": 250, "Икра кетовая": 245, "Икра минтая": 130, "Кальмар": 75,
-  "Карп": 46, "Карп жареный": 145, "Кета": 157, "Консервы рыбные в масле": 320,
-  "Консервы рыбные в томате": 120, "Креветки": 85, "Крабы": 70, "Лещ": 48,
-  "Лососина жареная": 145, "Лососина копченая": 385, "Минтай": 70, "Морская капуста": 16,
-  "Навага": 44, "Окунь": 95, "Раки": 75, "Салака": 98, "Севрюга": 137,
-  "Сельдь атлантическая": 57, "Судак": 43, "Треска": 59, "Шпроты в масле": 250,
-  "Щука": 41, "Камбала": 88, "Лосось": 208, "Тунец": 132, "Горбуша": 142, "Скумбрия": 191,
-  "Ацидофилин": 58, "Брынза коровья": 260, "Йогурт (1,5%)": 51, "Кефир жирный": 60,
-  "Кефир (1%)": 38, "Кефир (0%)": 30, "Молоко (3,2%)": 60, "Молоко коровье цельное": 68,
-  "Мороженое сливочное": 220, "Простокваша": 59, "Ряженка": 85, "Сливки (10%)": 120,
-  "Сливки (20%)": 300, "Сметана (10%)": 115, "Сметана (20%)": 210, "Сыр голландский": 357,
-  "Сыр Ламбер": 377, "Сыр Пармезан": 330, "Сыр Российский": 371, "Сырки творожные": 380,
-  "Творог (18%)": 226, "Творог со сметаной": 260, "Творог нежирный": 80,
-  "Яйцо куриное (1 шт.)": 65, "Яичный порошок": 540, "Молоко 2.5%": 52, "Молоко 3.2%": 60,
-  "Сыр Моцарелла": 240, "Творог 5%": 121, "Творог 9%": 159, "Сметана 20%": 206,
-  "Горох зеленый": 280, "Какао-порошок": 375, "Крупа гречневая": 346, "Крупа манная": 340,
-  "Крупа овсяная": 374, "Крупа перловая": 342, "Крупа пшеничная": 352, "Крупа ячневая": 343,
-  "Кукурузные хлопья": 369, "Макароны": 350, "Овсяные хлопья": 305, "Рис": 337,
-  "Фасоль": 328, "Ячменные хлопья": 315, "Пшено": 351, "Чечевица": 116,
-  "Баклажаны": 28, "Зеленый горошек": 75, "Кабачки": 18, "Капуста белокочанная": 23,
-  "Капуста квашеная": 28, "Капуста цветная": 18, "Картофель отварной": 60,
-  "Морковь": 33, "Огурцы свежие": 15, "Перец сладкий": 19, "Помидоры": 20,
-  "Салат": 11, "Свекла": 40, "Яблоки": 45, "Лук зеленый": 18, "Лук репчатый": 43,
-  "Петрушка": 23, "Редис": 16, "Редька": 25, "Репа": 23, "Салат-лист": 11,
-  "Тыква": 20, "Укроп": 30, "Хрен": 49, "Чеснок": 60, "Шпинат": 16, "Щавель": 27,
-  "Авокадо": 160, "Брокколи": 34,
-  "Абрикосы": 47, "Айва": 30, "Альча": 38, "Ананас": 44, "Апельсин": 45, "Арбуз": 40,
-  "Бананы": 90, "Виноград": 70, "Вишня": 25, "Грейпфрут": 30, "Груша": 42, "Дыня": 45,
-  "Ежевика": 32, "Земляника": 38, "Киви": 50, "Кизил": 41, "Клюква": 33, "Крыжовник": 48,
-  "Лимон": 30, "Малина": 45, "Мандарин": 41, "Персики": 45, "Слива": 44, "Смородина": 43,
-  "Черешня": 53, "Черника": 44, "Яблоко": 52,
-  "Орехи грецкие": 650, "Арахис": 555, "Миндаль": 579, "Семечки": 580, "Кешью": 572,
-  "Фисташки": 556, "Фундук": 704, "Изюм": 264, "Курага": 215, "Чернослив": 231,
-  "Финики": 292, "Инжир сушеный": 257,
-  "Сахар": 295, "Сдобная булка": 300, "Сушки, пряники": 330, "Мед": 304,
-  "Шоколад молочный": 535, "Шоколад темный": 546, "Печенье овсяное": 437,
-  "Мороженое": 207, "Варенье": 270, "Сгущенное молоко": 320, "Халва": 516,
-  "Пирожное": 350, "Торт": 400, "Зефир": 326, "Мармелад": 300,
-  "Хлеб ржаной": 210, "Хлеб пшеничный": 265, "Батон": 260, "Лаваш": 275, "Хлеб белый": 265,
-  "Масло сливочное": 750, "Масло оливковое": 900, "Масло растительное": 824,
-  "Маргарин": 745, "Майонез": 625, "Майонез легкий": 260, "Жир топленый": 930,
-  "Кетчуп": 80,
-  "Кофе с молоком": 35, "Чай без сахара": 0, "Кола": 42, "Сок яблочный": 46,
-  "Энергетик": 45, "Пиво": 43, "Вино красное": 85, "Водка": 235, "Квас": 30,
-  "Компот": 60, "Сок апельсиновый": 45,
-  "Суши Филадельфия": 180, "Пицца Пепперони": 270, "Бургер": 295,
-  "Картофель фри": 312, "Шаурма": 215, "Греческий салат": 110,
-  "Цезарь с курицей": 190, "Борщ": 50, "Суп куриный": 40, "Пельмени": 275,
-  "Вареники": 250, "Рисовая каша": 100, "Пшенная каша": 90, "Кукурузная каша": 85,
-  "Манная каша": 100, "Тушенка": 220, "Оливки": 115, "Маслины": 115,
-  "Кукуруза консервированная": 88, "Горошек": 73
+  "Баранина жирная":316,"Баранина нежирная":166,"Ветчина":365,"Говядина тушеная":180,
+  "Говядина жареная":170,"Говядина нежирная":170,"Грудинка":475,"Гусь":300,
+  "Индейка":150,"Колбаса вареная":250,"Колбаса полукопченая":380,"Корейка":430,
+  "Крольчатина":115,"Курица вареная":135,"Курица жареная":210,"Печень говяжья":100,
+  "Почки":66,"Сардельки":160,"Свинина отбивная":265,"Свинина тушеная":350,
+  "Сердце":87,"Сосиски":135,"Телятина":90,"Утка":405,"Язык":165,
+  "Куриная грудка":165,"Куриное бедро":209,"Фарш куриный":143,"Фарш говяжий":254,
+  "Икра зернистая":250,"Икра кетовая":245,"Икра минтая":130,"Кальмар":75,
+  "Карп":46,"Карп жареный":145,"Кета":157,"Консервы рыбные в масле":320,
+  "Консервы рыбные в томате":120,"Креветки":85,"Крабы":70,"Лещ":48,
+  "Лососина жареная":145,"Лососина копченая":385,"Минтай":70,"Морская капуста":16,
+  "Навага":44,"Окунь":95,"Раки":75,"Салака":98,"Севрюга":137,
+  "Сельдь атлантическая":57,"Судак":43,"Треска":59,"Шпроты в масле":250,
+  "Щука":41,"Камбала":88,"Лосось":208,"Тунец":132,"Горбуша":142,"Скумбрия":191,
+  "Ацидофилин":58,"Брынза коровья":260,"Йогурт (1,5%)":51,"Кефир жирный":60,
+  "Кефир (1%)":38,"Кефир (0%)":30,"Молоко (3,2%)":60,"Молоко коровье цельное":68,
+  "Мороженое сливочное":220,"Простокваша":59,"Ряженка":85,"Сливки (10%)":120,
+  "Сливки (20%)":300,"Сметана (10%)":115,"Сметана (20%)":210,"Сыр голландский":357,
+  "Сыр Ламбер":377,"Сыр Пармезан":330,"Сыр Российский":371,"Сырки творожные":380,
+  "Творог (18%)":226,"Творог со сметаной":260,"Творог нежирный":80,
+  "Яйцо куриное (1 шт.)":65,"Яичный порошок":540,"Молоко 2.5%":52,"Молоко 3.2%":60,
+  "Сыр Моцарелла":240,"Творог 5%":121,"Творог 9%":159,"Сметана 20%":206,
+  "Горох зеленый":280,"Какао-порошок":375,"Крупа гречневая":346,"Крупа манная":340,
+  "Крупа овсяная":374,"Крупа перловая":342,"Крупа пшеничная":352,"Крупа ячневая":343,
+  "Кукурузные хлопья":369,"Макароны":350,"Овсяные хлопья":305,"Рис":337,
+  "Фасоль":328,"Ячменные хлопья":315,"Пшено":351,"Чечевица":116,
+  "Баклажаны":28,"Зеленый горошек":75,"Кабачки":18,"Капуста белокочанная":23,
+  "Капуста квашеная":28,"Капуста цветная":18,"Картофель отварной":60,
+  "Морковь":33,"Огурцы свежие":15,"Перец сладкий":19,"Помидоры":20,
+  "Салат":11,"Свекла":40,"Яблоки":45,"Лук зеленый":18,"Лук репчатый":43,
+  "Петрушка":23,"Редис":16,"Редька":25,"Репа":23,"Салат-лист":11,
+  "Тыква":20,"Укроп":30,"Хрен":49,"Чеснок":60,"Шпинат":16,"Щавель":27,
+  "Авокадо":160,"Брокколи":34,
+  "Абрикосы":47,"Айва":30,"Альча":38,"Ананас":44,"Апельсин":45,"Арбуз":40,
+  "Бананы":90,"Виноград":70,"Вишня":25,"Грейпфрут":30,"Груша":42,"Дыня":45,
+  "Ежевика":32,"Земляника":38,"Киви":50,"Кизил":41,"Клюква":33,"Крыжовник":48,
+  "Лимон":30,"Малина":45,"Мандарин":41,"Персики":45,"Слива":44,"Смородина":43,
+  "Черешня":53,"Черника":44,"Яблоко":52,
+  "Орехи грецкие":650,"Арахис":555,"Миндаль":579,"Семечки":580,"Кешью":572,
+  "Фисташки":556,"Фундук":704,"Изюм":264,"Курага":215,"Чернослив":231,
+  "Финики":292,"Инжир сушеный":257,
+  "Сахар":295,"Сдобная булка":300,"Сушки, пряники":330,"Мед":304,
+  "Шоколад молочный":535,"Шоколад темный":546,"Печенье овсяное":437,
+  "Мороженое":207,"Варенье":270,"Сгущенное молоко":320,"Халва":516,
+  "Пирожное":350,"Торт":400,"Зефир":326,"Мармелад":300,
+  "Хлеб ржаной":210,"Хлеб пшеничный":265,"Батон":260,"Лаваш":275,"Хлеб белый":265,
+  "Масло сливочное":750,"Масло оливковое":900,"Масло растительное":824,
+  "Маргарин":745,"Майонез":625,"Майонез легкий":260,"Жир топленый":930,
+  "Кетчуп":80,
+  "Кофе с молоком":35,"Чай без сахара":0,"Кола":42,"Сок яблочный":46,
+  "Энергетик":45,"Пиво":43,"Вино красное":85,"Водка":235,"Квас":30,
+  "Компот":60,"Сок апельсиновый":45,
+  "Суши Филадельфия":180,"Пицца Пепперони":270,"Бургер":295,
+  "Картофель фри":312,"Шаурма":215,"Греческий салат":110,
+  "Цезарь с курицей":190,"Борщ":50,"Суп куриный":40,"Пельмени":275,
+  "Вареники":250,"Рисовая каша":100,"Пшенная каша":90,"Кукурузная каша":85,
+  "Манная каша":100,"Тушенка":220,"Оливки":115,"Маслины":115,
+  "Кукуруза консервированная":88,"Горошек":73
 };
 
 const successPhrases = [
-  "Охуенно! Так держать! 🔥", "Красавчик, ебать! Продолжай!", "Выполнено! Ты просто лучший! 💪",
-  "Пиздато! Идём дальше!", "Есть! Отлично сделано, блять!", "Молодец! Не зря жрешь свой хлеб.",
-  "Сделано! Горжусь тобой, чертяка!", "Збс! Ещё на шаг ближе к цели.", "Выполнил, красава! Не зазнавайся только."
+  "Охуенно! Так держать!","Красавчик, ебать! Продолжай!","Выполнено! Ты просто лучший!",
+  "Пиздато! Идём дальше!","Есть! Отлично сделано, блять!","Молодец! Не зря жрешь свой хлеб.",
+  "Сделано! Горжусь тобой, чертяка!","Збс! Ещё на шаг ближе к цели.","Выполнил, красава! Не зазнавайся только."
 ];
 const failPhrases = [
-  "Ну и хуйня. Соберись! 😤", "Опять забил? Пидорас что ли?", "Не выполнил... грустно, блять. 📉",
-  "Пиздец, не сдавайся! Верни галочку!", "Минус балл, блять. Иди работай.", "Руки из жопы? Исправляй давай.",
-  "Хуёво. Ты можешь лучше!", "Обратный отсчёт пошёл. Не тупи.", "Слился? Ну и слабак."
+  "Ну и хуйня. Соберись!","Опять забил? Пидорас что ли?","Не выполнил... грустно, блять.",
+  "Пиздец, не сдавайся! Верни галочку!","Минус балл, блять. Иди работай.","Руки из жопы? Исправляй давай.",
+  "Хуёво. Ты можешь лучше!","Обратный отсчёт пошёл. Не тупи.","Слился? Ну и слабак."
 ];
 
 const defaultSettings = {
-  soundEnabled: true, customBg: null, bgDarkness: 60, bgBlur: 4, goalKcal: 2500,
-  fontFamily: 'Caveat', fontSize: 20, fontBold: false, layout: 'classic', 
-  accentColor: '#66BB6A', textColor: '#f0f0f0'
+  soundEnabled:true, voiceEnabled:false, customBg:null, bgDarkness:60, bgBlur:4, goalKcal:2500,
+  fontFamily:'Caveat', fontSize:20, fontBold:false, layout:'classic',
+  accentColor:'#66BB6A', textColor:'#f0f0f0', positions:{}
 };
 
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(KEY));
-    if (d) return { 
-      templates: d.templates||[], entries: d.entries||{}, done: d.done||{}, skipped: d.skipped||{}, 
-      failed: d.failed||{}, food: d.food||{}, customFoods: d.customFoods || {},
-      settings: Object.assign({}, defaultSettings, d.settings || {})
-    };
+    if (d) {
+      if (d.entries) {
+        Object.values(d.entries).forEach(arr => {
+          if (Array.isArray(arr)) arr.forEach(e => {
+            if (e.image && !e.images) { e.images=[e.image]; delete e.image; }
+            if (!e.images) e.images=[];
+          });
+        });
+      }
+      return {
+        templates:d.templates||[], entries:d.entries||{}, done:d.done||{}, skipped:d.skipped||{},
+        failed:d.failed||{}, food:d.food||{}, customFoods:d.customFoods||{},
+        settings:Object.assign({}, defaultSettings, d.settings||{})
+      };
+    }
   } catch {}
-  return { templates: [], entries: {}, done: {}, skipped: {}, failed: {}, food: {}, customFoods: {}, settings: Object.assign({}, defaultSettings) };
+  return { templates:[], entries:{}, done:{}, skipped:{}, failed:{}, food:{}, customFoods:{}, settings:Object.assign({}, defaultSettings) };
 }
 let state = load();
 const save = () => {
   try { localStorage.setItem(KEY, JSON.stringify(state)); }
-  catch (e) { if (e.name === 'QuotaExceededError') showToast("Память заполнена!", "fail"); }
+  catch(e){ if (e.name==='QuotaExceededError') showToast("Память заполнена!","fail"); }
 };
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-const pad = n => n < 10 ? '0' + n : '' + n;
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const pad = n => n<10 ? '0'+n : ''+n;
 
 let currentDateObj = new Date();
-let selectedDate = currentDateObj.getFullYear() + '-' + pad(currentDateObj.getMonth()+1) + '-' + pad(currentDateObj.getDate());
-let pendingDailyImage = null;
+let selectedDate = currentDateObj.getFullYear()+'-'+pad(currentDateObj.getMonth()+1)+'-'+pad(currentDateObj.getDate());
+let pendingDailyImages = [];
 let selectedDays = [];
 let colorTarget = 'accent';
+let editingTask = null;
+let dragMode = false;
+let dragState = null;
 
 let audioCtx;
 const fartUrl = 'https://www.myinstants.com/media/sounds/fart.mp3';
@@ -779,7 +748,7 @@ async function loadFartBuffer() {
     const arrayBuffer = await response.arrayBuffer();
     initAudio();
     fartBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-  } catch (e) { console.log("Fart buffer error:", e); }
+  } catch(e) { console.log("Fart buffer error:", e); }
 }
 
 function playVictorySound() {
@@ -787,16 +756,14 @@ function playVictorySound() {
   initAudio();
   const notes = [523.25, 659.25, 783.99, 1046.50];
   notes.forEach((freq, i) => {
-    let osc = audioCtx.createOscillator();
-    let gain = audioCtx.createGain();
+    let osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
-    gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.1);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(audioCtx.currentTime + i * 0.1);
-    osc.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i*0.1);
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i*0.1);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i*0.1 + 0.3);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(audioCtx.currentTime + i*0.1);
+    osc.stop(audioCtx.currentTime + i*0.1 + 0.3);
   });
 }
 
@@ -815,40 +782,65 @@ function playFartSound() {
   }
 }
 
-function applySettings() {
-  document.getElementById('soundToggle').checked = state.settings.soundEnabled;
-  document.getElementById('goalInput').value = state.settings.goalKcal || 2500;
-  document.getElementById('goalDisplay').textContent = state.settings.goalKcal || 2500;
-  
-  const bgLayer = document.getElementById('bg-layer');
-  bgLayer.style.backgroundImage = state.settings.customBg 
-    ? `url(${state.settings.customBg})` 
-    : `url('bg.jpg')`;
-
-  const darkness = state.settings.bgDarkness !== undefined ? state.settings.bgDarkness : 60;
-  const blur = state.settings.bgBlur !== undefined ? state.settings.bgBlur : 4;
-  document.documentElement.style.setProperty('--bg-opacity', darkness / 100);
-  document.documentElement.style.setProperty('--bg-blur', blur + 'px');
-  
-  document.documentElement.style.setProperty('--font-main', `'${state.settings.fontFamily}', cursive, sans-serif`);
-  document.documentElement.style.setProperty('--font-size-base', state.settings.fontSize + 'px');
-  document.documentElement.style.setProperty('--font-weight-base', state.settings.fontBold ? '600' : '400');
-  
-  document.body.classList.remove('layout-classic', 'layout-minimal', 'layout-sketch', 'layout-doodle', 'layout-retro', 'layout-neon');
-  document.body.classList.add('layout-' + (state.settings.layout || 'classic'));
-  
-  document.documentElement.style.setProperty('--accent', state.settings.accentColor || '#66BB6A');
-  document.documentElement.style.setProperty('--text', state.settings.textColor || '#f0f0f0');
+function speak(text) {
+  if (!state.settings.voiceEnabled) return;
+  if (!('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ru-RU'; u.rate = 1.0; u.pitch = 1.0; u.volume = 1.0;
+    const voices = window.speechSynthesis.getVoices();
+    const ru = voices.find(v => v.lang.toLowerCase().startsWith('ru'));
+    if (ru) u.voice = ru;
+    window.speechSynthesis.speak(u);
+  } catch(e) { console.log("TTS error:", e); }
 }
 
-function toggleSound(val) { state.settings.soundEnabled = val; save(); }
-function updateGoal(val) {
+function testVoice() {
+  if (!('speechSynthesis' in window)) { showToast("Голос не поддерживается","fail"); return; }
+  const was = state.settings.voiceEnabled;
+  state.settings.voiceEnabled = true;
+  speak("Проверка голоса. Раз, два, три. Всё работает.");
+  state.settings.voiceEnabled = was;
+  showToast("Тест голоса...","success");
+}
+
+function applySettings() {
+  document.getElementById('soundToggle').checked = state.settings.soundEnabled;
+  document.getElementById('voiceToggle').checked = state.settings.voiceEnabled;
+  document.getElementById('goalInput').value = state.settings.goalKcal || 2500;
+  document.getElementById('goalDisplay').textContent = state.settings.goalKcal || 2500;
+  const bgLayer = document.getElementById('bg-layer');
+  bgLayer.style.backgroundImage = state.settings.customBg
+    ? `url(${state.settings.customBg})`
+    : `url('bg.jpg')`;
+  const darkness = state.settings.bgDarkness !== undefined ? state.settings.bgDarkness : 60;
+  const blur = state.settings.bgBlur !== undefined ? state.settings.bgBlur : 4;
+  document.documentElement.style.setProperty('--bg-opacity', darkness/100);
+  document.documentElement.style.setProperty('--bg-blur', blur+'px');
+  document.documentElement.style.setProperty('--font-main', `'${state.settings.fontFamily}', cursive, sans-serif`);
+  document.documentElement.style.setProperty('--font-size-base', state.settings.fontSize+'px');
+  document.documentElement.style.setProperty('--font-weight-base', state.settings.fontBold ? '600' : '400');
+  document.body.classList.remove('layout-classic','layout-minimal','layout-sketch','layout-doodle','layout-retro','layout-neon','layout-paper','layout-glass','layout-gradient','layout-wavy');
+  document.body.classList.add('layout-' + (state.settings.layout||'classic'));
+  document.documentElement.style.setProperty('--accent', state.settings.accentColor||'#66BB6A');
+  document.documentElement.style.setProperty('--text', state.settings.textColor||'#f0f0f0');
+}
+
+function toggleSound(val){ state.settings.soundEnabled = val; save(); }
+function toggleVoice(val){
+  state.settings.voiceEnabled = val; save();
+  if (val) {
+    showToast("Голос включён","success");
+    try { speak("Голос включён"); } catch(e){}
+  }
+}
+function updateGoal(val){
   val = parseInt(val);
   if (isNaN(val) || val < 500) val = 500;
   state.settings.goalKcal = val;
   document.getElementById('goalDisplay').textContent = val;
-  save();
-  renderCalories();
+  save(); renderCalories();
 }
 
 function showToast(message, type) {
@@ -863,21 +855,19 @@ function showToast(message, type) {
 function switchView(viewId) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
-  
-  document.getElementById('view-' + viewId).classList.add('active');
-  const navBtn = document.getElementById('nav-' + viewId);
+  document.getElementById('view-'+viewId).classList.add('active');
+  const navBtn = document.getElementById('nav-'+viewId);
   if (navBtn) navBtn.classList.add('active');
-  
-  document.querySelector('.wrap').scrollTop = 0;
-
+  if (!dragMode) document.querySelector('.wrap').scrollTop = 0;
   if (viewId === 'calendar') renderCalendar();
   if (viewId === 'daily') renderDaily();
   if (viewId === 'stats') renderCalories();
+  applyPositions();
 }
 
 function goTodayTasks() {
   const today = new Date();
-  selectedDate = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+  selectedDate = today.getFullYear()+'-'+pad(today.getMonth()+1)+'-'+pad(today.getDate());
   switchView('daily');
 }
 
@@ -885,63 +875,63 @@ function renderCalendar() {
   const year = currentDateObj.getFullYear();
   const month = currentDateObj.getMonth();
   document.getElementById('calMonthYear').textContent = `${MONTHS[month]} ${year}`;
-  
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
-  
   let firstDay = new Date(year, month, 1).getDay();
   if (firstDay === 0) firstDay = 7;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  
+  const daysInMonth = new Date(year, month+1, 0).getDate();
   for (let i = 1; i < firstDay; i++) grid.innerHTML += `<div class="cal-day other"></div>`;
-  
+  const todayIso = new Date().getFullYear()+'-'+pad(new Date().getMonth()+1)+'-'+pad(new Date().getDate());
   for (let i = 1; i <= daysInMonth; i++) {
     const iso = `${year}-${pad(month+1)}-${pad(i)}`;
     const isSelected = iso === selectedDate ? 'selected' : '';
-    const isToday = iso === (new Date().getFullYear() + '-' + pad(new Date().getMonth()+1) + '-' + pad(new Date().getDate())) ? 'today' : '';
+    const isToday = iso === todayIso ? 'today' : '';
     grid.innerHTML += `<div class="cal-day ${isSelected} ${isToday}" onclick="openDay('${iso}')">${i}</div>`;
   }
 }
-function shiftMonth(n) { currentDateObj.setMonth(currentDateObj.getMonth() + n); renderCalendar(); }
-function openDay(iso) { selectedDate = iso; switchView('daily'); }
+function shiftMonth(n){ currentDateObj.setMonth(currentDateObj.getMonth()+n); renderCalendar(); }
+function openDay(iso){ selectedDate = iso; switchView('daily'); }
 
-function handleImageUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  compressImage(file).then(base64 => {
-    pendingDailyImage = base64;
-    showToast("Фото прикреплено! Напиши текст или жми +", "success");
-  }).catch(err => {
-    showToast("Ошибка при загрузке фото", "fail");
-  });
+async function handleImageUpload(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  for (const file of files) {
+    try { pendingDailyImages.push(await compressImage(file)); } catch(e){ console.log(e); }
+  }
   event.target.value = '';
+  updatePendingPhotoCount();
+  if (pendingDailyImages.length) showToast(`Фото: ${pendingDailyImages.length}. Напиши текст или жми +`,"success");
+}
+
+function updatePendingPhotoCount() {
+  const c = document.getElementById('pendingPhotoCount');
+  if (!c) return;
+  if (pendingDailyImages.length > 0) {
+    c.textContent = pendingDailyImages.length;
+    c.style.display = 'flex';
+  } else c.style.display = 'none';
 }
 
 function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.6) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = (event) => {
+    reader.onload = ev => {
       const img = new Image();
-      img.src = event.target.result;
+      img.src = ev.target.result;
       img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-        if (width > height) {
-          if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
-        } else {
-          if (height > maxHeight) { width = Math.round((width * maxHeight) / height); height = maxHeight; }
-        }
+        let width = img.width, height = img.height;
+        if (width > height) { if (width > maxWidth) { height = Math.round((height*maxWidth)/width); width = maxWidth; } }
+        else { if (height > maxHeight) { width = Math.round((width*maxHeight)/height); height = maxHeight; } }
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = width; canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
-      img.onerror = (error) => reject(error);
+      img.onerror = reject;
     };
-    reader.onerror = (error) => reject(error);
+    reader.onerror = reject;
   });
 }
 
@@ -958,53 +948,52 @@ function closeImage(e) {
 function renderDaily() {
   const d = new Date(selectedDate);
   document.getElementById('dailyDateLabel').textContent = `${d.getDate()} ${MONTHS[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
-  
   const strip = document.getElementById('weekStrip');
   strip.innerHTML = '';
   const dayOfWeek = d.getDay() === 0 ? 7 : d.getDay();
   const monday = new Date(d);
   monday.setDate(d.getDate() - dayOfWeek + 1);
-  
   for (let i = 0; i < 7; i++) {
     const tempD = new Date(monday);
     tempD.setDate(monday.getDate() + i);
-    const iso = tempD.getFullYear() + '-' + pad(tempD.getMonth()+1) + '-' + pad(tempD.getDate());
+    const iso = tempD.getFullYear()+'-'+pad(tempD.getMonth()+1)+'-'+pad(tempD.getDate());
     const isActive = iso === selectedDate ? 'active' : '';
     strip.innerHTML += `<div class="w-day ${isActive}" onclick="openDay('${iso}')">
       <div>${WEEKDAYS[tempD.getDay()]}</div>
       <div class="num">${tempD.getDate()}</div>
     </div>`;
   }
-  
   const tasks = getTasksForDate(selectedDate);
   const container = document.getElementById('tasksContainer');
-  container.innerHTML = '';
-  
   let html = `<ul>`;
   tasks.forEach(t => { html += renderTaskItem(t); });
   html += `</ul>`;
   container.innerHTML = html;
+  applyPositions();
 }
 
 function renderTaskItem(t) {
   let stateClass = '';
   if (t.done) stateClass = 'done';
   if (t.failed) stateClass = 'failed';
-  
   const isCustom = t.key.startsWith('c_');
-
-  let imgHtml = '';
-  if (t.image) {
-    imgHtml = `<img src="${t.image}" class="task-img-thumb" onclick="openImage('${t.image}')" alt="Фото">`;
+  const imgs = t.images || [];
+  let imgsHtml = '';
+  if (imgs.length) {
+    imgsHtml = `<div class="task-imgs">${imgs.map(img =>
+      `<img src="${img}" class="task-img-thumb" onclick="event.stopPropagation();openImage('${img}')" alt="Фото">`
+    ).join('')}</div>`;
   }
-
   return `<li class="task-item ${stateClass} ${isCustom ? 'task-custom' : ''}">
     ${isCustom ? '<span class="task-badge">день</span>' : ''}
-    <div class="task-content" onmousedown="startDeleteTimer('${t.key}')" onmouseup="clearDeleteTimer()" onmouseleave="clearDeleteTimer()" ontouchstart="startDeleteTimer('${t.key}')" ontouchend="clearDeleteTimer()">
-      ${t.image ? `<div class="task-text" style="display:none">${t.title}</div>` : `<div class="task-text">${t.title}</div>`}
-      ${imgHtml}
+    <div class="task-content">
+      <div class="task-main" onmousedown="startDeleteTimer('${t.key}')" onmouseup="clearDeleteTimer()" onmouseleave="clearDeleteTimer()" ontouchstart="startDeleteTimer('${t.key}')" ontouchend="clearDeleteTimer()">
+        <div class="task-text">${t.title}</div>
+        ${imgsHtml}
+      </div>
     </div>
     <div class="task-actions">
+      ${isCustom ? `<button class="btn-edit" onclick="openEditModal('${t.key}')">✎</button>` : ''}
       <button class="btn-check" onclick="toggleTask('${t.key}', ${t.done}, ${t.failed})">✓</button>
       <button class="btn-cross" onclick="failTask('${t.key}', ${t.done}, ${t.failed})">✕</button>
     </div>
@@ -1014,15 +1003,15 @@ function renderTaskItem(t) {
 function addDailyTask() {
   const input = document.getElementById('dailyTaskInput');
   let title = input.value.trim();
-  
-  if (pendingDailyImage && !title) title = "📸 Фотозаметка";
-  else if (!pendingDailyImage && !title) return;
-  
+  if (pendingDailyImages.length && !title) title = "📸 Фотозаметка";
+  else if (!pendingDailyImages.length && !title) return;
   state.entries[selectedDate] = state.entries[selectedDate] || [];
-  state.entries[selectedDate].push({ id: uid(), title, done: false, failed: false, image: pendingDailyImage });
-  
+  state.entries[selectedDate].push({
+    id: uid(), title, done: false, failed: false, images: [...pendingDailyImages]
+  });
   input.value = '';
-  pendingDailyImage = null;
+  pendingDailyImages = [];
+  updatePendingPhotoCount();
   save();
   renderDaily();
 }
@@ -1032,12 +1021,11 @@ function getTasksForDate(iso) {
   const skipped = state.skipped[iso] || {};
   const done = state.done[iso] || {};
   const failed = state.failed[iso] || {};
-  
-  const tpl = state.templates.filter(t => t.days.includes(wd) && !skipped[t.id]).map(t => ({ 
-    key: 't_'+t.id, title: t.title, done: !!done[t.id], failed: !!failed[t.id], id: t.id, image: null 
+  const tpl = state.templates.filter(t => t.days.includes(wd) && !skipped[t.id]).map(t => ({
+    key: 't_'+t.id, title: t.title, done: !!done[t.id], failed: !!failed[t.id], id: t.id, images: []
   }));
-  const custom = (state.entries[iso] || []).map(e => ({ 
-    key: 'c_'+e.id, title: e.title, done: !!e.done, failed: !!e.failed, id: e.id, image: e.image 
+  const custom = (state.entries[iso] || []).map(e => ({
+    key: 'c_'+e.id, title: e.title, done: !!e.done, failed: !!e.failed, id: e.id, images: e.images || []
   }));
   return [...tpl, ...custom];
 }
@@ -1046,7 +1034,6 @@ function toggleTask(key, currentDone, currentFailed) {
   const type = key.startsWith('t_') ? 't' : 'c';
   const id = key.substring(2);
   const iso = selectedDate;
-  
   if (type === 't') {
     state.done[iso] = state.done[iso] || {};
     state.failed[iso] = state.failed[iso] || {};
@@ -1056,12 +1043,12 @@ function toggleTask(key, currentDone, currentFailed) {
     const e = (state.entries[iso] || []).find(x => x.id === id);
     if (e) { e.done = true; e.failed = false; }
   }
-  save();
-  renderDaily();
-
+  save(); renderDaily();
   if (!currentDone) {
+    const phrase = successPhrases[Math.floor(Math.random()*successPhrases.length)];
     playVictorySound();
-    showToast(successPhrases[Math.floor(Math.random() * successPhrases.length)], 'success');
+    showToast(phrase, 'success');
+    if (state.settings.voiceEnabled) setTimeout(() => speak(phrase), 700);
   }
 }
 
@@ -1069,7 +1056,6 @@ function failTask(key, currentDone, currentFailed) {
   const type = key.startsWith('t_') ? 't' : 'c';
   const id = key.substring(2);
   const iso = selectedDate;
-  
   if (type === 't') {
     state.done[iso] = state.done[iso] || {};
     state.failed[iso] = state.failed[iso] || {};
@@ -1079,23 +1065,24 @@ function failTask(key, currentDone, currentFailed) {
     const e = (state.entries[iso] || []).find(x => x.id === id);
     if (e) { e.done = false; e.failed = true; }
   }
-  save();
-  renderDaily();
-
+  save(); renderDaily();
   if (!currentFailed) {
+    const phrase = failPhrases[Math.floor(Math.random()*failPhrases.length)];
     playFartSound();
-    showToast(failPhrases[Math.floor(Math.random() * failPhrases.length)], 'fail');
+    showToast(phrase, 'fail');
+    if (state.settings.voiceEnabled) setTimeout(() => speak(phrase), 700);
   }
 }
 
 let deleteTimer = null;
 function startDeleteTimer(key) {
+  if (dragMode) return;
   clearTimeout(deleteTimer);
   deleteTimer = setTimeout(() => {
     if (confirm("Удалить эту задачу?")) deleteTask(key);
   }, 800);
 }
-function clearDeleteTimer() { clearTimeout(deleteTimer); }
+function clearDeleteTimer(){ clearTimeout(deleteTimer); }
 
 function deleteTask(key) {
   const type = key.startsWith('t_') ? 't' : 'c';
@@ -1110,114 +1097,219 @@ function deleteTask(key) {
   showToast("Удалено", "fail");
 }
 
-// --- МОДАЛКА НАСТРОЕК ---
+// --- Edit modal ---
+function openEditModal(taskKey) {
+  const type = taskKey.startsWith('t_') ? 't' : 'c';
+  const id = taskKey.substring(2);
+  if (type === 't') { showToast("Шаблонные задачи не редактируются","fail"); return; }
+  const entry = (state.entries[selectedDate] || []).find(x => x.id === id);
+  if (!entry) return;
+  if (!entry.images) entry.images = [];
+  editingTask = { id, images: [...entry.images] };
+  document.getElementById('editTitle').value = entry.title || '';
+  renderEditImages();
+  document.getElementById('editModal').classList.add('open');
+}
+
+function renderEditImages() {
+  const wrap = document.getElementById('editImages');
+  if (!editingTask) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = editingTask.images.length
+    ? editingTask.images.map((img, i) => `
+      <div class="edit-img-wrap">
+        <img src="${img}" onclick="openImage('${img}')">
+        <button class="edit-img-remove" onclick="removeEditImage(${i})">✕</button>
+      </div>`).join('')
+    : '<div style="color:var(--muted); font-size:14px;">Нет фото</div>';
+}
+
+function removeEditImage(idx) {
+  if (!editingTask) return;
+  editingTask.images.splice(idx, 1);
+  renderEditImages();
+}
+
+async function handleEditImageUpload(event) {
+  if (!editingTask) return;
+  const files = Array.from(event.target.files);
+  for (const file of files) {
+    try { editingTask.images.push(await compressImage(file)); } catch(e){ console.log(e); }
+  }
+  event.target.value = '';
+  renderEditImages();
+}
+
+function saveEdit() {
+  if (!editingTask) return;
+  const entry = (state.entries[selectedDate] || []).find(x => x.id === editingTask.id);
+  if (!entry) return;
+  entry.title = document.getElementById('editTitle').value.trim() || '📸 Фотозаметка';
+  entry.images = [...editingTask.images];
+  save();
+  closeEdit();
+  renderDaily();
+  showToast("Сохранено", "success");
+}
+
+function closeEdit() {
+  document.getElementById('editModal').classList.remove('open');
+  editingTask = null;
+}
+
+// --- Drag mode ---
+function toggleDragMode() {
+  dragMode = !dragMode;
+  document.body.classList.toggle('drag-mode', dragMode);
+  document.getElementById('dragExitBtn').style.display = dragMode ? 'block' : 'none';
+  const w = document.querySelector('.wrap');
+  w.style.overflow = dragMode ? 'hidden' : 'auto';
+  if (dragMode) {
+    showToast("Тащи элементы пальцем","success");
+    applyPositions();
+  } else {
+    save();
+  }
+}
+
+document.addEventListener('pointerdown', e => {
+  if (!dragMode) return;
+  if (dragState) return;
+  const el = e.target.closest('[data-draggable]');
+  if (!el) return;
+  e.preventDefault();
+  const key = el.dataset.draggable;
+  const pos = state.settings.positions[key] || {x:0,y:0};
+  dragState = {
+    el, key, pointerId: e.pointerId,
+    startX: e.clientX, startY: e.clientY,
+    baseX: pos.x, baseY: pos.y
+  };
+  el.classList.add('dragging');
+});
+
+document.addEventListener('pointermove', e => {
+  if (!dragState || e.pointerId !== dragState.pointerId) return;
+  const dx = e.clientX - dragState.startX;
+  const dy = e.clientY - dragState.startY;
+  const x = dragState.baseX + dx;
+  const y = dragState.baseY + dy;
+  dragState.el.style.transform = `translate(${x}px, ${y}px)`;
+  dragState.curX = x;
+  dragState.curY = y;
+});
+
+function endDrag(e) {
+  if (!dragState) return;
+  if (e.pointerId && e.pointerId !== dragState.pointerId) return;
+  const { el, key, curX, curY } = dragState;
+  el.classList.remove('dragging');
+  if (curX !== undefined) {
+    state.settings.positions[key] = { x: curX, y: curY };
+    save();
+  }
+  dragState = null;
+}
+document.addEventListener('pointerup', endDrag);
+document.addEventListener('pointercancel', endDrag);
+
+function applyPositions() {
+  document.querySelectorAll('[data-draggable]').forEach(el => {
+    const key = el.dataset.draggable;
+    const pos = state.settings.positions[key];
+    if (pos) el.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+    else el.style.transform = '';
+  });
+}
+
+function resetAllPositions() {
+  if (!confirm('Сбросить все позиции элементов?')) return;
+  state.settings.positions = {};
+  save();
+  applyPositions();
+  showToast("Позиции сброшены","success");
+}
+
+// --- Settings modal ---
 function openSettingsModal(section) {
   const content = document.getElementById('settingsContent');
-  
   if (section === 'templates') {
     content.innerHTML = `
-      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Шаблоны задач</h2>
+      <h2 style="font-family:'Marck Script', cursive; margin-top:0;">Шаблоны задач</h2>
       <input type="text" id="tmplInput" placeholder="Название задачи">
       <div style="margin-bottom:10px; color:var(--muted);">Выбери дни:</div>
       <div class="days-grid" id="tmplDays">
-        <button onclick="toggleDay(1, this)">Пн</button>
-        <button onclick="toggleDay(2, this)">Вт</button>
-        <button onclick="toggleDay(3, this)">Ср</button>
-        <button onclick="toggleDay(4, this)">Чт</button>
-        <button onclick="toggleDay(5, this)">Пт</button>
-        <button onclick="toggleDay(6, this)">Сб</button>
-        <button onclick="toggleDay(0, this)">Вс</button>
+        <button onclick="toggleDay(1,this)">Пн</button>
+        <button onclick="toggleDay(2,this)">Вт</button>
+        <button onclick="toggleDay(3,this)">Ср</button>
+        <button onclick="toggleDay(4,this)">Чт</button>
+        <button onclick="toggleDay(5,this)">Пт</button>
+        <button onclick="toggleDay(6,this)">Сб</button>
+        <button onclick="toggleDay(0,this)">Вс</button>
       </div>
       <button class="btn" onclick="saveTemplate()">Создать задачу</button>
       <h3 style="margin-top:20px; font-size:20px;">Существующие:</h3>
-      <div id="tmplList"></div>
-    `;
+      <div id="tmplList"></div>`;
     selectedDays = [];
     renderTmplList();
   }
-  
   else if (section === 'wallpapers') {
     content.innerHTML = `
-      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Обои</h2>
+      <h2 style="font-family:'Marck Script', cursive; margin-top:0;">Обои</h2>
       <div class="settings-row">
-        <label>Затемнение обоев (<span id="darknessVal">${state.settings.bgDarkness}</span>%)</label>
+        <label>Затемнение (<span id="darknessVal">${state.settings.bgDarkness}</span>%)</label>
         <input type="range" id="bgDarkness" min="0" max="100" value="${state.settings.bgDarkness}" oninput="updateBgDarkness(this.value)">
       </div>
       <div class="settings-row">
-        <label>Размытие обоев (<span id="blurVal">${state.settings.bgBlur}</span>px)</label>
+        <label>Размытие (<span id="blurVal">${state.settings.bgBlur}</span>px)</label>
         <input type="range" id="bgBlur" min="0" max="20" value="${state.settings.bgBlur}" oninput="updateBgBlur(this.value)">
       </div>
       <div class="settings-row">
-        <label>Загрузить свои обои:</label>
+        <label>Свои обои:</label>
         <input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="border:none;padding:0;margin-bottom:0;">
       </div>
-      <button class="btn" onclick="resetBg()" style="background:transparent; border:2px solid var(--text); color:var(--text);">Сбросить обои</button>
-    `;
+      <button class="btn" onclick="resetBg()" style="background:transparent; border:2px solid var(--text); color:var(--text);">Сбросить обои</button>`;
   }
-  
   else if (section === 'fonts') {
-    let fontOptionsHtml = FONTS.map(f => `
-      <button class="font-option ${state.settings.fontFamily === f.name ? 'selected' : ''}" 
-              style="font-family: '${f.name}', cursive, sans-serif;"
-              onclick="setFont('${f.name}')">
-        ${f.label}
-      </button>
-    `).join('');
-    
+    let html = FONTS.map(f => `
+      <button class="font-option ${state.settings.fontFamily===f.name?'selected':''}"
+              style="font-family:'${f.name}', cursive, sans-serif;"
+              onclick="setFont('${f.name}')">${f.label}</button>`).join('');
     content.innerHTML = `
-      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Шрифты</h2>
-      <div style="margin-bottom:15px;">
-        ${fontOptionsHtml}
-      </div>
+      <h2 style="font-family:'Marck Script', cursive; margin-top:0;">Шрифты</h2>
+      <div style="margin-bottom:15px;">${html}</div>
       <div class="settings-row">
-        <label>Размер текста: <span id="fontSizeVal">${state.settings.fontSize}</span>px</label>
+        <label>Размер: <span id="fontSizeVal">${state.settings.fontSize}</span>px</label>
         <input type="range" id="fontSize" min="16" max="30" value="${state.settings.fontSize}" oninput="updateFontSize(this.value)">
       </div>
       <div class="settings-row">
         <label>Жирный шрифт</label>
-        <label class="switch">
-          <input type="checkbox" id="fontBold" ${state.settings.fontBold ? 'checked' : ''} onchange="updateFontBold(this.checked)">
-          <span class="slider"></span>
-        </label>
-      </div>
-    `;
+        <label class="switch"><input type="checkbox" ${state.settings.fontBold?'checked':''} onchange="updateFontBold(this.checked)"><span class="slider"></span></label>
+      </div>`;
   }
-  
   else if (section === 'layouts') {
-    let layoutOptionsHtml = LAYOUTS.map(l => `
-      <button class="layout-option ${state.settings.layout === l.id ? 'selected' : ''}"
+    let html = LAYOUTS.map(l => `
+      <button class="layout-option ${state.settings.layout===l.id?'selected':''}"
               onclick="setLayout('${l.id}')">
-        <b>${l.label}</b>
-        <small>${l.desc}</small>
-      </button>
-    `).join('');
-    
-    content.innerHTML = `
-      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Макет</h2>
-      ${layoutOptionsHtml}
-    `;
+        <b>${l.label}</b><small>${l.desc}</small>
+      </button>`).join('');
+    content.innerHTML = `<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Макет</h2>${html}`;
   }
-  
   else if (section === 'colors') {
     const currentColor = colorTarget === 'text' ? state.settings.textColor : state.settings.accentColor;
     let paletteHtml = PALETTE.map(c => `
-      <button class="color-swatch ${currentColor === c ? 'selected' : ''}"
-              style="background:${c};" onclick="setColor('${c}')"></button>
-    `).join('');
-    
+      <button class="color-swatch ${currentColor===c?'selected':''}"
+              style="background:${c};" onclick="setColor('${c}')"></button>`).join('');
     content.innerHTML = `
-      <h2 style="font-family: 'Marck Script', cursive; margin-top:0;">Цвета</h2>
+      <h2 style="font-family:'Marck Script', cursive; margin-top:0;">Цвета</h2>
       <div style="display:flex; gap:10px; margin-bottom:15px;">
-        <button class="tab-btn ${colorTarget === 'text' ? 'active' : ''}" onclick="setColorTarget('text')" style="flex:1; padding:10px; background:${colorTarget === 'text' ? 'var(--accent)' : 'transparent'}; color:${colorTarget === 'text' ? '#000' : 'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Цвет текста</button>
-        <button class="tab-btn ${colorTarget === 'accent' ? 'active' : ''}" onclick="setColorTarget('accent')" style="flex:1; padding:10px; background:${colorTarget === 'accent' ? 'var(--accent)' : 'transparent'}; color:${colorTarget === 'accent' ? '#000' : 'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Цвет оформления</button>
+        <button onclick="setColorTarget('text')" style="flex:1; padding:10px; background:${colorTarget==='text'?'var(--accent)':'transparent'}; color:${colorTarget==='text'?'#000':'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Текст</button>
+        <button onclick="setColorTarget('accent')" style="flex:1; padding:10px; background:${colorTarget==='accent'?'var(--accent)':'transparent'}; color:${colorTarget==='accent'?'#000':'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Оформление</button>
       </div>
       <p style="color:var(--muted); font-size:16px;">Выбери цвет:</p>
       <div class="palette">${paletteHtml}</div>
       <label style="display:block; color:var(--muted); margin-bottom:6px;">Свой цвет:</label>
-      <input type="color" value="${currentColor}" onchange="setColor(this.value)">
-    `;
+      <input type="color" value="${currentColor}" onchange="setColor(this.value)">`;
   }
-  
   document.getElementById('settingsModal').classList.add('open');
 }
 
@@ -1230,7 +1322,6 @@ function renderTmplList() {
   if (!list) return;
   list.innerHTML = '';
   if (!state.templates.length) list.innerHTML = '<div style="color:var(--muted)">Нет шаблонов.</div>';
-  
   state.templates.forEach(t => {
     const daysStr = t.days.map(d => WEEKDAYS[d]).join(', ');
     list.innerHTML += `<div class="tmpl-item">
@@ -1251,13 +1342,13 @@ function toggleDay(day, btn) {
 }
 function saveTemplate() {
   const title = document.getElementById('tmplInput').value.trim();
-  if (!title || selectedDays.length === 0) { showToast("Заполни название и выбери дни!", "fail"); return; }
+  if (!title || selectedDays.length === 0) { showToast("Заполни название и выбери дни!","fail"); return; }
   state.templates.push({ id: uid(), title, days: selectedDays });
   save();
   document.getElementById('tmplInput').value = '';
   selectedDays = [];
   document.querySelectorAll('#tmplDays button').forEach(b => b.classList.remove('on'));
-  showToast("Шаблон создан!", "success");
+  showToast("Шаблон создан!","success");
   renderTmplList();
   renderDaily();
 }
@@ -1266,46 +1357,44 @@ function delTmpl(id) {
   save(); renderTmplList(); renderDaily();
 }
 
-// --- КАСТОМ НАСТРОЙКИ ---
+// --- Кастом ---
 function updateBgDarkness(val) {
   state.settings.bgDarkness = val;
   document.getElementById('darknessVal').textContent = val;
-  document.documentElement.style.setProperty('--bg-opacity', val / 100);
+  document.documentElement.style.setProperty('--bg-opacity', val/100);
   save();
 }
 function updateBgBlur(val) {
   state.settings.bgBlur = val;
   document.getElementById('blurVal').textContent = val;
-  document.documentElement.style.setProperty('--bg-blur', val + 'px');
+  document.documentElement.style.setProperty('--bg-blur', val+'px');
   save();
 }
 function changeBg(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = (ev) => {
+  reader.onload = ev => {
     state.settings.customBg = ev.target.result;
     save(); applySettings();
-    showToast("Обои изменены!", "success");
+    showToast("Обои изменены!","success");
   };
   reader.readAsDataURL(file);
 }
 function resetBg() {
   state.settings.customBg = null;
   save(); applySettings();
-  showToast("Обои сброшены", "success");
+  showToast("Обои сброшены","success");
 }
-
 function setFont(name) {
   state.settings.fontFamily = name;
-  save();
-  applySettings();
+  save(); applySettings();
   openSettingsModal('fonts');
 }
 function updateFontSize(val) {
   state.settings.fontSize = parseInt(val);
   document.getElementById('fontSizeVal').textContent = val;
-  document.documentElement.style.setProperty('--font-size-base', val + 'px');
+  document.documentElement.style.setProperty('--font-size-base', val+'px');
   save();
 }
 function updateFontBold(val) {
@@ -1313,14 +1402,11 @@ function updateFontBold(val) {
   document.documentElement.style.setProperty('--font-weight-base', val ? '600' : '400');
   save();
 }
-
 function setLayout(id) {
   state.settings.layout = id;
-  save();
-  applySettings();
+  save(); applySettings();
   openSettingsModal('layouts');
 }
-
 function setColorTarget(target) {
   colorTarget = target;
   openSettingsModal('colors');
@@ -1337,13 +1423,12 @@ function setColor(color) {
   openSettingsModal('colors');
 }
 
-// --- КАЛОРИИ ---
+// --- Калории ---
 function renderCalories() {
   const foods = state.food[selectedDate] || [];
   const list = document.getElementById('foodList');
   list.innerHTML = '';
   let total = 0;
-
   foods.forEach(f => {
     total += Number(f.totalKcal) || 0;
     list.innerHTML += `<li class="task-item" style="border-bottom:1px solid rgba(255,255,255,0.15);">
@@ -1354,24 +1439,20 @@ function renderCalories() {
       <button class="btn-cross" onclick="delFood('${f.id}')" style="width:30px;height:30px;font-size:16px;">✕</button>
     </li>`;
   });
-
   document.getElementById('totalKcal').textContent = Math.round(total);
   const progressCircle = document.getElementById('ringProgress');
-  const circumference = 2 * Math.PI * 45; 
-  
+  const circumference = 2 * Math.PI * 45;
   const goal = state.settings.goalKcal || 2500;
   let percent = Math.min(total / goal, 1);
   progressCircle.style.strokeDashoffset = circumference - (percent * circumference);
-  
   const allFoods = { ...basicFoods, ...state.customFoods };
   const datalist = document.getElementById('foodListData');
   datalist.innerHTML = '';
-  Object.keys(allFoods).forEach(k => {
-    datalist.innerHTML += `<option value="${k}">`;
-  });
+  Object.keys(allFoods).forEach(k => { datalist.innerHTML += `<option value="${k}">`; });
+  applyPositions();
 }
 
-document.getElementById('foodName').addEventListener('input', (e) => {
+document.getElementById('foodName').addEventListener('input', e => {
   const val = e.target.value;
   const allFoods = { ...basicFoods, ...state.customFoods };
   if (allFoods[val]) document.getElementById('foodKcal100').value = allFoods[val];
@@ -1381,16 +1462,12 @@ function addFood() {
   const name = document.getElementById('foodName').value.trim();
   const kcal100 = parseFloat(document.getElementById('foodKcal100').value);
   const weight = parseFloat(document.getElementById('foodWeight').value);
-  
-  if (!name || isNaN(kcal100) || isNaN(weight)) { showToast("Заполни всё!", "fail"); return; }
-  
+  if (!name || isNaN(kcal100) || isNaN(weight)) { showToast("Заполни всё!","fail"); return; }
   if (!basicFoods[name]) state.customFoods[name] = kcal100;
-  
-  const totalKcal = Math.round((kcal100 / 100) * weight);
+  const totalKcal = Math.round((kcal100/100) * weight);
   state.food[selectedDate] = state.food[selectedDate] || [];
   state.food[selectedDate].push({ id: uid(), name, kcal100, weight, totalKcal });
-  
-  document.getElementById('foodName').value = ''; 
+  document.getElementById('foodName').value = '';
   document.getElementById('foodKcal100').value = '';
   save(); renderCalories();
 }
@@ -1399,10 +1476,15 @@ function delFood(id) {
   save(); renderCalories();
 }
 
-// --- СТАРТ ---
+// --- Старт ---
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {};
+  window.speechSynthesis.getVoices();
+}
 applySettings();
 renderCalendar();
 switchView('calendar');
+applyPositions();
 loadFartBuffer();
 </script>
 </body>
