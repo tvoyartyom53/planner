@@ -33,7 +33,8 @@
   .wrap{
     width:100%; max-width:520px; height:100%; margin:0 auto;
     overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
-    overscroll-behavior-y:contain; padding:20px 15px 100px 15px;
+    overscroll-behavior-y:contain;
+    padding:20px 15px calc(200px + env(safe-area-inset-bottom)) 15px;
     background-color:rgba(15,15,15,var(--bg-opacity));
     backdrop-filter:blur(var(--bg-blur)); -webkit-backdrop-filter:blur(var(--bg-blur));
     box-shadow:0 0 30px rgba(0,0,0,0.6);
@@ -41,13 +42,12 @@
   }
   #view-calendar.active {
     display:flex; flex-direction:column; align-items:center;
-    min-height:calc(100vh - 140px);
+    min-height:calc(100vh - 160px);
   }
   #view-calendar .app-header,
   #view-calendar .month-nav,
   #view-calendar .cal-header,
   #view-calendar .cal-grid { width:100%; }
-
   .app-header {
     display:flex; justify-content:space-between; align-items:center;
     margin-bottom:20px; padding-bottom:10px;
@@ -101,17 +101,48 @@
   .week-strip .w-day .num { font-size:22px; margin-top:6px; display:inline-block; width:36px; height:36px; line-height:36px; border-radius:50%; }
   .week-strip .w-day.active .num { background:var(--text); color:#000; font-weight:bold; }
   ul { list-style:none; padding:0; margin:0; }
+
+  /* ============ SWIPE TASK ITEM ============ */
   .task-item {
-    display:flex; align-items:center; gap:10px; padding:12px 0;
-    border-bottom:1px solid rgba(255,255,255,0.15); position:relative;
+    position:relative; display:block; overflow:hidden;
+    padding:0 !important; margin:0;
+    border-bottom:1px solid rgba(255,255,255,0.15);
   }
-  .task-item.task-custom { border-left:3px solid var(--accent); padding-left:10px; }
-  .task-item.task-punish {
+  .task-swipe-actions {
+    position:absolute; top:0; bottom:0; left:0;
+    width:110px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:linear-gradient(90deg, rgba(66,165,245,0.15), rgba(239,83,80,0.15));
+    padding:0 8px;
+    z-index:0;
+  }
+  .swipe-btn {
+    width:42px; height:42px; border-radius:50%;
+    border:2px solid #fff; cursor:pointer;
+    font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+    font-family:sans-serif; padding:0; color:#fff;
+    box-shadow:0 2px 8px rgba(0,0,0,0.4);
+  }
+  .swipe-edit { background:#42A5F5; }
+  .swipe-del { background:var(--red); }
+  .task-swipe-inner {
+    position:relative; z-index:1;
+    display:flex; align-items:center; gap:10px;
+    padding:12px 0; background:transparent;
+    transition: transform 0.25s ease;
+    will-change: transform;
+    touch-action: pan-y;
+  }
+  .task-swipe-inner.task-custom { border-left:3px solid var(--accent); padding-left:10px; }
+  .task-swipe-inner.task-punish {
     border-left:3px solid var(--red); padding-left:10px;
     background:rgba(239,83,80,0.08);
   }
-  .task-item.task-punish .task-text { color:var(--red); font-weight:600; }
-  .task-item.task-punish.done .task-text { color:var(--muted); text-decoration:line-through; }
+  .task-swipe-inner.task-punish .task-text { color:var(--red); font-weight:600; }
+  .task-swipe-inner.done .task-text { color:var(--muted); text-decoration:line-through; }
+  .task-swipe-inner.failed .task-text { color:var(--red); text-decoration:line-through; opacity:0.7; }
+
   .task-badge {
     font-size:10px; color:var(--accent); background:rgba(102,187,106,0.15);
     padding:2px 6px; border-radius:4px; text-transform:uppercase;
@@ -124,8 +155,6 @@
     line-height:1.2; font-size:22px; word-break:break-word;
     font-weight:var(--font-weight-base);
   }
-  .task-item.done .task-text { color:var(--muted); text-decoration:line-through; }
-  .task-item.failed .task-text { color:var(--red); text-decoration:line-through; opacity:0.7; }
   .task-imgs { display:flex; gap:4px; flex-wrap:wrap; }
   .task-img-thumb {
     width:44px; height:44px; border-radius:8px; object-fit:cover;
@@ -133,7 +162,7 @@
   }
   .task-img-thumb:active { transform:scale(0.9); }
   .task-actions { display:flex; gap:6px; flex-shrink:0; align-items:center; }
-  .btn-check, .btn-cross, .btn-edit {
+  .btn-check, .btn-cross {
     width:36px; height:36px;
     border-radius:45% 55% 50% 50% / 50% 45% 55% 50%;
     border:3px solid;
@@ -143,8 +172,7 @@
   }
   .btn-check { color:var(--green); border-color:var(--green); }
   .btn-cross { color:var(--red); border-color:var(--red); }
-  .btn-edit { color:var(--text); border-color:var(--border); width:30px; height:30px; font-size:14px; border-width:2px; }
-  .btn-check:active, .btn-cross:active, .btn-edit:active { transform:scale(0.85); }
+  .btn-check:active, .btn-cross:active { transform:scale(0.85); }
   .add-row { display:flex; gap:10px; margin-bottom:20px; align-items:stretch; }
   .add-row input[type="text"] {
     flex:1; padding:12px; background:rgba(0,0,0,0.4); color:var(--text);
@@ -337,6 +365,8 @@
     font-weight:600;
   }
   .elem-group-title:first-child { margin-top:0; }
+
+  /* ============ DRAG MODE ============ */
   body.drag-mode .wrap { overflow:hidden !important; }
   body.drag-mode [data-draggable] {
     touch-action:none; outline:2px dashed var(--accent); outline-offset:4px;
@@ -385,6 +415,8 @@
     border:1px solid var(--accent); pointer-events:none;
   }
   #dragHint.show { display:block; }
+
+  /* ============ LAYOUTS ============ */
   body.layout-minimal .app-header { border-bottom-width:1px; border-bottom-style:solid; }
   body.layout-minimal .month-nav { border-bottom-width:1px; border-bottom-style:solid; }
   body.layout-minimal .week-strip { border-bottom-width:1px; border-bottom-style:solid; }
@@ -471,8 +503,7 @@
   }
   body.layout-wavy .task-item { border-bottom:2px dotted rgba(255,255,255,0.3); }
   body.layout-wavy .add-row input[type="text"] { border-radius:50% 50% 50% 50% / 30px 30px 30px 30px; }
-</style>
-</head><body>
+</style><body>
 
 <div id="bg-layer"></div>
 <div class="toast-container" id="toastContainer"></div>
@@ -543,9 +574,9 @@
   </div>
 
   <div id="view-profile" class="view">
-    <div class="app-header"><h1 style="font-size:36px;">Профиль</h1></div>
-    <h3 class="section-title">Кастом</h3>
-    <div class="settings-grid">
+    <div class="app-header" data-draggable="profile-header"><h1 style="font-size:36px;">Профиль</h1></div>
+    <h3 class="section-title" data-draggable="profile-custom-title">Кастом</h3>
+    <div class="settings-grid" data-draggable="profile-custom">
       <button class="settings-tile" onclick="openSettingsModal('wallpapers')">
         <span class="tile-icon">🖼</span><span>Обои</span>
       </button>
@@ -560,8 +591,8 @@
       </button>
     </div>
 
-    <h3 class="section-title">Наказания</h3>
-    <div class="settings-box">
+    <h3 class="section-title" data-draggable="profile-punish-title">Наказания</h3>
+    <div class="settings-box" data-draggable="profile-punish">
       <div class="settings-row">
         <label>Текст наказания (появится в заметках при невыполнении)</label>
         <input type="text" id="punishInput" placeholder="Например: Отжаться 50 раз" onchange="updatePunishment(this.value)" style="margin-bottom:0;">
@@ -572,22 +603,22 @@
       </div>
     </div>
 
-    <h3 class="section-title">Интерфейс</h3>
+    <h3 class="section-title" data-draggable="profile-ui-title">Интерфейс</h3>
     <button class="settings-tile-full" onclick="toggleDragMode()">
       <span class="tile-icon">✋</span><span>Режим перемещения элементов</span>
     </button>
     <button class="settings-tile-full" onclick="restoreHidden()">
       <span class="tile-icon">👁</span><span>Восстановить скрытые</span>
     </button>
-    <button class="settings-tile-full" onclick="resetAllPositions()">
+    <button class="settings-tile-full" data-draggable="profile-reset-btn" onclick="resetAllPositions()">
       <span class="tile-icon">↺</span><span>Сбросить всё (позиции, размеры, скрытия)</span>
     </button>
 
-    <h3 class="section-title">Удалить элементы</h3>
-    <div class="settings-box" id="elementsManager"></div>
+    <h3 class="section-title" data-draggable="profile-elems-title">Удалить элементы</h3>
+    <div class="settings-box" id="elementsManager" data-draggable="profile-elems"></div>
 
-    <h3 class="section-title">Основные</h3>
-    <div class="settings-box">
+    <h3 class="section-title" data-draggable="profile-main-title">Основные</h3>
+    <div class="settings-box" data-draggable="profile-main">
       <div class="settings-row">
         <label>Звуки (победа/пердеж)</label>
         <label class="switch"><input type="checkbox" id="soundToggle" onchange="toggleSound(this.checked)"><span class="slider"></span></label>
@@ -705,10 +736,23 @@ const DRAGGABLE_ELEMENTS = {
     { key: 'stats-kcal', label: 'Кольцо калорий' },
     { key: 'stats-foodinput', label: 'Ввод еды' },
     { key: 'stats-foodlist', label: 'Список еды' }
+  ],
+  profile: [
+    { key: 'profile-header', label: 'Шапка' },
+    { key: 'profile-custom-title', label: 'Заголовок "Кастом"' },
+    { key: 'profile-custom', label: 'Кнопки кастома' },
+    { key: 'profile-punish-title', label: 'Заголовок "Наказания"' },
+    { key: 'profile-punish', label: 'Блок наказаний' },
+    { key: 'profile-ui-title', label: 'Заголовок "Интерфейс"' },
+    { key: 'profile-reset-btn', label: 'Кнопка "Сбросить всё"' },
+    { key: 'profile-elems-title', label: 'Заголовок "Удалить элементы"' },
+    { key: 'profile-elems', label: 'Менеджер элементов' },
+    { key: 'profile-main-title', label: 'Заголовок "Основные"' },
+    { key: 'profile-main', label: 'Основные настройки' }
   ]
 };
 
-const VIEW_LABELS = { calendar: 'Календарь', daily: 'День', stats: 'Статистика' };
+const VIEW_LABELS = { calendar: 'Календарь', daily: 'День', stats: 'Статистика', profile: 'Профиль' };
 
 const basicFoods = {
   "Баранина жирная":316,"Баранина нежирная":166,"Ветчина":365,"Говядина тушеная":180,
@@ -999,7 +1043,6 @@ function evaluateYesterdayPunishment() {
   const yesterdayIso = y.getFullYear()+'-'+pad(y.getMonth()+1)+'-'+pad(y.getDate());
 
   const tasks = getTasksForDateRaw(yesterdayIso);
-
   if (tasks.length === 0) {
     state.punishmentChecked[todayIso] = true;
     save();
@@ -1008,7 +1051,6 @@ function evaluateYesterdayPunishment() {
 
   const regular = tasks.filter(t => !t.isPunishment);
   const punish = tasks.filter(t => t.isPunishment);
-
   const regTotal = regular.length;
   const regDone = regular.filter(t => t.done).length;
   const punTotal = punish.length;
@@ -1056,9 +1098,7 @@ function getTasksForDateRaw(iso) {
   }));
   return [...tpl, ...custom];
 }
-function getTasksForDate(iso) {
-  return getTasksForDateRaw(iso);
-}
+function getTasksForDate(iso) { return getTasksForDateRaw(iso); }
 
 function renderPunishCounter() {
   const el = document.getElementById('punishCounter');
@@ -1068,7 +1108,6 @@ function renderPunishCounter() {
   const punishEntries = entries.filter(e => e.isPunishment);
   const total = punishEntries.length;
   const doneCount = punishEntries.filter(e => e.done).length;
-
   if (total === 0) {
     el.textContent = 'Нет';
     el.style.color = 'var(--green)';
@@ -1178,7 +1217,76 @@ function closeImage(e) {
   if (e.target.id === 'imageModal' || e.target.classList.contains('close-img')) {
     document.getElementById('imageModal').classList.remove('open');
   }
-}function renderDaily() {
+}
+
+/* ============ SWIPE HANDLING ============ */
+let swipeState = null;
+const SWIPE_MAX = 110;
+
+document.addEventListener('touchstart', e => {
+  if (dragMode) return;
+  const inner = e.target.closest('.task-swipe-inner');
+  if (!inner) return;
+  if (e.touches.length !== 1) return;
+  // закрываем другие открытые
+  document.querySelectorAll('.task-swipe-inner.open').forEach(el => {
+    if (el !== inner) { el.style.transform = 'translateX(0)'; el.classList.remove('open'); }
+  });
+  swipeState = {
+    el: inner,
+    startX: e.touches[0].clientX,
+    startY: e.touches[0].clientY,
+    isOpen: inner.classList.contains('open'),
+    moved: false,
+    locked: null // null|'h'|'v'
+  };
+}, { passive:true });
+
+document.addEventListener('touchmove', e => {
+  if (!swipeState || e.touches.length !== 1) return;
+  const dx = e.touches[0].clientX - swipeState.startX;
+  const dy = e.touches[0].clientY - swipeState.startY;
+
+  if (!swipeState.locked) {
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+    swipeState.locked = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+  }
+
+  if (swipeState.locked === 'v') return;
+  e.preventDefault();
+
+  const base = swipeState.isOpen ? SWIPE_MAX : 0;
+  let pos = base + dx;
+  pos = Math.max(0, Math.min(SWIPE_MAX, pos));
+  swipeState.el.style.transform = `translateX(${pos}px)`;
+  swipeState.moved = Math.abs(dx) > 10;
+  swipeState.currentPos = pos;
+}, { passive:false });
+
+document.addEventListener('touchend', e => {
+  if (!swipeState) return;
+  const s = swipeState;
+  swipeState = null;
+  if (s.locked !== 'h') return;
+  const pos = s.currentPos || (s.isOpen ? SWIPE_MAX : 0);
+  if (pos > SWIPE_MAX / 2) {
+    s.el.style.transform = `translateX(${SWIPE_MAX}px)`;
+    s.el.classList.add('open');
+  } else {
+    s.el.style.transform = 'translateX(0)';
+    s.el.classList.remove('open');
+  }
+  // блокируем клики после свайпа
+  if (s.moved) {
+    const stopClick = ev => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      document.removeEventListener('click', stopClick, true);
+    };
+    document.addEventListener('click', stopClick, true);
+    setTimeout(() => document.removeEventListener('click', stopClick, true), 300);
+  }
+});function renderDaily() {
   const d = new Date(selectedDate + 'T00:00:00');
   document.getElementById('dailyDateLabel').textContent = `${d.getDate()} ${MONTHS[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
   const strip = document.getElementById('weekStrip');
@@ -1209,12 +1317,12 @@ function closeImage(e) {
 }
 
 function renderTaskItem(t) {
-  let stateClass = '';
-  if (t.done) stateClass = 'done';
-  if (t.failed) stateClass = 'failed';
   const isCustom = t.key.startsWith('c_');
   const isPunish = !!t.isPunishment;
   const imgs = t.images || [];
+  let stateClass = '';
+  if (t.done) stateClass = 'done';
+  if (t.failed) stateClass = 'failed';
   let imgsHtml = '';
   if (imgs.length) {
     imgsHtml = `<div class="task-imgs">${imgs.map(img =>
@@ -1224,20 +1332,33 @@ function renderTaskItem(t) {
   let badge = '';
   if (isPunish) badge = '<span class="task-badge punish-badge">наказ</span>';
   else if (isCustom) badge = '<span class="task-badge">день</span>';
-  return `<li class="task-item ${stateClass} ${isCustom ? 'task-custom' : ''} ${isPunish ? 'task-punish' : ''}">
-    ${badge}
-    <div class="task-content">
-      <div class="task-main" onmousedown="startDeleteTimer('${t.key}')" onmouseup="clearDeleteTimer()" onmouseleave="clearDeleteTimer()" ontouchstart="startDeleteTimer('${t.key}')" ontouchend="clearDeleteTimer()">
-        <div class="task-text">${t.title}</div>
-        ${imgsHtml}
+
+  const actionsHtml = isCustom ? `
+    <div class="task-swipe-actions">
+      <button class="swipe-btn swipe-edit" onclick="event.stopPropagation();openEditModal('${t.key}')">✎</button>
+      <button class="swipe-btn swipe-del" onclick="event.stopPropagation();confirmDelete('${t.key}')">✕</button>
+    </div>` : '';
+
+  return `<li class="task-item ${stateClass}">
+    ${actionsHtml}
+    <div class="task-swipe-inner ${stateClass} ${isCustom ? 'task-custom' : ''} ${isPunish ? 'task-punish' : ''}">
+      ${badge}
+      <div class="task-content">
+        <div class="task-main">
+          <div class="task-text">${t.title}</div>
+          ${imgsHtml}
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="btn-check" onclick="event.stopPropagation();toggleTask('${t.key}', ${t.done}, ${t.failed})">✓</button>
+        <button class="btn-cross" onclick="event.stopPropagation();failTask('${t.key}', ${t.done}, ${t.failed})">✕</button>
       </div>
     </div>
-    <div class="task-actions">
-      ${isCustom ? `<button class="btn-edit" onclick="openEditModal('${t.key}')">✎</button>` : ''}
-      <button class="btn-check" onclick="toggleTask('${t.key}', ${t.done}, ${t.failed})">✓</button>
-      <button class="btn-cross" onclick="failTask('${t.key}', ${t.done}, ${t.failed})">✕</button>
-    </div>
   </li>`;
+}
+
+function confirmDelete(key) {
+  if (confirm("Удалить эту задачу?")) deleteTask(key);
 }
 
 function addDailyTask() {
@@ -1302,15 +1423,6 @@ function failTask(key, currentDone, currentFailed) {
   }
 }
 
-let deleteTimer = null;
-function startDeleteTimer(key) {
-  if (dragMode) return;
-  clearTimeout(deleteTimer);
-  deleteTimer = setTimeout(() => {
-    if (confirm("Удалить эту задачу?")) deleteTask(key);
-  }, 800);
-}
-function clearDeleteTimer(){ clearTimeout(deleteTimer); }
 function deleteTask(key) {
   const type = key.startsWith('t_') ? 't' : 'c';
   const id = key.substring(2);
@@ -1795,3 +1907,4 @@ loadFartBuffer();
 </script>
 </body>
 </html>
+</head>
