@@ -83,6 +83,7 @@
     transform:rotate(-10deg) scale(1.1); z-index:-1; opacity:0.8; pointer-events:none;
   }
   .cal-day.today { color:var(--accent); font-weight:bold; }
+  .cal-day.has-punish { color:var(--red); font-weight:bold; }
   .calendar-quote {
     margin-top:auto; padding-top:25px; text-align:center;
     font-style:italic; color:var(--muted); font-size:22px; line-height:1.4;
@@ -105,11 +106,18 @@
     border-bottom:1px solid rgba(255,255,255,0.15); position:relative;
   }
   .task-item.task-custom { border-left:3px solid var(--accent); padding-left:10px; }
+  .task-item.task-punish {
+    border-left:3px solid var(--red); padding-left:10px;
+    background:rgba(239,83,80,0.08);
+  }
+  .task-item.task-punish .task-text { color:var(--red); font-weight:600; }
+  .task-item.task-punish.done .task-text { color:var(--muted); text-decoration:line-through; }
   .task-badge {
     font-size:10px; color:var(--accent); background:rgba(102,187,106,0.15);
     padding:2px 6px; border-radius:4px; text-transform:uppercase;
     letter-spacing:0.5px; flex-shrink:0; font-family:sans-serif; font-weight:600;
   }
+  .task-badge.punish-badge { color:var(--red); background:rgba(239,83,80,0.2); }
   .task-content { flex:1; display:flex; align-items:center; min-width:0; }
   .task-main { flex:1; display:flex; flex-direction:column; gap:6px; min-width:0; cursor:pointer; }
   .task-text {
@@ -174,7 +182,7 @@
   .ring-text .num { font-size:36px; line-height:1; }
   .bottom-nav {
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:520px; z-index:15;
+    width:100%; max-width:520px; z-index:50;
     background:rgba(15,15,15,0.95); backdrop-filter:blur(10px);
     border-top:3px solid var(--border);
     display:flex; justify-content:space-around; align-items:center;
@@ -311,52 +319,53 @@
     font-size:12px; cursor:pointer; padding:0;
     display:flex; align-items:center; justify-content:center;
   }
-
-  /* ============ DRAG MODE ============ */
-  body.drag-mode .wrap {
-    overflow:hidden !important;
+  .elem-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 0; border-bottom:1px dashed rgba(255,255,255,0.12);
   }
+  .elem-row:last-child { border-bottom:none; }
+  .elem-btn {
+    padding:6px 14px; background:var(--red); color:#fff;
+    border:2px solid var(--border); border-radius:8px; cursor:pointer;
+    font-family:var(--font-main); font-size:16px; font-weight:600;
+    min-width:110px;
+  }
+  .elem-btn.hidden-state { background:var(--green); color:#000; }
+  .elem-group-title {
+    color:var(--muted); font-size:13px; text-transform:uppercase;
+    letter-spacing:1px; margin:14px 0 6px 0; font-family:sans-serif;
+    font-weight:600;
+  }
+  .elem-group-title:first-child { margin-top:0; }
+  body.drag-mode .wrap { overflow:hidden !important; }
   body.drag-mode [data-draggable] {
-    touch-action:none;
-    outline:2px dashed var(--accent);
-    outline-offset:4px;
-    cursor:grab;
-    user-select:none; -webkit-user-select:none;
-    position:relative; z-index:10;
-    box-sizing:border-box;
+    touch-action:none; outline:2px dashed var(--accent); outline-offset:4px;
+    cursor:grab; user-select:none; -webkit-user-select:none;
+    position:relative; z-index:10; box-sizing:border-box;
   }
-  body.drag-mode [data-draggable] * {
-    pointer-events:none;
-  }
+  body.drag-mode [data-draggable] * { pointer-events:none; }
   body.drag-mode [data-draggable].dragging {
-    cursor:grabbing; opacity:0.9; z-index:100;
-    outline-color: var(--red);
+    cursor:grabbing; opacity:0.9; z-index:100; outline-color:var(--red);
   }
   body.drag-mode .drag-remove-btn,
-  body.drag-mode .drag-resize-handle {
-    pointer-events:auto !important;
-  }
+  body.drag-mode .drag-resize-handle { pointer-events:auto !important; }
   body.drag-mode .drag-remove-btn {
     position:absolute; top:-10px; right:-10px;
     width:28px; height:28px; border-radius:50%;
     background:var(--red); color:#fff;
     display:flex; align-items:center; justify-content:center;
     font-size:14px; font-weight:bold; cursor:pointer;
-    z-index:200; border:2px solid #000;
-    font-family:sans-serif;
-    box-shadow:0 2px 8px rgba(0,0,0,0.6);
-    touch-action:none;
+    z-index:200; border:2px solid #000; font-family:sans-serif;
+    box-shadow:0 2px 8px rgba(0,0,0,0.6); touch-action:none;
   }
   body.drag-mode .drag-resize-handle {
     position:absolute; bottom:-10px; right:-10px;
     width:28px; height:28px; border-radius:6px;
     background:var(--accent); color:#000;
-    cursor:nwse-resize; z-index:200;
-    border:2px solid #000;
+    cursor:nwse-resize; z-index:200; border:2px solid #000;
     display:flex; align-items:center; justify-content:center;
     font-size:16px; font-family:sans-serif;
-    box-shadow:0 2px 8px rgba(0,0,0,0.6);
-    touch-action:none;
+    box-shadow:0 2px 8px rgba(0,0,0,0.6); touch-action:none;
   }
   #dragExitBtn {
     display:none; position:fixed; bottom:90px; left:50%;
@@ -373,12 +382,9 @@
     background:rgba(0,0,0,0.85); color:var(--accent);
     padding:6px 14px; border-radius:16px;
     font-family:var(--font-main); font-size:14px;
-    border:1px solid var(--accent);
-    pointer-events:none;
+    border:1px solid var(--accent); pointer-events:none;
   }
   #dragHint.show { display:block; }
-
-  /* Layouts */
   body.layout-minimal .app-header { border-bottom-width:1px; border-bottom-style:solid; }
   body.layout-minimal .month-nav { border-bottom-width:1px; border-bottom-style:solid; }
   body.layout-minimal .week-strip { border-bottom-width:1px; border-bottom-style:solid; }
@@ -428,14 +434,10 @@
   body.layout-paper .add-row input[type="text"] { border-radius:3px; }
   body.layout-paper .btn-check, body.layout-paper .btn-cross { border-radius:4px; }
   body.layout-paper .settings-tile, body.layout-paper .settings-tile-full { border-radius:4px; }
-  body.layout-glass .cal-grid,
-  body.layout-glass .kcal-dashboard,
-  body.layout-glass .settings-box,
-  body.layout-glass .settings-tile,
-  body.layout-glass .settings-tile-full,
-  body.layout-glass .add-row input[type="text"],
-  body.layout-glass .font-option,
-  body.layout-glass .layout-option {
+  body.layout-glass .cal-grid, body.layout-glass .kcal-dashboard,
+  body.layout-glass .settings-box, body.layout-glass .settings-tile,
+  body.layout-glass .settings-tile-full, body.layout-glass .add-row input[type="text"],
+  body.layout-glass .font-option, body.layout-glass .layout-option {
     background:rgba(255,255,255,0.08);
     backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
     border:1px solid rgba(255,255,255,0.2); border-radius:16px;
@@ -470,12 +472,11 @@
   body.layout-wavy .task-item { border-bottom:2px dotted rgba(255,255,255,0.3); }
   body.layout-wavy .add-row input[type="text"] { border-radius:50% 50% 50% 50% / 30px 30px 30px 30px; }
 </style>
-</head>
-<body>
+</head><body>
 
 <div id="bg-layer"></div>
 <div class="toast-container" id="toastContainer"></div>
-<div id="dragHint">Тяни / ✕ удалить / ⤢ размер</div>
+<div id="dragHint">Тяни / ✕ скрыть / ⤢ размер</div>
 <button id="dragExitBtn" onclick="toggleDragMode()">✓ Готово</button>
 
 <div class="wrap">
@@ -558,6 +559,19 @@
         <span class="tile-icon">🎨</span><span>Цвета</span>
       </button>
     </div>
+
+    <h3 class="section-title">Наказания</h3>
+    <div class="settings-box">
+      <div class="settings-row">
+        <label>Текст наказания (появится в заметках при невыполнении)</label>
+        <input type="text" id="punishInput" placeholder="Например: Отжаться 50 раз" onchange="updatePunishment(this.value)" style="margin-bottom:0;">
+      </div>
+      <div class="settings-row" style="margin-bottom:0; margin-top:12px;">
+        <label>Наказаний на сегодня</label>
+        <div id="punishCounter" style="color:var(--green); font-size:22px; font-weight:bold;">Нет</div>
+      </div>
+    </div>
+
     <h3 class="section-title">Интерфейс</h3>
     <button class="settings-tile-full" onclick="toggleDragMode()">
       <span class="tile-icon">✋</span><span>Режим перемещения элементов</span>
@@ -568,6 +582,10 @@
     <button class="settings-tile-full" onclick="resetAllPositions()">
       <span class="tile-icon">↺</span><span>Сбросить всё (позиции, размеры, скрытия)</span>
     </button>
+
+    <h3 class="section-title">Удалить элементы</h3>
+    <div class="settings-box" id="elementsManager"></div>
+
     <h3 class="section-title">Основные</h3>
     <div class="settings-box">
       <div class="settings-row">
@@ -630,9 +648,7 @@
 <div class="modal" id="imageModal" onclick="closeImage(event)">
   <button class="close-img" onclick="closeImage(event)">✕</button>
   <img id="fullImage" src="" alt="Фото">
-</div>
-
-<script>
+</div><script>
 const KEY='diary_v16';
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -669,6 +685,30 @@ const LAYOUTS = [
 ];
 
 const PALETTE = ['#66BB6A','#42A5F5','#EF5350','#FF9800','#AB47BC','#EC407A','#26C6DA','#FFEB3B'];
+
+const DRAGGABLE_ELEMENTS = {
+  calendar: [
+    { key: 'cal-header', label: 'Шапка' },
+    { key: 'cal-month', label: 'Месяц / навигация' },
+    { key: 'cal-weekdays', label: 'Дни недели' },
+    { key: 'cal-grid', label: 'Сетка календаря' },
+    { key: 'cal-quote', label: 'Цитата' }
+  ],
+  daily: [
+    { key: 'daily-header', label: 'Шапка дня' },
+    { key: 'daily-week', label: 'Полоса недели' },
+    { key: 'daily-add', label: 'Добавление задачи' },
+    { key: 'daily-tasks', label: 'Список задач' }
+  ],
+  stats: [
+    { key: 'stats-header', label: 'Шапка' },
+    { key: 'stats-kcal', label: 'Кольцо калорий' },
+    { key: 'stats-foodinput', label: 'Ввод еды' },
+    { key: 'stats-foodlist', label: 'Список еды' }
+  ]
+};
+
+const VIEW_LABELS = { calendar: 'Календарь', daily: 'День', stats: 'Статистика' };
 
 const basicFoods = {
   "Баранина жирная":316,"Баранина нежирная":166,"Ветчина":365,"Говядина тушеная":180,
@@ -745,7 +785,8 @@ const failPhrases = [
 const defaultSettings = {
   soundEnabled:true, voiceEnabled:false, customBg:null, bgDarkness:60, bgBlur:4, goalKcal:2500,
   fontFamily:'Caveat', fontSize:20, fontBold:false, layout:'classic',
-  accentColor:'#66BB6A', textColor:'#f0f0f0', positions:{}
+  accentColor:'#66BB6A', textColor:'#f0f0f0', positions:{},
+  punishmentText:''
 };
 
 function load() {
@@ -763,11 +804,17 @@ function load() {
       return {
         templates:d.templates||[], entries:d.entries||{}, done:d.done||{}, skipped:d.skipped||{},
         failed:d.failed||{}, food:d.food||{}, customFoods:d.customFoods||{},
+        punishmentChecked:d.punishmentChecked||{},
+        punishmentCounts:d.punishmentCounts||{},
         settings:Object.assign({}, defaultSettings, d.settings||{})
       };
     }
   } catch {}
-  return { templates:[], entries:{}, done:{}, skipped:{}, failed:{}, food:{}, customFoods:{}, settings:Object.assign({}, defaultSettings) };
+  return {
+    templates:[], entries:{}, done:{}, skipped:{}, failed:{}, food:{}, customFoods:{},
+    punishmentChecked:{}, punishmentCounts:{},
+    settings:Object.assign({}, defaultSettings)
+  };
 }
 let state = load();
 const save = () => {
@@ -776,9 +823,13 @@ const save = () => {
 };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const pad = n => n<10 ? '0'+n : ''+n;
+const getTodayIso = () => {
+  const t = new Date();
+  return t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate());
+};
 
 let currentDateObj = new Date();
-let selectedDate = currentDateObj.getFullYear()+'-'+pad(currentDateObj.getMonth()+1)+'-'+pad(currentDateObj.getDate());
+let selectedDate = getTodayIso();
 let pendingDailyImages = [];
 let selectedDays = [];
 let colorTarget = 'accent';
@@ -860,6 +911,7 @@ function applySettings() {
   document.getElementById('voiceToggle').checked = state.settings.voiceEnabled;
   document.getElementById('goalInput').value = state.settings.goalKcal || 2500;
   document.getElementById('goalDisplay').textContent = state.settings.goalKcal || 2500;
+  document.getElementById('punishInput').value = state.settings.punishmentText || '';
   const bgLayer = document.getElementById('bg-layer');
   bgLayer.style.backgroundImage = state.settings.customBg
     ? `url(${state.settings.customBg})`
@@ -880,10 +932,7 @@ function applySettings() {
 function toggleSound(val){ state.settings.soundEnabled = val; save(); }
 function toggleVoice(val){
   state.settings.voiceEnabled = val; save();
-  if (val) {
-    showToast("Голос включён","success");
-    try { speak("Голос включён"); } catch(e){}
-  }
+  if (val) { showToast("Голос включён","success"); try { speak("Голос включён"); } catch(e){} }
 }
 function updateGoal(val){
   val = parseInt(val);
@@ -891,6 +940,19 @@ function updateGoal(val){
   state.settings.goalKcal = val;
   document.getElementById('goalDisplay').textContent = val;
   save(); renderCalories();
+}
+function updatePunishment(val) {
+  state.settings.punishmentText = val.trim();
+  Object.keys(state.entries).forEach(dateIso => {
+    (state.entries[dateIso] || []).forEach(e => {
+      if (e.isPunishment && !e.done && !e.failed) {
+        e.title = '⚖ ' + state.settings.punishmentText;
+      }
+    });
+  });
+  save();
+  renderDaily();
+  showToast("Наказание сохранено","success");
 }
 
 function showToast(message, type) {
@@ -909,10 +971,14 @@ function switchView(viewId) {
   const navBtn = document.getElementById('nav-'+viewId);
   if (navBtn) navBtn.classList.add('active');
   if (!dragMode) document.querySelector('.wrap').scrollTop = 0;
+
+  evaluateYesterdayPunishment();
+
   if (viewId === 'calendar') renderCalendar();
   if (viewId === 'daily') renderDaily();
   if (viewId === 'stats') renderCalories();
-  // После активации вкладки — пересчитываем позиции и (если drag-mode) кнопки управления
+  if (viewId === 'profile') { renderPunishCounter(); renderElementsManager(); }
+
   requestAnimationFrame(() => {
     applyPositions();
     if (dragMode) injectDragControls();
@@ -920,9 +986,126 @@ function switchView(viewId) {
 }
 
 function goTodayTasks() {
-  const today = new Date();
-  selectedDate = today.getFullYear()+'-'+pad(today.getMonth()+1)+'-'+pad(today.getDate());
+  selectedDate = getTodayIso();
   switchView('daily');
+}
+
+function evaluateYesterdayPunishment() {
+  const todayIso = getTodayIso();
+  if (state.punishmentChecked[todayIso]) return;
+
+  const y = new Date(todayIso + 'T00:00:00');
+  y.setDate(y.getDate() - 1);
+  const yesterdayIso = y.getFullYear()+'-'+pad(y.getMonth()+1)+'-'+pad(y.getDate());
+
+  const tasks = getTasksForDateRaw(yesterdayIso);
+
+  if (tasks.length === 0) {
+    state.punishmentChecked[todayIso] = true;
+    save();
+    return;
+  }
+
+  const regular = tasks.filter(t => !t.isPunishment);
+  const punish = tasks.filter(t => t.isPunishment);
+
+  const regTotal = regular.length;
+  const regDone = regular.filter(t => t.done).length;
+  const punTotal = punish.length;
+  const punDone = punish.filter(t => t.done).length;
+
+  let failed = false;
+  if (regTotal > 0 && regDone < regTotal / 2) failed = true;
+  if (punTotal > 0 && punDone < punTotal) failed = true;
+
+  const prevCount = state.punishmentCounts[yesterdayIso] || 0;
+  const newCount = failed ? (prevCount + 1) : 0;
+  state.punishmentCounts[todayIso] = newCount;
+
+  if (newCount > 0 && state.settings.punishmentText) {
+    state.entries[todayIso] = state.entries[todayIso] || [];
+    state.entries[todayIso] = state.entries[todayIso].filter(e => !e.isPunishment);
+    for (let i = 0; i < newCount; i++) {
+      state.entries[todayIso].push({
+        id: uid(),
+        title: '⚖ ' + state.settings.punishmentText,
+        done: false, failed: false, isPunishment: true, images: []
+      });
+    }
+    showToast(`⚠ Наказаний: ${newCount}`, 'fail');
+    if (state.settings.voiceEnabled) {
+      setTimeout(() => speak(`Наказание. ${state.settings.punishmentText}`), 700);
+    }
+  }
+
+  state.punishmentChecked[todayIso] = true;
+  save();
+}
+
+function getTasksForDateRaw(iso) {
+  const wd = new Date(iso + 'T00:00:00').getDay();
+  const skipped = state.skipped[iso] || {};
+  const done = state.done[iso] || {};
+  const failed = state.failed[iso] || {};
+  const tpl = state.templates.filter(t => t.days.includes(wd) && !skipped[t.id]).map(t => ({
+    key: 't_'+t.id, title: t.title, done: !!done[t.id], failed: !!failed[t.id], id: t.id, images: [], isPunishment: false
+  }));
+  const custom = (state.entries[iso] || []).map(e => ({
+    key: 'c_'+e.id, title: e.title, done: !!e.done, failed: !!e.failed, id: e.id,
+    images: e.images || [], isPunishment: !!e.isPunishment
+  }));
+  return [...tpl, ...custom];
+}
+function getTasksForDate(iso) {
+  return getTasksForDateRaw(iso);
+}
+
+function renderPunishCounter() {
+  const el = document.getElementById('punishCounter');
+  if (!el) return;
+  const todayIso = getTodayIso();
+  const entries = state.entries[todayIso] || [];
+  const punishEntries = entries.filter(e => e.isPunishment);
+  const total = punishEntries.length;
+  const doneCount = punishEntries.filter(e => e.done).length;
+
+  if (total === 0) {
+    el.textContent = 'Нет';
+    el.style.color = 'var(--green)';
+  } else {
+    el.textContent = `Выполнено: ${doneCount} / ${total}`;
+    el.style.color = doneCount === total ? 'var(--green)' : 'var(--red)';
+  }
+}
+
+function renderElementsManager() {
+  const container = document.getElementById('elementsManager');
+  if (!container) return;
+  let html = '';
+  Object.keys(DRAGGABLE_ELEMENTS).forEach(viewKey => {
+    html += `<div class="elem-group-title">${VIEW_LABELS[viewKey]}</div>`;
+    DRAGGABLE_ELEMENTS[viewKey].forEach(el => {
+      const pos = state.settings.positions[el.key] || {};
+      const hidden = !!pos.hidden;
+      html += `<div class="elem-row">
+        <span>${el.label}</span>
+        <button class="elem-btn ${hidden ? 'hidden-state' : ''}" onclick="toggleElementVisibility('${el.key}')">
+          ${hidden ? '↺ Показать' : '✕ Скрыть'}
+        </button>
+      </div>`;
+    });
+  });
+  container.innerHTML = html;
+}
+
+function toggleElementVisibility(key) {
+  const pos = state.settings.positions[key] || {};
+  pos.hidden = !pos.hidden;
+  state.settings.positions[key] = pos;
+  save();
+  applyPositions();
+  renderElementsManager();
+  showToast(pos.hidden ? "Элемент скрыт" : "Элемент показан", "success");
 }
 
 function renderCalendar() {
@@ -935,12 +1118,13 @@ function renderCalendar() {
   if (firstDay === 0) firstDay = 7;
   const daysInMonth = new Date(year, month+1, 0).getDate();
   for (let i = 1; i < firstDay; i++) grid.innerHTML += `<div class="cal-day other"></div>`;
-  const todayIso = new Date().getFullYear()+'-'+pad(new Date().getMonth()+1)+'-'+pad(new Date().getDate());
+  const todayIso = getTodayIso();
   for (let i = 1; i <= daysInMonth; i++) {
     const iso = `${year}-${pad(month+1)}-${pad(i)}`;
     const isSelected = iso === selectedDate ? 'selected' : '';
     const isToday = iso === todayIso ? 'today' : '';
-    grid.innerHTML += `<div class="cal-day ${isSelected} ${isToday}" onclick="openDay('${iso}')">${i}</div>`;
+    const hasPunish = (state.punishmentCounts[iso] || 0) > 0 ? 'has-punish' : '';
+    grid.innerHTML += `<div class="cal-day ${isSelected} ${isToday} ${hasPunish}" onclick="openDay('${iso}')">${i}</div>`;
   }
 }
 function shiftMonth(n){ currentDateObj.setMonth(currentDateObj.getMonth()+n); renderCalendar(); }
@@ -986,7 +1170,6 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.6) {
     reader.onerror = reject;
   });
 }
-
 function openImage(src) {
   document.getElementById('fullImage').src = src;
   document.getElementById('imageModal').classList.add('open');
@@ -995,10 +1178,8 @@ function closeImage(e) {
   if (e.target.id === 'imageModal' || e.target.classList.contains('close-img')) {
     document.getElementById('imageModal').classList.remove('open');
   }
-}
-
-function renderDaily() {
-  const d = new Date(selectedDate);
+}function renderDaily() {
+  const d = new Date(selectedDate + 'T00:00:00');
   document.getElementById('dailyDateLabel').textContent = `${d.getDate()} ${MONTHS[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
   const strip = document.getElementById('weekStrip');
   strip.innerHTML = '';
@@ -1032,6 +1213,7 @@ function renderTaskItem(t) {
   if (t.done) stateClass = 'done';
   if (t.failed) stateClass = 'failed';
   const isCustom = t.key.startsWith('c_');
+  const isPunish = !!t.isPunishment;
   const imgs = t.images || [];
   let imgsHtml = '';
   if (imgs.length) {
@@ -1039,8 +1221,11 @@ function renderTaskItem(t) {
       `<img src="${img}" class="task-img-thumb" onclick="event.stopPropagation();openImage('${img}')" alt="Фото">`
     ).join('')}</div>`;
   }
-  return `<li class="task-item ${stateClass} ${isCustom ? 'task-custom' : ''}">
-    ${isCustom ? '<span class="task-badge">день</span>' : ''}
+  let badge = '';
+  if (isPunish) badge = '<span class="task-badge punish-badge">наказ</span>';
+  else if (isCustom) badge = '<span class="task-badge">день</span>';
+  return `<li class="task-item ${stateClass} ${isCustom ? 'task-custom' : ''} ${isPunish ? 'task-punish' : ''}">
+    ${badge}
     <div class="task-content">
       <div class="task-main" onmousedown="startDeleteTimer('${t.key}')" onmouseup="clearDeleteTimer()" onmouseleave="clearDeleteTimer()" ontouchstart="startDeleteTimer('${t.key}')" ontouchend="clearDeleteTimer()">
         <div class="task-text">${t.title}</div>
@@ -1067,22 +1252,8 @@ function addDailyTask() {
   input.value = '';
   pendingDailyImages = [];
   updatePendingPhotoCount();
-  save();
-  renderDaily();
-}
-
-function getTasksForDate(iso) {
-  const wd = new Date(iso).getDay();
-  const skipped = state.skipped[iso] || {};
-  const done = state.done[iso] || {};
-  const failed = state.failed[iso] || {};
-  const tpl = state.templates.filter(t => t.days.includes(wd) && !skipped[t.id]).map(t => ({
-    key: 't_'+t.id, title: t.title, done: !!done[t.id], failed: !!failed[t.id], id: t.id, images: []
-  }));
-  const custom = (state.entries[iso] || []).map(e => ({
-    key: 'c_'+e.id, title: e.title, done: !!e.done, failed: !!e.failed, id: e.id, images: e.images || []
-  }));
-  return [...tpl, ...custom];
+  save(); renderDaily();
+  renderPunishCounter();
 }
 
 function toggleTask(key, currentDone, currentFailed) {
@@ -1099,6 +1270,7 @@ function toggleTask(key, currentDone, currentFailed) {
     if (e) { e.done = true; e.failed = false; }
   }
   save(); renderDaily();
+  if (iso === getTodayIso()) renderPunishCounter();
   if (!currentDone) {
     const phrase = successPhrases[Math.floor(Math.random()*successPhrases.length)];
     playVictorySound();
@@ -1106,6 +1278,7 @@ function toggleTask(key, currentDone, currentFailed) {
     if (state.settings.voiceEnabled) setTimeout(() => speak(phrase), 700);
   }
 }
+
 function failTask(key, currentDone, currentFailed) {
   const type = key.startsWith('t_') ? 't' : 'c';
   const id = key.substring(2);
@@ -1120,6 +1293,7 @@ function failTask(key, currentDone, currentFailed) {
     if (e) { e.done = false; e.failed = true; }
   }
   save(); renderDaily();
+  if (iso === getTodayIso()) renderPunishCounter();
   if (!currentFailed) {
     const phrase = failPhrases[Math.floor(Math.random()*failPhrases.length)];
     playFartSound();
@@ -1147,10 +1321,10 @@ function deleteTask(key) {
     state.entries[selectedDate] = (state.entries[selectedDate] || []).filter(x => x.id !== id);
   }
   save(); renderDaily();
+  if (selectedDate === getTodayIso()) renderPunishCounter();
   showToast("Удалено", "fail");
 }
 
-// --- Edit modal ---
 function openEditModal(taskKey) {
   const type = taskKey.startsWith('t_') ? 't' : 'c';
   const id = taskKey.substring(2);
@@ -1204,7 +1378,6 @@ function closeEdit() {
   editingTask = null;
 }
 
-// ============ DRAG / RESIZE MODE ============
 function toggleDragMode() {
   dragMode = !dragMode;
   document.body.classList.toggle('drag-mode', dragMode);
@@ -1224,18 +1397,13 @@ function toggleDragMode() {
 function injectDragControls() {
   document.querySelectorAll('[data-draggable]').forEach(el => {
     if (el.querySelector(':scope > .drag-remove-btn')) return;
-    const key = el.dataset.draggable;
-
     const rm = document.createElement('div');
     rm.className = 'drag-remove-btn';
     rm.textContent = '✕';
-    rm.title = 'Скрыть';
     el.appendChild(rm);
-
     const rh = document.createElement('div');
     rh.className = 'drag-resize-handle';
     rh.textContent = '⤢';
-    rh.title = 'Размер';
     el.appendChild(rh);
   });
 }
@@ -1247,6 +1415,7 @@ function removeDraggable(key) {
   state.settings.positions[key] = pos;
   save();
   applyPositions();
+  renderElementsManager();
   showToast("Скрыто. Восстановить — в профиле.","success");
 }
 
@@ -1261,12 +1430,12 @@ function restoreHidden() {
   if (!count) { showToast("Скрытых элементов нет","fail"); return; }
   save();
   applyPositions();
+  renderElementsManager();
   showToast(`Восстановлено: ${count}`,"success");
 }
 
 document.addEventListener('pointerdown', e => {
   if (!dragMode || dragState) return;
-  // Кнопка удаления?
   const rmBtn = e.target.closest('.drag-remove-btn');
   if (rmBtn) {
     e.preventDefault(); e.stopPropagation();
@@ -1274,7 +1443,6 @@ document.addEventListener('pointerdown', e => {
     if (el) removeDraggable(el.dataset.draggable);
     return;
   }
-  // Ручка ресайза?
   const rh = e.target.closest('.drag-resize-handle');
   if (rh) {
     e.preventDefault(); e.stopPropagation();
@@ -1290,7 +1458,6 @@ document.addEventListener('pointerdown', e => {
     el.classList.add('dragging');
     return;
   }
-  // Перетаскивание самого элемента
   const el = e.target.closest('[data-draggable]');
   if (!el) return;
   e.preventDefault();
@@ -1365,10 +1532,10 @@ function resetAllPositions() {
   state.settings.positions = {};
   save();
   applyPositions();
+  renderElementsManager();
   showToast("Всё сброшено","success");
 }
 
-// --- Settings modal ---
 function openSettingsModal(section) {
   const content = document.getElementById('settingsContent');
   if (section === 'templates') {
@@ -1495,7 +1662,6 @@ function delTmpl(id) {
   save(); renderTmplList(); renderDaily();
 }
 
-// --- Кастом ---
 function updateBgDarkness(val) {
   state.settings.bgDarkness = val;
   document.getElementById('darknessVal').textContent = val;
@@ -1561,7 +1727,6 @@ function setColor(color) {
   openSettingsModal('colors');
 }
 
-// --- Калории ---
 function renderCalories() {
   const foods = state.food[selectedDate] || [];
   const list = document.getElementById('foodList');
@@ -1617,12 +1782,12 @@ function delFood(id) {
   save(); renderCalories();
 }
 
-// --- Старт ---
 if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {};
   window.speechSynthesis.getVoices();
 }
 applySettings();
+evaluateYesterdayPunishment();
 renderCalendar();
 switchView('calendar');
 applyPositions();
