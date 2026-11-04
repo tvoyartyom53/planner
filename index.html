@@ -158,6 +158,10 @@ input:checked + .slider:before{transform:translateX(24px)}
 .profile-rename{background:#FF9800}
 .profile-del{background:var(--red)}
 .profile-copy{background:#AB47BC}
+.storage-badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-family:sans-serif;font-weight:600;margin-left:6px}
+.storage-badge.idb{background:var(--green);color:#000}
+.storage-badge.local{background:var(--red);color:#fff}
+.storage-badge.persistent{background:#42A5F5;color:#fff}
 body.drag-mode .wrap{overflow-y:auto!important;overflow-x:hidden!important}
 body.drag-mode .wrap::-webkit-scrollbar{width:10px;display:block}
 body.drag-mode .wrap::-webkit-scrollbar-track{background:rgba(0,0,0,0.3);border-radius:5px}
@@ -188,9 +192,13 @@ body.drag-mode .drag-move-handle{position:absolute;top:-10px;left:-10px;width:28
 .copy-mode input{display:none}
 .copy-mode input:checked + span{color:var(--accent)}
 .copy-mode label:has(input:checked){border-color:var(--accent);background:rgba(102,187,106,0.15)}
-.storage-badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-family:sans-serif;font-weight:600;margin-left:6px}
-.storage-badge.idb{background:var(--green);color:#000}
-.storage-badge.local{background:var(--red);color:#fff}
+#loadingOverlay{position:fixed;inset:0;background:rgba(10,10,10,0.97);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--text);font-family:var(--font-main);font-size:22px;text-align:center;padding:20px}
+#loadingOverlay.hidden{display:none}
+#loadingOverlay .ld-icon{font-size:64px;margin-bottom:20px;animation:pulse 1.2s ease-in-out infinite}
+#loadingOverlay .ld-sub{font-size:13px;color:var(--muted);margin-top:12px;font-family:sans-serif;line-height:1.5;max-width:300px}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:0.7}}
+.recovery-box{background:rgba(102,187,106,0.1);border:2px solid var(--green);border-radius:10px;padding:12px;margin-bottom:12px;font-size:14px;line-height:1.5}
+.recovery-box.warn{background:rgba(239,83,80,0.1);border-color:var(--red)}
 body.layout-minimal .app-header{border-bottom-width:1px;border-bottom-style:solid}
 body.layout-minimal .month-nav,body.layout-minimal .week-strip{border-bottom-width:1px;border-bottom-style:solid}
 body.layout-minimal .cal-grid{border-width:1px;border-style:solid;border-radius:12px;padding:12px 8px}
@@ -248,6 +256,11 @@ body.layout-wavy .add-row input[type="text"]{border-radius:50% 50% 50% 50% / 30p
 </head><body>
 
 <div id="bg-layer"></div>
+<div id="loadingOverlay">
+  <div class="ld-icon">📚</div>
+  <div id="loadingTitle">Загружаю данные...</div>
+  <div class="ld-sub" id="loadingSub">Ищу твои записи во всех хранилищах</div>
+</div>
 <div class="toast-container" id="toastContainer"></div>
 <div id="dragHint">Тащи за ⤧ · ✕ скрыть · ⤢ размер</div>
 <button id="dragExitBtn" onclick="toggleDragMode()">✓ Готово</button>
@@ -321,6 +334,23 @@ body.layout-wavy .add-row input[type="text"]{border-radius:50% 50% 50% 50% / 30p
     <h3 class="section-title" data-draggable="profile-storage-title">Хранилище</h3>
     <div class="settings-box" data-draggable="profile-storage">
       <div id="storageInfo" style="font-size:14px; color:var(--muted); font-family:sans-serif; line-height:1.5;">Проверка...</div>
+      <button class="settings-tile-full" onclick="requestPersistClick()" style="margin-top:12px; margin-bottom:10px;">
+        <span class="tile-icon">🔒</span><span>Разрешить постоянное хранение</span>
+      </button>
+      <button class="settings-tile-full" onclick="openRecovery()" style="margin-bottom:0;">
+        <span class="tile-icon">🔍</span><span>Найти данные в других хранилищах</span>
+      </button>
+    </div>
+
+    <h3 class="section-title" data-draggable="profile-backup-title">Резервная копия</h3>
+    <div class="settings-box" data-draggable="profile-backup">
+      <button class="settings-tile-full" onclick="exportBackup()" style="margin-bottom:10px;">
+        <span class="tile-icon">📤</span><span>Скачать бэкап (JSON)</span>
+      </button>
+      <button class="settings-tile-full" onclick="document.getElementById('importFile').click()" style="margin-bottom:0;">
+        <span class="tile-icon">📥</span><span>Восстановить из файла</span>
+      </button>
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
     </div>
 
     <h3 class="section-title" data-draggable="profile-profiles-title">Профили дневника</h3>
@@ -480,6 +510,15 @@ body.layout-wavy .add-row input[type="text"]{border-radius:50% 50% 50% 50% / 30p
   </div>
 </div>
 
+<div class="modal" id="recoveryModal" onclick="if(event.target.id==='recoveryModal') closeRecovery()">
+  <div class="sheet">
+    <button class="close-settings-btn" onclick="closeRecovery()">✕</button>
+    <h2 style="font-family:'Marck Script', cursive; margin-top:0;">🔍 Поиск данных</h2>
+    <p style="color:var(--muted); font-size:14px; line-height:1.4; margin-bottom:15px;">Сканирую все хранилища на этом устройстве в поисках твоих записей.</p>
+    <div id="recoveryContent">Сканирую...</div>
+  </div>
+</div>
+
 <div class="modal" id="confirmModal" onclick="if(event.target.id==='confirmModal') closeConfirmModal()">
   <div class="sheet">
     <div class="confirm-icon">😱</div>
@@ -496,15 +535,19 @@ body.layout-wavy .add-row input[type="text"]{border-radius:50% 50% 50% 50% / 30p
 </div>
 </body><script>
 /* ============================================================
-   ДНЕВНИК v18 — надёжная версия
-   IndexedDB + автоматический fallback на localStorage
-   Все функции защищены try/catch. Ничего не падает.
+   ДНЕВНИК v19 — с гарантированной защитой данных
+   - Автопоиск данных во ВСЕХ хранилищах при запуске
+   - Блокировка save() пока данные не загружены
+   - Persistent storage (постоянное хранение)
+   - Экспорт/импорт бэкапов в JSON
+   - Ручной поиск данных кнопкой
 ============================================================ */
 
 const DB_NAME='diaryDB_v1';
 const STORE_NAME='state';
 const STATE_KEY='main';
-const LS_KEYS=['diary_v17','diary_v16'];
+const LS_PRIMARY='diary_v17';
+const LS_LEGACY=['diary_v16','diary_v15','diary_v14','diary_v13','diary','diaryData','diary_backup'];
 
 const WEEKDAYS=['ВС','ПН','ВТ','СР','ЧТ','ПТ','СБ'];
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -536,7 +579,6 @@ const defaultSettings={
   voiceName:'',voicePitch:1,voiceRate:1,voiceRecordings:{}
 };
 
-/* ============ УТИЛИТЫ ============ */
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const pad=n=>n<10?'0'+n:''+n;
 const getTodayIso=()=>{const t=new Date();return t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate());};
@@ -546,8 +588,8 @@ function fmtBytes(b){if(!b||b<0)return '0 Б';if(b<1024)return Math.round(b)+' �
 /* ============ ГЛОБАЛЬНОЕ СОСТОЯНИЕ ============ */
 let state=null;
 let db=null;
-let storageMode='local'; // 'idb' или 'local'
-
+let storageMode='local';
+let stateReady=false; // ГЛАВНЫЙ ФЛАГ — save() работает только после true
 let currentDateObj=new Date();
 let selectedDate=getTodayIso();
 let pendingDailyImages=[];
@@ -571,7 +613,6 @@ function migrateEntriesImages(entries){if(!entries||typeof entries!=='object')re
 function normalizeState(data){
   if(!data||typeof data!=='object')return null;
   if(!data.profiles||typeof data.profiles!=='object'||!Object.keys(data.profiles).length){
-    // старый формат
     const legacy=makeEmptyProfile('Основной');
     legacy.templates=data.templates||[];legacy.entries=data.entries||{};legacy.done=data.done||{};legacy.skipped=data.skipped||{};legacy.failed=data.failed||{};legacy.food=data.food||{};legacy.customFoods=data.customFoods||{};legacy.punishmentChecked=data.punishmentChecked||{};legacy.punishmentCounts=data.punishmentCounts||{};
     migrateEntriesImages(legacy.entries);
@@ -581,15 +622,7 @@ function normalizeState(data){
     return {profiles:{[pid]:legacy},activeProfileId:pid,settings};
   }
   Object.values(data.profiles).forEach(p=>{
-    if(!p.templates)p.templates=[];
-    if(!p.entries)p.entries={};
-    if(!p.done)p.done={};
-    if(!p.skipped)p.skipped={};
-    if(!p.failed)p.failed={};
-    if(!p.food)p.food={};
-    if(!p.customFoods)p.customFoods={};
-    if(!p.punishmentChecked)p.punishmentChecked={};
-    if(!p.punishmentCounts)p.punishmentCounts={};
+    if(!p.templates)p.templates=[];if(!p.entries)p.entries={};if(!p.done)p.done={};if(!p.skipped)p.skipped={};if(!p.failed)p.failed={};if(!p.food)p.food={};if(!p.customFoods)p.customFoods={};if(!p.punishmentChecked)p.punishmentChecked={};if(!p.punishmentCounts)p.punishmentCounts={};
     migrateEntriesImages(p.entries);
   });
   if(!data.profiles[data.activeProfileId])data.activeProfileId=Object.keys(data.profiles)[0];
@@ -599,127 +632,152 @@ function normalizeState(data){
 }
 function freshState(){const pid=uid();return {profiles:{[pid]:makeEmptyProfile('Основной')},activeProfileId:pid,settings:Object.assign({},defaultSettings,{voiceRecordings:{}})};}
 
-/* ============ ХРАНИЛИЩЕ (IndexedDB + fallback) ============ */
+/* ============ ХРАНИЛИЩЕ ============ */
 function openIDB(){
   return new Promise((resolve,reject)=>{
-    if(!window.indexedDB){reject(new Error('IndexedDB не поддерживается'));return;}
+    if(!window.indexedDB){reject(new Error('IDB not supported'));return;}
     let req;
     try{req=indexedDB.open(DB_NAME,1);}catch(e){reject(e);return;}
     req.onupgradeneeded=e=>{try{const d=e.target.result;if(!d.objectStoreNames.contains(STORE_NAME))d.createObjectStore(STORE_NAME);}catch(e){}};
     req.onsuccess=()=>resolve(req.result);
     req.onerror=()=>reject(req.error||new Error('IDB open error'));
-    req.onblocked=()=>reject(new Error('IDB blocked'));
-    setTimeout(()=>{if(req.readyState!=='done')reject(new Error('IDB timeout'));},4000);
+    setTimeout(()=>{try{reject(new Error('IDB timeout'));}catch(e){}},4000);
   });
 }
 function idbGet(key){return new Promise((resolve,reject)=>{if(!db){reject(new Error('no db'));return;}try{const tx=db.transaction(STORE_NAME,'readonly');const st=tx.objectStore(STORE_NAME);const r=st.get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);}catch(e){reject(e);}});}
 function idbPut(key,val){return new Promise((resolve,reject)=>{if(!db){reject(new Error('no db'));return;}try{const tx=db.transaction(STORE_NAME,'readwrite');const st=tx.objectStore(STORE_NAME);const r=st.put(val,key);r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error);}catch(e){reject(e);}});}
+function lsRead(key){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):null;}catch(e){return null;}}
+function lsWrite(data){try{localStorage.setItem(LS_PRIMARY,JSON.stringify(data));return true;}catch(e){try{localStorage.removeItem(LS_LEGACY[0]);localStorage.setItem(LS_PRIMARY,JSON.stringify(data));return true;}catch(e2){return false;}}}
 
-function lsRead(){
-  for(const k of LS_KEYS){try{const raw=localStorage.getItem(k);if(raw){return JSON.parse(raw);}}catch(e){}}
-  return null;
-}
-function lsWrite(data){
-  // только в diary_v17, не трогая v16 (бэкап)
-  try{localStorage.setItem(LS_KEYS[0],JSON.stringify(data));}
-  catch(e){
-    // Попробуем очистить старые ключи и повторить
-    try{localStorage.removeItem(LS_KEYS[1]);localStorage.setItem(LS_KEYS[0],JSON.stringify(data));}
-    catch(e2){console.warn('localStorage переполнен',e2);}
-  }
-}
-
-/* Универсальная функция сохранения: пишет в IDB, если не выходит — в localStorage */
+// ВАЖНО: save() не работает пока stateReady=false
 function persist(){
-  if(!state)return;
+  if(!stateReady||!state)return; // ← защита от перезаписи пустым состоянием
   try{syncActiveProfile();}catch(e){}
-  // Клонируем state для IDB (чтобы не было проблем со ссылками)
   let snap;
   try{snap=(typeof structuredClone==='function')?structuredClone(state):JSON.parse(JSON.stringify(state));}catch(e){snap=state;}
   if(storageMode==='idb'&&db){
-    idbPut(STATE_KEY,snap).catch(err=>{
-      console.warn('IDB save err',err);
-      if(err&&(err.name==='QuotaExceededError'||/quota/i.test(err.message||''))){
-        showToast('Хранилище iOS переполнено','fail');
-      }
-      // Последний шанс — в localStorage
-      try{lsWrite(snap);}catch(e){}
-    });
+    idbPut(STATE_KEY,snap).catch(err=>{console.warn('IDB save err',err);});
   } else {
     lsWrite(snap);
   }
 }
 const save=persist;
 
+async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist){const already=await navigator.storage.persisted();if(already)return true;return await navigator.storage.persist();}}catch(e){}return false;}
+async function getStorageEstimate(){try{if(navigator.storage&&navigator.storage.estimate)return await navigator.storage.estimate();}catch(e){}return {usage:0,quota:0};}
+
+/* ============ ПОИСК ДАННЫХ ВО ВСЕХ ХРАНИЛИЩАХ ============ */
+/* Возвращает список найденных кандидатов: {source, key, size, profiles, entries, settings, raw} */
+async function scanAllStorage(){
+  const found=[];
+  // 1. localStorage — все ключи, начинающиеся с "diary" + все с полем entries/profiles
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      const v=localStorage.getItem(k);
+      if(!v)continue;
+      let parsed=null;
+      try{parsed=JSON.parse(v);}catch(e){continue;}
+      if(!parsed||typeof parsed!=='object')continue;
+      const hasEntries=parsed.entries&&typeof parsed.entries==='object';
+      const hasProfiles=parsed.profiles&&typeof parsed.profiles==='object';
+      if(hasEntries||hasProfiles){
+        // Считаем «вес» — сколько профилей + заметок
+        let profilesCount=1, entriesCount=0;
+        if(hasProfiles){profilesCount=Object.keys(parsed.profiles).length;Object.values(parsed.profiles).forEach(p=>{Object.values(p.entries||{}).forEach(arr=>{if(Array.isArray(arr))entriesCount+=arr.length;});});}
+        else {Object.values(parsed.entries||{}).forEach(arr=>{if(Array.isArray(arr))entriesCount+=arr.length;});}
+        found.push({source:'localStorage',key:k,size:v.length,profilesCount,entriesCount,data:parsed});
+      }
+    }
+  }catch(e){console.warn('scan LS err',e);}
+  // 2. IndexedDB — все базы, все stores
+  try{
+    if(indexedDB.databases){
+      const dbs=await indexedDB.databases();
+      for(const info of dbs){
+        if(!info.name)continue;
+        try{
+          const database=await new Promise((res,rej)=>{const r=indexedDB.open(info.name);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);setTimeout(()=>rej(new Error('timeout')),2000);});
+          const stores=Array.from(database.objectStoreNames);
+          for(const store of stores){
+            try{
+              const tx=database.transaction(store,'readonly');
+              const keys=await new Promise((res,rej)=>{const r=tx.objectStore(store).getAllKeys();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
+              for(const key of keys){
+                try{
+                  const val=await new Promise((res,rej)=>{const t2=database.transaction(store,'readonly');const r=t2.objectStore(store).get(key);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
+                  if(!val||typeof val!=='object')continue;
+                  const hasEntries=val.entries&&typeof val.entries==='object';
+                  const hasProfiles=val.profiles&&typeof val.profiles==='object';
+                  if(hasEntries||hasProfiles){
+                    let profilesCount=1, entriesCount=0;
+                    if(hasProfiles){profilesCount=Object.keys(val.profiles).length;Object.values(val.profiles).forEach(p=>{Object.values(p.entries||{}).forEach(arr=>{if(Array.isArray(arr))entriesCount+=arr.length;});});}
+                    else{Object.values(val.entries||{}).forEach(arr=>{if(Array.isArray(arr))entriesCount+=arr.length;});}
+                    const size=JSON.stringify(val).length;
+                    found.push({source:'IndexedDB',db:info.name,store,key,size,profilesCount,entriesCount,data:val});
+                  }
+                }catch(e){}
+              }
+            }catch(e){}
+          }
+          database.close();
+        }catch(e){}
+      }
+    }
+  }catch(e){console.warn('scan IDB err',e);}
+  // Сортируем: сначала по кол-ву профилей+заметок, потом по размеру
+  found.sort((a,b)=> (b.profilesCount+b.entriesCount) - (a.profilesCount+a.entriesCount) || b.size - a.size);
+  return found;
+}
+
 /* ============ ИНИЦИАЛИЗАЦИЯ ============ */
 async function init(){
-  // 1. Сразу показываем пустое состояние — чтобы не было белого экрана
-  try{
-    state=freshState();
-    hydrate(state);
-    applySettingsSafe();
-    renderCalendar();
-    renderDaily();
-    renderCalories();
-    renderPunishCounter();
-    renderVoiceRecordingsList();
-    updateCurrentProfileInfo();
-    updateStorageInfo();
-    switchView('calendar',true);
-    applyPositions();
-  }catch(e){console.warn('first paint err',e);}
+  showLoading('🔍 Ищу твои данные','Сканирую все хранилища...');
+  // 1. Открываем IDB
+  try{db=await openIDB();storageMode='idb';}catch(e){storageMode='local';db=null;}
 
-  // 2. Пробуем IndexedDB
-  let idbOK=false;
-  try{
-    db=await openIDB();
-    idbOK=true;
-    storageMode='idb';
-  }catch(e){
-    console.warn('IndexedDB недоступен, используем localStorage:',e.message);
-    storageMode='local';
-    db=null;
+  // 2. Сканируем ВСЁ
+  const found=await scanAllStorage();
+  console.log('Найдено источников:',found.length,found);
+
+  // 3. Если что-то нашли — берём самое «полное»
+  let chosen=null;
+  if(found.length>0){
+    chosen=found[0];
+    showLoading('📦 Найдены данные',`Источник: ${chosen.source} ${chosen.db?'('+chosen.db+')':''}${chosen.key?' / '+chosen.key:''}\nПрофилей: ${chosen.profilesCount} · Заметок: ${chosen.entriesCount}`);
+    await new Promise(r=>setTimeout(r,800)); // чтобы успели прочитать
   }
 
-  // 3. Загружаем данные
-  let loaded=null;
-  if(idbOK){
-    try{loaded=await idbGet(STATE_KEY);}catch(e){console.warn('idbGet err',e);}
-  }
-  if(!loaded){
-    // миграция из localStorage
-    const lsData=lsRead();
-    if(lsData){
-      loaded=lsData;
-      // сразу переносим в IDB, если есть куда
-      if(idbOK){try{await idbPut(STATE_KEY,lsData);}catch(e){console.warn('migration put err',e);}}
-    }
-  }
-
-  // 4. Применяем загруженное состояние
-  const normalized=normalizeState(loaded);
-  if(normalized){
-    state=hydrate(normalized);
+  // 4. Загружаем данные или создаём пустое
+  if(chosen){
+    const normalized=normalizeState(chosen.data);
+    state=normalized?hydrate(normalized):hydrate(freshState());
   } else {
     state=hydrate(freshState());
   }
 
-  // Сбрасываем скрытие ключевых элементов календаря (чтобы экран всегда был виден)
+  // 5. Сбрасываем hidden с ключевых элементов (если случайно были скрыты)
   if(state.settings.positions){
     ['cal-header','cal-month','cal-weekdays','cal-grid','cal-quote'].forEach(k=>{
       if(state.settings.positions[k])state.settings.positions[k].hidden=false;
     });
   }
 
-  // 5. Просим persistent storage
-  try{
-    if(navigator.storage&&navigator.storage.persist){
-      const already=await navigator.storage.persisted();
-      if(!already)await navigator.storage.persist();
-    }
-  }catch(e){}
+  // 6. stateReady=true — теперь save() разрешён
+  stateReady=true;
 
-  // 6. Полная перерисовка
+  // 7. Просим persistent storage
+  showLoading('🔒 Настраиваю хранение','Разрешаем постоянное сохранение');
+  await requestPersistentStorage();
+
+  // 8. Дублируем в IDB и localStorage (чтобы точно никуда не делось)
+  if(chosen){
+    try{if(db)await idbPut(STATE_KEY,state);}catch(e){}
+    lsWrite(state);
+  }
+
+  // 9. Полная отрисовка
+  hideLoading();
   try{
     applySettingsSafe();
     evaluateYesterdayPunishment();
@@ -733,14 +791,20 @@ async function init(){
     switchView('calendar',true);
     applyPositions();
     loadVoices();
-    if('speechSynthesis' in window){
-      window.speechSynthesis.onvoiceschanged=()=>{loadVoices();};
-      setTimeout(loadVoices,300);
-      setTimeout(loadVoices,1000);
-    }
+    if('speechSynthesis' in window){window.speechSynthesis.onvoiceschanged=()=>{loadVoices();};setTimeout(loadVoices,300);}
     loadFartBuffer();
-  }catch(e){console.warn('post-load err',e);}
+  }catch(e){console.warn('render err',e);}
+
+  // 10. Тост о результате
+  if(chosen){
+    showToast(`✅ Данные восстановлены: ${chosen.profilesCount} проф., ${chosen.entriesCount} заметок`,'success');
+  } else {
+    showToast('Не найдено старых данных — начинаем с чистого листа','fail');
+  }
 }
+
+function showLoading(title,sub){const o=document.getElementById('loadingOverlay');const t=document.getElementById('loadingTitle');const s=document.getElementById('loadingSub');if(t)t.textContent=title;if(s)s.textContent=sub||'';if(o)o.classList.remove('hidden');}
+function hideLoading(){const o=document.getElementById('loadingOverlay');if(o)o.classList.add('hidden');}
 
 /* ============ СТАТУС ХРАНИЛИЩА ============ */
 async function updateStorageInfo(){
@@ -748,27 +812,133 @@ async function updateStorageInfo(){
   if(!el)return;
   const badge=storageMode==='idb'?'<span class="storage-badge idb">IndexedDB</span>':'<span class="storage-badge local">localStorage</span>';
   let usage=0,quota=0,persisted=false;
-  try{
-    if(navigator.storage&&navigator.storage.estimate){const est=await navigator.storage.estimate();usage=est.usage||0;quota=est.quota||0;}
-    if(navigator.storage&&navigator.storage.persisted){persisted=await navigator.storage.persisted();}
-  }catch(e){}
+  try{const est=await getStorageEstimate();usage=est.usage||0;quota=est.quota||0;}catch(e){}
+  try{if(navigator.storage&&navigator.storage.persisted)persisted=await navigator.storage.persisted();}catch(e){}
+  const pBadge=persisted?'<span class="storage-badge persistent">ПОСТОЯННОЕ</span>':'<span class="storage-badge local">ОБЫЧНОЕ</span>';
   const percent=quota?((usage/quota)*100).toFixed(2):'0';
-  el.innerHTML=`${badge}<br><div style="margin-top:8px;">📦 Занято: <b style="color:var(--accent)">${fmtBytes(usage)}</b></div><div>📊 Доступно: <b>${fmtBytes(quota)}</b></div><div>📈 Использовано: <b>${percent}%</b></div><div style="margin-top:6px;">${persisted?'✅ <span style="color:var(--green)">Постоянное хранилище</span>':'⚠️ <span style="color:var(--red)">Обычное (может очиститься)</span>'}</div>`;
+  el.innerHTML=`${badge}${pBadge}<div style="margin-top:8px;">📦 Занято: <b style="color:var(--accent)">${fmtBytes(usage)}</b></div><div>📊 Доступно: <b>${fmtBytes(quota)}</b></div><div>📈 Использовано: <b>${percent}%</b></div><div style="margin-top:6px;font-size:12px;">${persisted?'✅ Система не будет удалять данные':'⚠️ Может очиститься при нехватке места'}</div>`;
+}
+async function requestPersistClick(){
+  const ok=await requestPersistentStorage();
+  if(ok){showToast('✅ Постоянное хранение включено','success');}
+  else{showToast('Не удалось. Открой через Safari (не с иконки)','fail');}
+  updateStorageInfo();
+}
+
+/* ============ ПОИСК ДАННЫХ (кнопка) ============ */
+async function openRecovery(){
+  document.getElementById('recoveryModal').classList.add('open');
+  const c=document.getElementById('recoveryContent');
+  c.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);">Сканирую все хранилища...</div>';
+  const found=await scanAllStorage();
+  if(!found.length){
+    c.innerHTML='<div class="recovery-box warn">😔 Ничего не найдено ни в localStorage, ни в IndexedDB.<br><br>Возможные причины:<br>• Данные были в другом браузере/устройстве<br>• iOS почистил хранилище при нехватке памяти<br>• Другой URL сайта (проверь старый адрес)<br><br>Попробуй открыть старый URL в Safari и запустить этот поиск там.</div>';
+    return;
+  }
+  let html=`<div class="recovery-box">✅ Найдено источников: <b>${found.length}</b><br>Выбери, какой восстановить:</div>`;
+  found.forEach((f,i)=>{
+    const isCurrent=(f.data===state)?'(текущий)':'';
+    html+=`<div class="settings-box" style="cursor:pointer;border-color:${i===0?'var(--green)':'var(--border)'};" onclick="applyRecovery(${i})">
+      <div style="font-family:sans-serif;font-size:13px;line-height:1.5;">
+        <div style="color:var(--accent);font-weight:bold;margin-bottom:4px;">${i===0?'⭐ ЛУЧШИЙ ВАРИАНТ':''}</div>
+        <div>📁 Источник: <b>${f.source}${f.db?' ('+f.db+')':''}</b></div>
+        ${f.key?`<div>🔑 Ключ: <code style="background:rgba(0,0,0,0.4);padding:1px 4px;">${escapeHtml(f.key)}</code></div>`:''}
+        <div>👤 Профилей: <b>${f.profilesCount}</b></div>
+        <div>📝 Заметок: <b>${f.entriesCount}</b></div>
+        <div>💾 Размер: <b>${fmtBytes(f.size)}</b></div>
+      </div>
+      <button class="btn" style="margin-top:10px;">Восстановить этот</button>
+    </div>`;
+  });
+  html+=`<div style="margin-top:15px;text-align:center;"><button class="btn" style="background:transparent;border:2px solid var(--red);color:var(--red);" onclick="closeRecovery()">Отмена</button></div>`;
+  c.innerHTML=html;
+  window.__recoveryFound=found;
+}
+function closeRecovery(){document.getElementById('recoveryModal').classList.remove('open');}
+async function applyRecovery(index){
+  const found=window.__recoveryFound;
+  if(!found||!found[index])return;
+  const f=found[index];
+  if(!confirm(`Восстановить данные?\n\nИсточник: ${f.source}\nПрофилей: ${f.profilesCount}\nЗаметок: ${f.entriesCount}\n\nТекущее состояние будет заменено.`))return;
+  const normalized=normalizeState(f.data);
+  if(!normalized){showToast('Не удалось распознать данные','fail');return;}
+  state=hydrate(normalized);
+  stateReady=true;
+  try{if(db)await idbPut(STATE_KEY,state);}catch(e){}
+  lsWrite(state);
+  closeRecovery();
+  applySettingsSafe();
+  renderCalendar();
+  renderDaily();
+  renderCalories();
+  renderPunishCounter();
+  renderVoiceRecordingsList();
+  updateCurrentProfileInfo();
+  updateStorageInfo();
+  applyPositions();
+  showToast(`✅ Восстановлено: ${f.profilesCount} проф., ${f.entriesCount} заметок`,'success');
+}
+
+/* ============ БЭКАП (экспорт/импорт) ============ */
+function exportBackup(){
+  if(!state)return;
+  try{syncActiveProfile();}catch(e){}
+  const dataStr=JSON.stringify(state,null,2);
+  const blob=new Blob([dataStr],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  const d=new Date();
+  const stamp=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
+  a.download=`diary-backup-${stamp}.json`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  showToast('📤 Бэкап скачан','success');
+}
+async function importBackup(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  try{
+    const text=await file.text();
+    const parsed=JSON.parse(text);
+    const normalized=normalizeState(parsed);
+    if(!normalized){showToast('Не похоже на бэкап дневника','fail');return;}
+    let totalE=0,totalP=Object.keys(normalized.profiles).length;
+    Object.values(normalized.profiles).forEach(p=>{Object.values(p.entries||{}).forEach(arr=>{if(Array.isArray(arr))totalE+=arr.length;});});
+    if(!confirm(`Импортировать бэкап?\n\nПрофилей: ${totalP}\nЗаметок: ${totalE}\n\nТекущие данные будут заменены (но сначала сохраним бэкап текущих отдельно).`))return;
+    // сохраним текущее состояние как бэкап на всякий случай
+    try{syncActiveProfile();localStorage.setItem('diary_backup_before_import',JSON.stringify(state));}catch(e){}
+    state=hydrate(normalized);
+    stateReady=true;
+    try{if(db)await idbPut(STATE_KEY,state);}catch(e){}
+    lsWrite(state);
+    applySettingsSafe();
+    renderCalendar();
+    renderDaily();
+    renderCalories();
+    renderPunishCounter();
+    renderVoiceRecordingsList();
+    updateCurrentProfileInfo();
+    updateStorageInfo();
+    applyPositions();
+    showToast(`✅ Импорт: ${totalP} проф., ${totalE} заметок`,'success');
+  }catch(e){showToast('Ошибка импорта: '+e.message,'fail');}
+  event.target.value='';
 }
 
 /* ============ CONFIRM ============ */
 function showConfirm(title,text,onYes){const ct=document.getElementById('confirmText');const ti=document.querySelector('#confirmModal .confirm-title');if(ct)ct.textContent=text;if(ti)ti.textContent=title||'Нахуя?!';confirmCallback=onYes;document.getElementById('confirmModal').classList.add('open');}
 function closeConfirmModal(){document.getElementById('confirmModal').classList.remove('open');confirmCallback=null;}
-function confirmYesAction(){const cb=confirmCallback;closeConfirmModal();if(typeof cb==='function'){try{cb();}catch(e){console.warn(e);}}}
+function confirmYesAction(){const cb=confirmCallback;closeConfirmModal();if(typeof cb==='function'){try{cb();}catch(e){}}}
 
 /* ============ TTS / VOICE ============ */
 function initAudio(){try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
 async function loadFartBuffer(){try{const r=await fetch(fartUrl);if(!r.ok)return;const ab=await r.arrayBuffer();initAudio();if(audioCtx)fartBuffer=await audioCtx.decodeAudioData(ab);}catch(e){}}
-function playVictorySound(){if(!state.settings.soundEnabled)return;initAudio();if(!audioCtx)return;const notes=[523.25,659.25,783.99,1046.50];notes.forEach((freq,i)=>{try{let osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.setValueAtTime(freq,audioCtx.currentTime+i*0.1);gain.gain.setValueAtTime(0.2,audioCtx.currentTime+i*0.1);gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+i*0.1+0.3);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(audioCtx.currentTime+i*0.1);osc.stop(audioCtx.currentTime+i*0.1+0.3);}catch(e){}});}
-function playFartSound(){if(!state.settings.soundEnabled)return;initAudio();if(navigator.vibrate)try{navigator.vibrate(0);}catch(e){}if(fartBuffer&&audioCtx){try{const s=audioCtx.createBufferSource();s.buffer=fartBuffer;s.connect(audioCtx.destination);s.start(0);return;}catch(e){}}try{fartAudio.currentTime=0;fartAudio.play().catch(()=>{});}catch(e){}}
-function speak(text){if(!state.settings.voiceEnabled)return;if(state.settings.voiceRecordings&&state.settings.voiceRecordings[text]){try{new Audio(state.settings.voiceRecordings[text]).play().catch(()=>{});return;}catch(e){}}if(!('speechSynthesis' in window))return;try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ru-RU';u.rate=state.settings.voiceRate||1;u.pitch=state.settings.voicePitch||1;u.volume=1;if(availableVoices.length===0)availableVoices=window.speechSynthesis.getVoices();let v=null;if(state.settings.voiceName)v=availableVoices.find(x=>x.name===state.settings.voiceName);if(!v)v=availableVoices.find(x=>x.lang.toLowerCase().startsWith('ru'));if(v)u.voice=v;window.speechSynthesis.speak(u);}catch(e){}}
-function testVoice(){if(!('speechSynthesis' in window)){showToast('Голос не поддерживается','fail');return;}const was=state.settings.voiceEnabled;state.settings.voiceEnabled=true;speak('Проверка голоса. Раз, два, три. Всё работает.');state.settings.voiceEnabled=was;showToast('Тест голоса...','success');}
-function loadVoices(){if(!('speechSynthesis' in window))return;try{availableVoices=window.speechSynthesis.getVoices();const sel=document.getElementById('voiceSelect');if(!sel)return;const cur=state.settings.voiceName||'';sel.innerHTML='<option value="">Автоматически (русский)</option>';availableVoices.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')'+(v.default?' · по умолч.':'');if(v.name===cur)o.selected=true;sel.appendChild(o);});}catch(e){}}
+function playVictorySound(){if(!state||!state.settings.soundEnabled)return;initAudio();if(!audioCtx)return;const notes=[523.25,659.25,783.99,1046.50];notes.forEach((freq,i)=>{try{let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(freq,audioCtx.currentTime+i*0.1);g.gain.setValueAtTime(0.2,audioCtx.currentTime+i*0.1);g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+i*0.1+0.3);o.connect(g);g.connect(audioCtx.destination);o.start(audioCtx.currentTime+i*0.1);o.stop(audioCtx.currentTime+i*0.1+0.3);}catch(e){}});}
+function playFartSound(){if(!state||!state.settings.soundEnabled)return;initAudio();if(navigator.vibrate)try{navigator.vibrate(0);}catch(e){}if(fartBuffer&&audioCtx){try{const s=audioCtx.createBufferSource();s.buffer=fartBuffer;s.connect(audioCtx.destination);s.start(0);return;}catch(e){}}try{fartAudio.currentTime=0;fartAudio.play().catch(()=>{});}catch(e){}}
+function speak(text){if(!state||!state.settings.voiceEnabled)return;if(state.settings.voiceRecordings&&state.settings.voiceRecordings[text]){try{new Audio(state.settings.voiceRecordings[text]).play().catch(()=>{});return;}catch(e){}}if(!('speechSynthesis' in window))return;try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ru-RU';u.rate=state.settings.voiceRate||1;u.pitch=state.settings.voicePitch||1;u.volume=1;if(availableVoices.length===0)availableVoices=window.speechSynthesis.getVoices();let v=null;if(state.settings.voiceName)v=availableVoices.find(x=>x.name===state.settings.voiceName);if(!v)v=availableVoices.find(x=>x.lang.toLowerCase().startsWith('ru'));if(v)u.voice=v;window.speechSynthesis.speak(u);}catch(e){}}
+function testVoice(){if(!('speechSynthesis' in window)){showToast('Голос не поддерживается','fail');return;}if(!state)return;const was=state.settings.voiceEnabled;state.settings.voiceEnabled=true;speak('Проверка голоса. Раз, два, три. Всё работает.');state.settings.voiceEnabled=was;showToast('Тест голоса...','success');}
+function loadVoices(){if(!('speechSynthesis' in window))return;try{availableVoices=window.speechSynthesis.getVoices();const sel=document.getElementById('voiceSelect');if(!sel||!state)return;const cur=state.settings.voiceName||'';sel.innerHTML='<option value="">Автоматически (русский)</option>';availableVoices.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')'+(v.default?' · по умолч.':'');if(v.name===cur)o.selected=true;sel.appendChild(o);});}catch(e){}}
 function updateVoiceName(v){state.settings.voiceName=v;save();}
 function updateVoicePitch(v){state.settings.voicePitch=parseFloat(v);const el=document.getElementById('pitchVal');if(el)el.textContent=v;save();}
 function updateVoiceRate(v){state.settings.voiceRate=parseFloat(v);const el=document.getElementById('rateVal');if(el)el.textContent=v;save();}
@@ -778,27 +948,27 @@ function openVoiceRecord(){voiceRecordingBase64=null;document.getElementById('vo
 function closeVoiceRecord(){if(voiceRecorder&&voiceRecorder.state==='recording'){try{voiceRecorder.stop();}catch(e){}}document.getElementById('voiceRecordModal').classList.remove('open');}
 function pickPhraseForRecord(text){if(text)document.getElementById('voiceRecordText').value=text;}
 async function toggleVoiceRecording(){const btn=document.getElementById('voiceRecBtn');const status=document.getElementById('voiceRecStatus');if(voiceRecorder&&voiceRecorder.state==='recording'){voiceRecorder.stop();btn.textContent='⏺ Записать';btn.style.background='var(--red)';return;}try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});voiceChunks=[];let mime='audio/webm';if(!MediaRecorder.isTypeSupported('audio/webm'))mime='';voiceRecorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);voiceRecorder.ondataavailable=e=>{if(e.data.size>0)voiceChunks.push(e.data);};voiceRecorder.onstop=()=>{const type=voiceRecorder.mimeType||'audio/webm';const blob=new Blob(voiceChunks,{type});const reader=new FileReader();reader.onload=()=>{voiceRecordingBase64=reader.result;const preview=document.getElementById('voiceRecPreview');preview.src=voiceRecordingBase64;preview.style.display='block';const sb=document.getElementById('voiceRecSaveBtn');sb.disabled=false;sb.style.opacity='1';status.textContent='✓ Запись готова. Прослушай и сохрани.';};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop());};voiceRecorder.start();btn.textContent='⏹ Стоп';btn.style.background='var(--green)';status.textContent='🎤 Говори...';}catch(e){status.textContent='Ошибка микрофона: '+e.message;}}
-function saveVoiceRecording(){const text=document.getElementById('voiceRecordText').value.trim();if(!text){showToast('Напиши текст фразы','fail');return;}if(!voiceRecordingBase64){showToast('Сначала запиши голос','fail');return;}state.settings.voiceRecordings[text]=voiceRecordingBase64;save();renderVoiceRecordingsList();closeVoiceRecord();showToast('Голос сохранён','success');updateStorageInfo();}
-function renderVoiceRecordingsList(){const el=document.getElementById('voiceRecordingsList');if(!el)return;const recs=(state&&state.settings&&state.settings.voiceRecordings)||{};const keys=Object.keys(recs);if(!keys.length){el.innerHTML='<div class="voice-empty">Пока нет записей</div>';return;}el.innerHTML=keys.map(k=>`<div class="voice-rec-item"><div class="voice-rec-text">${escapeHtml(k)}</div><div class="voice-rec-btns"><button class="voice-rec-btn voice-play" onclick="playVoiceRecording('${encodeURIComponent(k)}')">▶</button><button class="voice-rec-btn voice-del" onclick="deleteVoiceRecording('${encodeURIComponent(k)}')">✕</button></div></div>`).join('');}
+function saveVoiceRecording(){if(!state)return;const text=document.getElementById('voiceRecordText').value.trim();if(!text){showToast('Напиши текст фразы','fail');return;}if(!voiceRecordingBase64){showToast('Сначала запиши голос','fail');return;}state.settings.voiceRecordings[text]=voiceRecordingBase64;save();renderVoiceRecordingsList();closeVoiceRecord();showToast('Голос сохранён','success');updateStorageInfo();}
+function renderVoiceRecordingsList(){const el=document.getElementById('voiceRecordingsList');if(!el||!state)return;const recs=state.settings.voiceRecordings||{};const keys=Object.keys(recs);if(!keys.length){el.innerHTML='<div class="voice-empty">Пока нет записей</div>';return;}el.innerHTML=keys.map(k=>`<div class="voice-rec-item"><div class="voice-rec-text">${escapeHtml(k)}</div><div class="voice-rec-btns"><button class="voice-rec-btn voice-play" onclick="playVoiceRecording('${encodeURIComponent(k)}')">▶</button><button class="voice-rec-btn voice-del" onclick="deleteVoiceRecording('${encodeURIComponent(k)}')">✕</button></div></div>`).join('');}
 function playVoiceRecording(encodedKey){const k=decodeURIComponent(encodedKey);const data=state.settings.voiceRecordings[k];if(!data)return;try{new Audio(data).play().catch(()=>{});}catch(e){}}
 function deleteVoiceRecording(encodedKey){const k=decodeURIComponent(encodedKey);if(!confirm('Удалить запись для этой фразы?'))return;delete state.settings.voiceRecordings[k];save();renderVoiceRecordingsList();showToast('Удалено','fail');updateStorageInfo();}
 
 /* ============ ПРОФИЛИ UI ============ */
 function updateCurrentProfileInfo(){const el=document.getElementById('currentProfileInfo');if(!el||!state)return;const p=state.profiles[state.activeProfileId];const count=Object.keys(state.profiles).length;el.innerHTML=`Текущий: <b style="color:var(--accent)">${escapeHtml(p?p.name:'—')}</b><br>Всего профилей: ${count}`;}
-function openProfileModal(action){const c=document.getElementById('profilesModalContent');if(action==='create'){c.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Новый профиль</h2><p style="color:var(--muted); font-size:14px; line-height:1.4;">Новый профиль — это пустой дневник со своими задачами, шаблонами и калориями.</p><input type="text" id="newProfileName" placeholder="Название профиля" maxlength="40"><button class="btn" onclick="submitCreateProfile()">Создать</button>`;setTimeout(()=>{const i=document.getElementById('newProfileName');if(i)i.focus();},150);}else{c.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Профили дневника</h2><div class="profiles-list" id="profilesList"></div><button class="btn" onclick="openProfileModal('create')" style="background:transparent; border:2px solid var(--text); color:var(--text);">+ Создать новый</button>`;renderProfilesModalList();}document.getElementById('profilesModal').classList.add('open');}
+function openProfileModal(action){const c=document.getElementById('profilesModalContent');if(!c)return;if(action==='create'){c.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Новый профиль</h2><p style="color:var(--muted); font-size:14px; line-height:1.4;">Новый профиль — это пустой дневник со своими задачами, шаблонами и калориями.</p><input type="text" id="newProfileName" placeholder="Название профиля" maxlength="40"><button class="btn" onclick="submitCreateProfile()">Создать</button>`;setTimeout(()=>{const i=document.getElementById('newProfileName');if(i)i.focus();},150);}else{c.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Профили дневника</h2><div class="profiles-list" id="profilesList"></div><button class="btn" onclick="openProfileModal('create')" style="background:transparent; border:2px solid var(--text); color:var(--text);">+ Создать новый</button>`;renderProfilesModalList();}document.getElementById('profilesModal').classList.add('open');}
 function closeProfileModal(){document.getElementById('profilesModal').classList.remove('open');}
-function submitCreateProfile(){const inp=document.getElementById('newProfileName');if(!inp)return;const name=inp.value.trim();if(!name){showToast('Введи имя','fail');return;}syncActiveProfile();const pid=uid();state.profiles[pid]=makeEmptyProfile(name);save();showToast('Создан: '+name,'success');switchProfile(pid);openProfileModal('switch');}
-function renderProfilesModalList(){const el=document.getElementById('profilesList');if(!el||!state)return;const profiles=state.profiles;const keys=Object.keys(profiles);keys.sort((a,b)=>{if(a===state.activeProfileId)return -1;if(b===state.activeProfileId)return 1;return 0;});el.innerHTML=keys.map(id=>{const p=profiles[id];const isActive=id===state.activeProfileId;const entries=p.entries||{};let totalTasks=0;Object.values(entries).forEach(arr=>{if(Array.isArray(arr))totalTasks+=arr.length;});const tmplCount=(p.templates||[]).length;return `<div class="profile-item ${isActive?'active':''}"><div class="profile-info"><div class="profile-name">${escapeHtml(p.name)}${isActive?'<span class="profile-active-badge">АКТИВНЫЙ</span>':''}</div><div class="profile-meta">Шаблонов: ${tmplCount} · Заметок: ${totalTasks}</div></div><div class="profile-actions">${!isActive?`<button class="profile-btn profile-switch" title="Переключиться" onclick="switchProfile('${id}');openProfileModal('switch');">✓</button>`:''}<button class="profile-btn profile-copy" title="Копировать сюда" onclick="openCopyModalTo('${id}')">📋</button><button class="profile-btn profile-rename" title="Переименовать" onclick="promptRename('${id}')">✎</button><button class="profile-btn profile-del" title="Удалить" onclick="deleteProfile('${id}')">✕</button></div></div>`;}).join('');}
+function submitCreateProfile(){if(!state)return;const inp=document.getElementById('newProfileName');if(!inp)return;const name=inp.value.trim();if(!name){showToast('Введи имя','fail');return;}syncActiveProfile();const pid=uid();state.profiles[pid]=makeEmptyProfile(name);save();showToast('Создан: '+name,'success');switchProfile(pid);openProfileModal('switch');}
+function renderProfilesModalList(){const el=document.getElementById('profilesList');if(!el||!state)return;const profiles=state.profiles;const keys=Object.keys(profiles);keys.sort((a,b)=>{if(a===state.activeProfileId)return -1;if(b===state.activeProfileId)return 1;return 0;});el.innerHTML=keys.map(id=>{const p=profiles[id];const isActive=id===state.activeProfileId;let totalTasks=0;Object.values(p.entries||{}).forEach(arr=>{if(Array.isArray(arr))totalTasks+=arr.length;});const tmplCount=(p.templates||[]).length;return `<div class="profile-item ${isActive?'active':''}"><div class="profile-info"><div class="profile-name">${escapeHtml(p.name)}${isActive?'<span class="profile-active-badge">АКТИВНЫЙ</span>':''}</div><div class="profile-meta">Шаблонов: ${tmplCount} · Заметок: ${totalTasks}</div></div><div class="profile-actions">${!isActive?`<button class="profile-btn profile-switch" title="Переключиться" onclick="switchProfile('${id}');openProfileModal('switch');">✓</button>`:''}<button class="profile-btn profile-copy" title="Копировать сюда" onclick="openCopyModalTo('${id}')">📋</button><button class="profile-btn profile-rename" title="Переименовать" onclick="promptRename('${id}')">✎</button><button class="profile-btn profile-del" title="Удалить" onclick="deleteProfile('${id}')">✕</button></div></div>`;}).join('');}
 function promptRename(id){const p=state.profiles[id];if(!p)return;const name=prompt('Новое имя профиля:',p.name);if(name!==null&&name.trim()){renameProfile(id,name.trim());}}
 function renameProfile(id,name){name=(name||'').trim();if(!name){showToast('Введи имя','fail');return;}if(!state.profiles[id])return;state.profiles[id].name=name;save();renderProfilesModalList();updateCurrentProfileInfo();}
-function switchProfile(id){if(!state.profiles[id])return;if(id===state.activeProfileId)return;syncActiveProfile();state.activeProfileId=id;hydrate(state);save();currentDateObj=new Date();selectedDate=getTodayIso();renderCalendar();renderDaily();renderCalories();renderPunishCounter();updateCurrentProfileInfo();showToast('Профиль: '+state.profiles[id].name,'success');requestAnimationFrame(()=>{applyPositions();});}
-function deleteProfile(id){if(!state.profiles[id])return;const keys=Object.keys(state.profiles);if(keys.length<=1){showToast('Нельзя удалить последний профиль','fail');return;}const pname=state.profiles[id].name;showConfirm('Нахуя?!',`Ты серьёзно хочешь удалить профиль "${pname}"? Всё его содержимое исчезнет навсегда.`,()=>{const wasActive=state.activeProfileId===id;delete state.profiles[id];if(wasActive){state.activeProfileId=Object.keys(state.profiles)[0];hydrate(state);currentDateObj=new Date();selectedDate=getTodayIso();}save();showToast('Профиль удалён','fail');renderProfilesModalList();updateCurrentProfileInfo();if(wasActive){renderCalendar();renderDaily();renderCalories();renderPunishCounter();}updateStorageInfo();});}
+function switchProfile(id){if(!state||!state.profiles[id])return;if(id===state.activeProfileId)return;syncActiveProfile();state.activeProfileId=id;hydrate(state);save();currentDateObj=new Date();selectedDate=getTodayIso();renderCalendar();renderDaily();renderCalories();renderPunishCounter();updateCurrentProfileInfo();showToast('Профиль: '+state.profiles[id].name,'success');requestAnimationFrame(()=>{applyPositions();});}
+function deleteProfile(id){if(!state||!state.profiles[id])return;const keys=Object.keys(state.profiles);if(keys.length<=1){showToast('Нельзя удалить последний профиль','fail');return;}const pname=state.profiles[id].name;showConfirm('Нахуя?!',`Ты серьёзно хочешь удалить профиль "${pname}"? Всё его содержимое исчезнет навсегда.`,()=>{const wasActive=state.activeProfileId===id;delete state.profiles[id];if(wasActive){state.activeProfileId=Object.keys(state.profiles)[0];hydrate(state);currentDateObj=new Date();selectedDate=getTodayIso();}save();showToast('Профиль удалён','fail');renderProfilesModalList();updateCurrentProfileInfo();if(wasActive){renderCalendar();renderDaily();renderCalories();renderPunishCounter();}updateStorageInfo();});}
 
 /* ============ КОПИРОВАНИЕ ============ */
-function openCopyModal(){const keys=Object.keys(state.profiles).filter(id=>id!==state.activeProfileId);if(!keys.length){showToast('Нет других профилей','fail');return;}const sel=document.getElementById('copyTargetSelect');sel.innerHTML=keys.map(id=>`<option value="${id}">${escapeHtml(state.profiles[id].name)}</option>`).join('');const rb=document.querySelector('input[name="copyWhat"][value="both"]');if(rb)rb.checked=true;document.getElementById('copyModal').classList.add('open');}
-function openCopyModalTo(targetId){const keys=Object.keys(state.profiles).filter(id=>id!==state.activeProfileId);if(!keys.length){showToast('Нет других профилей','fail');return;}const sel=document.getElementById('copyTargetSelect');sel.innerHTML=keys.map(id=>`<option value="${id}">${escapeHtml(state.profiles[id].name)}</option>`).join('');if(keys.includes(targetId))sel.value=targetId;const rb=document.querySelector('input[name="copyWhat"][value="both"]');if(rb)rb.checked=true;document.getElementById('copyModal').classList.add('open');}
+function openCopyModal(){if(!state)return;const keys=Object.keys(state.profiles).filter(id=>id!==state.activeProfileId);if(!keys.length){showToast('Нет других профилей','fail');return;}const sel=document.getElementById('copyTargetSelect');sel.innerHTML=keys.map(id=>`<option value="${id}">${escapeHtml(state.profiles[id].name)}</option>`).join('');const rb=document.querySelector('input[name="copyWhat"][value="both"]');if(rb)rb.checked=true;document.getElementById('copyModal').classList.add('open');}
+function openCopyModalTo(targetId){if(!state)return;const keys=Object.keys(state.profiles).filter(id=>id!==state.activeProfileId);if(!keys.length){showToast('Нет других профилей','fail');return;}const sel=document.getElementById('copyTargetSelect');sel.innerHTML=keys.map(id=>`<option value="${id}">${escapeHtml(state.profiles[id].name)}</option>`).join('');if(keys.includes(targetId))sel.value=targetId;const rb=document.querySelector('input[name="copyWhat"][value="both"]');if(rb)rb.checked=true;document.getElementById('copyModal').classList.add('open');}
 function closeCopyModal(){document.getElementById('copyModal').classList.remove('open');}
-function submitCopy(){const what=(document.querySelector('input[name="copyWhat"]:checked')||{}).value||'both';const targetId=document.getElementById('copyTargetSelect').value;if(!targetId||!state.profiles[targetId]){showToast('Выбери профиль','fail');return;}syncActiveProfile();const src=state.profiles[state.activeProfileId];const dst=state.profiles[targetId];let copiedT=0,copiedE=0;if(what==='both'||what==='templates'){(src.templates||[]).forEach(t=>{dst.templates.push({id:uid(),title:t.title,days:[...(t.days||[])]});copiedT++;});}if(what==='both'||what==='entries'){Object.keys(src.entries||{}).forEach(dateIso=>{const arr=src.entries[dateIso];if(!Array.isArray(arr))return;dst.entries[dateIso]=dst.entries[dateIso]||[];arr.forEach(e=>{dst.entries[dateIso].push({id:uid(),title:e.title,done:false,failed:false,images:[...(e.images||[])],isPunishment:!!e.isPunishment});copiedE++;});});}save();const parts=[];if(copiedT)parts.push(`шаблонов: ${copiedT}`);if(copiedE)parts.push(`заметок: ${copiedE}`);if(!parts.length){showToast('Нечего копировать','fail');return;}showToast('Скопировано в «'+state.profiles[targetId].name+'» — '+parts.join(', '),'success');closeCopyModal();renderProfilesModalList();updateStorageInfo();}
+function submitCopy(){if(!state)return;const what=(document.querySelector('input[name="copyWhat"]:checked')||{}).value||'both';const targetId=document.getElementById('copyTargetSelect').value;if(!targetId||!state.profiles[targetId]){showToast('Выбери профиль','fail');return;}syncActiveProfile();const src=state.profiles[state.activeProfileId];const dst=state.profiles[targetId];let copiedT=0,copiedE=0;if(what==='both'||what==='templates'){(src.templates||[]).forEach(t=>{dst.templates.push({id:uid(),title:t.title,days:[...(t.days||[])]});copiedT++;});}if(what==='both'||what==='entries'){Object.keys(src.entries||{}).forEach(dateIso=>{const arr=src.entries[dateIso];if(!Array.isArray(arr))return;dst.entries[dateIso]=dst.entries[dateIso]||[];arr.forEach(e=>{dst.entries[dateIso].push({id:uid(),title:e.title,done:false,failed:false,images:[...(e.images||[])],isPunishment:!!e.isPunishment});copiedE++;});});}save();const parts=[];if(copiedT)parts.push(`шаблонов: ${copiedT}`);if(copiedE)parts.push(`заметок: ${copiedE}`);if(!parts.length){showToast('Нечего копировать','fail');return;}showToast('Скопировано в «'+state.profiles[targetId].name+'» — '+parts.join(', '),'success');closeCopyModal();renderProfilesModalList();updateStorageInfo();}
 
 /* ============ НАСТРОЙКИ ============ */
 function applySettingsSafe(){
@@ -826,14 +996,14 @@ function applySettingsSafe(){
     document.body.classList.add('layout-'+(st.layout||'classic'));
     document.documentElement.style.setProperty('--accent',st.accentColor||'#66BB6A');
     document.documentElement.style.setProperty('--text',st.textColor||'#f0f0f0');
-  }catch(e){console.warn('applySettingsSafe',e);}
+  }catch(e){}
 }
 const applySettings=applySettingsSafe;
-function toggleSound(val){state.settings.soundEnabled=val;save();}
-function toggleVoice(val){state.settings.voiceEnabled=val;save();if(val){showToast('Голос включён','success');try{speak('Голос включён');}catch(e){}}}
-function updateGoal(val){val=parseInt(val);if(isNaN(val)||val<500)val=500;state.settings.goalKcal=val;const gd=document.getElementById('goalDisplay');if(gd)gd.textContent=val;save();renderCalories();}
-function updatePunishment(val){state.settings.punishmentText=val.trim();Object.keys(state.entries||{}).forEach(dateIso=>{(state.entries[dateIso]||[]).forEach(e=>{if(e.isPunishment&&!e.done&&!e.failed)e.title='⚖ '+state.settings.punishmentText;});});save();renderDaily();showToast('Наказание сохранено','success');}
-function showToast(message,type){const container=document.getElementById('toastContainer');if(!container)return;const toast=document.createElement('div');toast.className=`toast ${type}`;toast.textContent=message;container.appendChild(toast);setTimeout(()=>{try{toast.remove();}catch(e){}},3000);}
+function toggleSound(val){if(!state)return;state.settings.soundEnabled=val;save();}
+function toggleVoice(val){if(!state)return;state.settings.voiceEnabled=val;save();if(val){showToast('Голос включён','success');try{speak('Голос включён');}catch(e){}}}
+function updateGoal(val){if(!state)return;val=parseInt(val);if(isNaN(val)||val<500)val=500;state.settings.goalKcal=val;const gd=document.getElementById('goalDisplay');if(gd)gd.textContent=val;save();renderCalories();}
+function updatePunishment(val){if(!state)return;state.settings.punishmentText=val.trim();Object.keys(state.entries||{}).forEach(dateIso=>{(state.entries[dateIso]||[]).forEach(e=>{if(e.isPunishment&&!e.done&&!e.failed)e.title='⚖ '+state.settings.punishmentText;});});save();renderDaily();showToast('Наказание сохранено','success');}
+function showToast(message,type){const container=document.getElementById('toastContainer');if(!container)return;const toast=document.createElement('div');toast.className=`toast ${type}`;toast.textContent=message;container.appendChild(toast);setTimeout(()=>{try{toast.remove();}catch(e){}},3500);}
 
 let firstSwitch=true;
 function switchView(viewId,force){
@@ -852,7 +1022,7 @@ function switchView(viewId,force){
     }
     firstSwitch=false;
     requestAnimationFrame(()=>{applyPositions();if(dragMode)injectDragControls();});
-  }catch(e){console.warn('switchView',e);}
+  }catch(e){}
 }
 function goTodayTasks(){selectedDate=getTodayIso();switchView('daily');}
 
@@ -868,7 +1038,7 @@ function shiftMonth(n){currentDateObj.setMonth(currentDateObj.getMonth()+n);rend
 function openDay(iso){selectedDate=iso;switchView('daily');}
 
 /* ============ ФОТО ============ */
-async function handleImageUpload(event){const files=Array.from(event.target.files||[]);if(!files.length)return;for(const file of files){try{pendingDailyImages.push(await compressImage(file));}catch(e){console.warn(e);}}event.target.value='';updatePendingPhotoCount();if(pendingDailyImages.length)showToast(`Фото: ${pendingDailyImages.length}. Напиши текст или жми +`,'success');}
+async function handleImageUpload(event){const files=Array.from(event.target.files||[]);if(!files.length)return;for(const file of files){try{pendingDailyImages.push(await compressImage(file));}catch(e){}}event.target.value='';updatePendingPhotoCount();if(pendingDailyImages.length)showToast(`Фото: ${pendingDailyImages.length}`,'success');}
 function updatePendingPhotoCount(){const c=document.getElementById('pendingPhotoCount');if(!c)return;if(pendingDailyImages.length>0){c.textContent=pendingDailyImages.length;c.style.display='flex';}else c.style.display='none';}
 function compressImage(file,maxWidth=800,maxHeight=800,quality=0.6){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.readAsDataURL(file);reader.onload=ev=>{const img=new Image();img.src=ev.target.result;img.onload=()=>{try{let width=img.width,height=img.height;if(width>height){if(width>maxWidth){height=Math.round((height*maxWidth)/width);width=maxWidth;}}else{if(height>maxHeight){width=Math.round((width*maxHeight)/height);height=maxHeight;}}const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,width,height);resolve(canvas.toDataURL('image/jpeg',quality));}catch(e){reject(e);}};img.onerror=reject;};reader.onerror=reject;});}
 function openImage(src){const fi=document.getElementById('fullImage');if(fi)fi.src=src;const im=document.getElementById('imageModal');if(im)im.classList.add('open');}
@@ -899,41 +1069,41 @@ function closeEdit(){document.getElementById('editModal').classList.remove('open
 /* ============ DRAG ============ */
 function toggleDragMode(){dragMode=!dragMode;document.body.classList.toggle('drag-mode',dragMode);document.getElementById('dragExitBtn').classList.toggle('show',dragMode);document.getElementById('dragHint').classList.toggle('show',dragMode);if(dragMode){showToast('Скролл работает, тащи за ⤧','success');applyPositions();injectDragControls();}else{document.querySelectorAll('.drag-remove-btn, .drag-resize-handle, .drag-move-handle').forEach(b=>{try{b.remove();}catch(e){}});save();}}
 function injectDragControls(){document.querySelectorAll('[data-draggable]').forEach(el=>{if(el.querySelector(':scope > .drag-move-handle'))return;const mh=document.createElement('div');mh.className='drag-move-handle';mh.textContent='⤧';el.appendChild(mh);const rm=document.createElement('div');rm.className='drag-remove-btn';rm.textContent='✕';el.appendChild(rm);const rh=document.createElement('div');rh.className='drag-resize-handle';rh.textContent='⤢';el.appendChild(rh);});}
-function removeDraggable(key){if(!confirm('Скрыть этот элемент?'))return;state.settings.positions[key]=state.settings.positions[key]||{};state.settings.positions[key].hidden=true;save();applyPositions();showToast('Скрыто. Восстановить — в профиле.','success');}
-function restoreHidden(){let count=0;Object.keys(state.settings.positions||{}).forEach(k=>{if(state.settings.positions[k].hidden){state.settings.positions[k].hidden=false;count++;}});if(!count){showToast('Скрытых элементов нет','fail');return;}save();applyPositions();showToast(`Восстановлено: ${count}`,'success');}
+function removeDraggable(key){if(!confirm('Скрыть этот элемент?'))return;if(!state)return;state.settings.positions[key]=state.settings.positions[key]||{};state.settings.positions[key].hidden=true;save();applyPositions();showToast('Скрыто. Восстановить — в профиле.','success');}
+function restoreHidden(){if(!state)return;let count=0;Object.keys(state.settings.positions||{}).forEach(k=>{if(state.settings.positions[k].hidden){state.settings.positions[k].hidden=false;count++;}});if(!count){showToast('Скрытых элементов нет','fail');return;}save();applyPositions();showToast(`Восстановлено: ${count}`,'success');}
 document.addEventListener('pointerdown',e=>{if(!dragMode||dragState)return;const rmBtn=e.target.closest('.drag-remove-btn');if(rmBtn){e.preventDefault();e.stopPropagation();const el=rmBtn.closest('[data-draggable]');if(el)removeDraggable(el.dataset.draggable);return;}const rh=e.target.closest('.drag-resize-handle');if(rh){e.preventDefault();e.stopPropagation();const el=rh.closest('[data-draggable]');if(!el)return;const rect=el.getBoundingClientRect();dragState={mode:'resize',el,key:el.dataset.draggable,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,startW:rect.width,startH:rect.height};el.classList.add('dragging');return;}const mh=e.target.closest('.drag-move-handle');if(mh){e.preventDefault();e.stopPropagation();const el=mh.closest('[data-draggable]');if(!el)return;const pos=state.settings.positions[el.dataset.draggable]||{x:0,y:0};dragState={mode:'move',el,key:el.dataset.draggable,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,baseX:pos.x||0,baseY:pos.y||0};el.classList.add('dragging');return;}},{passive:false});
 document.addEventListener('pointermove',e=>{if(!dragState||e.pointerId!==dragState.pointerId)return;e.preventDefault();const dx=e.clientX-dragState.startX;const dy=e.clientY-dragState.startY;if(dragState.mode==='resize'){const w=Math.max(60,dragState.startW+dx);const h=Math.max(40,dragState.startH+dy);dragState.el.style.width=w+'px';dragState.el.style.height=h+'px';dragState.curW=w;dragState.curH=h;}else{const x=dragState.baseX+dx;const y=dragState.baseY+dy;dragState.el.style.transform=`translate(${x}px, ${y}px)`;dragState.curX=x;dragState.curY=y;}},{passive:false});
-function endDrag(e){if(!dragState)return;if(e.pointerId&&e.pointerId!==dragState.pointerId)return;const{el,key,mode,curX,curY,curW,curH}=dragState;el.classList.remove('dragging');state.settings.positions[key]=state.settings.positions[key]||{x:0,y:0};const pos=state.settings.positions[key];if(mode==='resize'){if(curW!==undefined){pos.w=curW;pos.h=curH;}}else{if(curX!==undefined){pos.x=curX;pos.y=curY;}}save();dragState=null;}
+function endDrag(e){if(!dragState)return;if(e.pointerId&&e.pointerId!==dragState.pointerId)return;const{el,key,mode,curX,curY,curW,curH}=dragState;el.classList.remove('dragging');if(state){state.settings.positions[key]=state.settings.positions[key]||{x:0,y:0};const pos=state.settings.positions[key];if(mode==='resize'){if(curW!==undefined){pos.w=curW;pos.h=curH;}}else{if(curX!==undefined){pos.x=curX;pos.y=curY;}}save();}dragState=null;}
 document.addEventListener('pointerup',endDrag);
 document.addEventListener('pointercancel',endDrag);
 function applyPositions(){if(!state)return;document.querySelectorAll('[data-draggable]').forEach(el=>{const key=el.dataset.draggable;const pos=state.settings.positions?state.settings.positions[key]:null;if(pos){if(pos.hidden){el.style.display='none';return;}el.style.display='';el.style.transform=`translate(${pos.x||0}px, ${pos.y||0}px)`;if(pos.w)el.style.width=pos.w+'px';else el.style.width='';if(pos.h)el.style.height=pos.h+'px';else el.style.height='';}else{el.style.display='';el.style.transform='';el.style.width='';el.style.height='';}});}
-function resetAllPositions(){if(!confirm('Сбросить все позиции, размеры и скрытия?'))return;state.settings.positions={};save();applyPositions();showToast('Всё сброшено','success');}
+function resetAllPositions(){if(!confirm('Сбросить все позиции, размеры и скрытия?'))return;if(!state)return;state.settings.positions={};save();applyPositions();showToast('Всё сброшено','success');}
 
 /* ============ SETTINGS MODAL ============ */
-function openSettingsModal(section){const content=document.getElementById('settingsContent');if(!content)return;if(section==='templates'){content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Шаблоны задач</h2><input type="text" id="tmplInput" placeholder="Название задачи"><div style="margin-bottom:10px; color:var(--muted);">Выбери дни:</div><div class="days-grid" id="tmplDays"><button onclick="toggleDay(1,this)">Пн</button><button onclick="toggleDay(2,this)">Вт</button><button onclick="toggleDay(3,this)">Ср</button><button onclick="toggleDay(4,this)">Чт</button><button onclick="toggleDay(5,this)">Пт</button><button onclick="toggleDay(6,this)">Сб</button><button onclick="toggleDay(0,this)">Вс</button></div><button class="btn" onclick="saveTemplate()">Создать задачу</button><h3 style="margin-top:20px; font-size:20px;">Существующие:</h3><div id="tmplList"></div>`;selectedDays=[];renderTmplList();}else if(section==='wallpapers'){content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Обои</h2><div class="settings-row"><label>Затемнение (<span id="darknessVal">${state.settings.bgDarkness}</span>%)</label><input type="range" id="bgDarkness" min="0" max="100" value="${state.settings.bgDarkness}" oninput="updateBgDarkness(this.value)"></div><div class="settings-row"><label>Размытие (<span id="blurVal">${state.settings.bgBlur}</span>px)</label><input type="range" id="bgBlur" min="0" max="20" value="${state.settings.bgBlur}" oninput="updateBgBlur(this.value)"></div><div class="settings-row"><label>Свои обои:</label><input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="border:none;padding:0;margin-bottom:0;"></div><button class="btn" onclick="resetBg()" style="background:transparent; border:2px solid var(--text); color:var(--text);">Сбросить обои</button>`;}else if(section==='fonts'){let html=FONTS.map(f=>`<button class="font-option ${state.settings.fontFamily===f.name?'selected':''}" style="font-family:'${f.name}', cursive, sans-serif;" onclick="setFont('${f.name}')">${f.label}</button>`).join('');content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Шрифты</h2><div style="margin-bottom:15px;">${html}</div><div class="settings-row"><label>Размер: <span id="fontSizeVal">${state.settings.fontSize}</span>px</label><input type="range" id="fontSize" min="16" max="30" value="${state.settings.fontSize}" oninput="updateFontSize(this.value)"></div><div class="settings-row"><label>Жирный шрифт</label><label class="switch"><input type="checkbox" ${state.settings.fontBold?'checked':''} onchange="updateFontBold(this.checked)"><span class="slider"></span></label></div>`;}else if(section==='layouts'){let html=LAYOUTS.map(l=>`<button class="layout-option ${state.settings.layout===l.id?'selected':''}" onclick="setLayout('${l.id}')"><b>${l.label}</b><small>${l.desc}</small></button>`).join('');content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Макет</h2>${html}`;}else if(section==='colors'){const currentColor=colorTarget==='text'?state.settings.textColor:state.settings.accentColor;let paletteHtml=PALETTE.map(c=>`<button class="color-swatch ${currentColor===c?'selected':''}" style="background:${c};" onclick="setColor('${c}')"></button>`).join('');content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Цвета</h2><div style="display:flex; gap:10px; margin-bottom:15px;"><button onclick="setColorTarget('text')" style="flex:1; padding:10px; background:${colorTarget==='text'?'var(--accent)':'transparent'}; color:${colorTarget==='text'?'#000':'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Текст</button><button onclick="setColorTarget('accent')" style="flex:1; padding:10px; background:${colorTarget==='accent'?'var(--accent)':'transparent'}; color:${colorTarget==='accent'?'#000':'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Оформление</button></div><p style="color:var(--muted); font-size:16px;">Выбери цвет:</p><div class="palette">${paletteHtml}</div><label style="display:block; color:var(--muted); margin-bottom:6px;">Свой цвет:</label><input type="color" value="${currentColor}" onchange="setColor(this.value)">`;}document.getElementById('settingsModal').classList.add('open');}
+function openSettingsModal(section){if(!state)return;const content=document.getElementById('settingsContent');if(!content)return;if(section==='templates'){content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Шаблоны задач</h2><input type="text" id="tmplInput" placeholder="Название задачи"><div style="margin-bottom:10px; color:var(--muted);">Выбери дни:</div><div class="days-grid" id="tmplDays"><button onclick="toggleDay(1,this)">Пн</button><button onclick="toggleDay(2,this)">Вт</button><button onclick="toggleDay(3,this)">Ср</button><button onclick="toggleDay(4,this)">Чт</button><button onclick="toggleDay(5,this)">Пт</button><button onclick="toggleDay(6,this)">Сб</button><button onclick="toggleDay(0,this)">Вс</button></div><button class="btn" onclick="saveTemplate()">Создать задачу</button><h3 style="margin-top:20px; font-size:20px;">Существующие:</h3><div id="tmplList"></div>`;selectedDays=[];renderTmplList();}else if(section==='wallpapers'){content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Обои</h2><div class="settings-row"><label>Затемнение (<span id="darknessVal">${state.settings.bgDarkness}</span>%)</label><input type="range" id="bgDarkness" min="0" max="100" value="${state.settings.bgDarkness}" oninput="updateBgDarkness(this.value)"></div><div class="settings-row"><label>Размытие (<span id="blurVal">${state.settings.bgBlur}</span>px)</label><input type="range" id="bgBlur" min="0" max="20" value="${state.settings.bgBlur}" oninput="updateBgBlur(this.value)"></div><div class="settings-row"><label>Свои обои:</label><input type="file" id="bgUpload" accept="image/*" onchange="changeBg(event)" style="border:none;padding:0;margin-bottom:0;"></div><button class="btn" onclick="resetBg()" style="background:transparent; border:2px solid var(--text); color:var(--text);">Сбросить обои</button>`;}else if(section==='fonts'){let html=FONTS.map(f=>`<button class="font-option ${state.settings.fontFamily===f.name?'selected':''}" style="font-family:'${f.name}', cursive, sans-serif;" onclick="setFont('${f.name}')">${f.label}</button>`).join('');content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Шрифты</h2><div style="margin-bottom:15px;">${html}</div><div class="settings-row"><label>Размер: <span id="fontSizeVal">${state.settings.fontSize}</span>px</label><input type="range" id="fontSize" min="16" max="30" value="${state.settings.fontSize}" oninput="updateFontSize(this.value)"></div><div class="settings-row"><label>Жирный шрифт</label><label class="switch"><input type="checkbox" ${state.settings.fontBold?'checked':''} onchange="updateFontBold(this.checked)"><span class="slider"></span></label></div>`;}else if(section==='layouts'){let html=LAYOUTS.map(l=>`<button class="layout-option ${state.settings.layout===l.id?'selected':''}" onclick="setLayout('${l.id}')"><b>${l.label}</b><small>${l.desc}</small></button>`).join('');content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Макет</h2>${html}`;}else if(section==='colors'){const currentColor=colorTarget==='text'?state.settings.textColor:state.settings.accentColor;let paletteHtml=PALETTE.map(c=>`<button class="color-swatch ${currentColor===c?'selected':''}" style="background:${c};" onclick="setColor('${c}')"></button>`).join('');content.innerHTML=`<h2 style="font-family:'Marck Script', cursive; margin-top:0;">Цвета</h2><div style="display:flex; gap:10px; margin-bottom:15px;"><button onclick="setColorTarget('text')" style="flex:1; padding:10px; background:${colorTarget==='text'?'var(--accent)':'transparent'}; color:${colorTarget==='text'?'#000':'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Текст</button><button onclick="setColorTarget('accent')" style="flex:1; padding:10px; background:${colorTarget==='accent'?'var(--accent)':'transparent'}; color:${colorTarget==='accent'?'#000':'var(--text)'}; border:2px solid var(--border); border-radius:8px; cursor:pointer; font-family:var(--font-main); font-size:18px;">Оформление</button></div><p style="color:var(--muted); font-size:16px;">Выбери цвет:</p><div class="palette">${paletteHtml}</div><label style="display:block; color:var(--muted); margin-bottom:6px;">Свой цвет:</label><input type="color" value="${currentColor}" onchange="setColor(this.value)">`;}document.getElementById('settingsModal').classList.add('open');}
 function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
 function renderTmplList(){const list=document.getElementById('tmplList');if(!list||!state)return;list.innerHTML='';if(!(state.templates||[]).length)list.innerHTML='<div style="color:var(--muted)">Нет шаблонов.</div>';state.templates.forEach(t=>{const daysStr=(t.days||[]).map(d=>WEEKDAYS[d]).join(', ');list.innerHTML+=`<div class="tmpl-item"><div><b>${escapeHtml(t.title)}</b><br><small style="color:var(--muted)">${daysStr}</small></div><button class="btn-cross" onclick="delTmpl('${t.id}')" style="width:30px;height:30px;font-size:16px;">✕</button></div>`;});}
 function toggleDay(day,btn){if(selectedDays.includes(day)){selectedDays=selectedDays.filter(d=>d!==day);btn.classList.remove('on');}else{selectedDays.push(day);btn.classList.add('on');}}
 function saveTemplate(){if(!state)return;const ti=document.getElementById('tmplInput');const title=ti?ti.value.trim():'';if(!title||selectedDays.length===0){showToast('Заполни название и выбери дни!','fail');return;}state.templates.push({id:uid(),title,days:selectedDays});save();if(ti)ti.value='';selectedDays=[];document.querySelectorAll('#tmplDays button').forEach(b=>b.classList.remove('on'));showToast('Шаблон создан!','success');renderTmplList();renderDaily();}
 function delTmpl(id){if(!state)return;state.templates=state.templates.filter(t=>t.id!==id);save();renderTmplList();renderDaily();}
-function updateBgDarkness(val){state.settings.bgDarkness=val;document.getElementById('darknessVal').textContent=val;document.documentElement.style.setProperty('--bg-opacity',val/100);save();}
-function updateBgBlur(val){state.settings.bgBlur=val;document.getElementById('blurVal').textContent=val;document.documentElement.style.setProperty('--bg-blur',val+'px');save();}
-function changeBg(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{state.settings.customBg=ev.target.result;save();applySettings();showToast('Обои изменены!','success');updateStorageInfo();};reader.readAsDataURL(file);}
-function resetBg(){state.settings.customBg=null;save();applySettings();showToast('Обои сброшены','success');updateStorageInfo();}
-function setFont(name){state.settings.fontFamily=name;save();applySettings();openSettingsModal('fonts');}
-function updateFontSize(val){state.settings.fontSize=parseInt(val);document.getElementById('fontSizeVal').textContent=val;document.documentElement.style.setProperty('--font-size-base',val+'px');save();}
-function updateFontBold(val){state.settings.fontBold=val;document.documentElement.style.setProperty('--font-weight-base',val?'600':'400');save();}
-function setLayout(id){state.settings.layout=id;save();applySettings();openSettingsModal('layouts');}
+function updateBgDarkness(val){if(!state)return;state.settings.bgDarkness=val;document.getElementById('darknessVal').textContent=val;document.documentElement.style.setProperty('--bg-opacity',val/100);save();}
+function updateBgBlur(val){if(!state)return;state.settings.bgBlur=val;document.getElementById('blurVal').textContent=val;document.documentElement.style.setProperty('--bg-blur',val+'px');save();}
+function changeBg(e){if(!state)return;const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{state.settings.customBg=ev.target.result;save();applySettings();showToast('Обои изменены!','success');updateStorageInfo();};reader.readAsDataURL(file);}
+function resetBg(){if(!state)return;state.settings.customBg=null;save();applySettings();showToast('Обои сброшены','success');updateStorageInfo();}
+function setFont(name){if(!state)return;state.settings.fontFamily=name;save();applySettings();openSettingsModal('fonts');}
+function updateFontSize(val){if(!state)return;state.settings.fontSize=parseInt(val);document.getElementById('fontSizeVal').textContent=val;document.documentElement.style.setProperty('--font-size-base',val+'px');save();}
+function updateFontBold(val){if(!state)return;state.settings.fontBold=val;document.documentElement.style.setProperty('--font-weight-base',val?'600':'400');save();}
+function setLayout(id){if(!state)return;state.settings.layout=id;save();applySettings();openSettingsModal('layouts');}
 function setColorTarget(target){colorTarget=target;openSettingsModal('colors');}
-function setColor(color){if(colorTarget==='text'){state.settings.textColor=color;document.documentElement.style.setProperty('--text',color);}else{state.settings.accentColor=color;document.documentElement.style.setProperty('--accent',color);}save();openSettingsModal('colors');}
+function setColor(color){if(!state)return;if(colorTarget==='text'){state.settings.textColor=color;document.documentElement.style.setProperty('--text',color);}else{state.settings.accentColor=color;document.documentElement.style.setProperty('--accent',color);}save();openSettingsModal('colors');}
 
 /* ============ КАЛОРИИ ============ */
 function renderCalories(){if(!state)return;const foods=state.food[selectedDate]||[];const list=document.getElementById('foodList');if(!list)return;list.innerHTML='';let total=0;foods.forEach(f=>{total+=Number(f.totalKcal)||0;list.innerHTML+=`<li class="task-item" style="border-bottom:1px solid rgba(255,255,255,0.15);"><div class="task-content"><div class="task-text">${escapeHtml(f.name)} <small style="color:var(--muted)">(${f.weight}г)</small></div></div><div style="color:var(--text); font-weight:bold; margin-right:10px;">${f.totalKcal} ккал</div><button class="btn-cross" onclick="delFood('${f.id}')" style="width:30px;height:30px;font-size:16px;">✕</button></li>`;});const tk=document.getElementById('totalKcal');if(tk)tk.textContent=Math.round(total);const pc=document.getElementById('ringProgress');if(pc){const circumference=2*Math.PI*45;const goal=state.settings.goalKcal||2500;let percent=Math.min(total/goal,1);pc.style.strokeDashoffset=circumference-(percent*circumference);}const allFoods={...basicFoods,...(state.customFoods||{})};const datalist=document.getElementById('foodListData');if(datalist){datalist.innerHTML='';Object.keys(allFoods).forEach(k=>{datalist.innerHTML+=`<option value="${escapeHtml(k)}">`;});}requestAnimationFrame(()=>{applyPositions();if(dragMode)injectDragControls();});}
-const fn=document.getElementById('foodName');if(fn)fn.addEventListener('input',e=>{const val=e.target.value;const allFoods={...basicFoods,...((state&&state.customFoods)||{})};const fk=document.getElementById('foodKcal100');if(allFoods[val]&&fk)fk.value=allFoods[val];});
-function addFood(){if(!state)return;const fnEl=document.getElementById('foodName');const fkEl=document.getElementById('foodKcal100');const fwEl=document.getElementById('foodWeight');if(!fnEl||!fkEl||!fwEl)return;const name=fnEl.value.trim();const kcal100=parseFloat(fkEl.value);const weight=parseFloat(fwEl.value);if(!name||isNaN(kcal100)||isNaN(weight)){showToast('Заполни всё!','fail');return;}if(!basicFoods[name])state.customFoods[name]=kcal100;const totalKcal=Math.round((kcal100/100)*weight);state.food[selectedDate]=state.food[selectedDate]||[];state.food[selectedDate].push({id:uid(),name,kcal100,weight,totalKcal});fnEl.value='';fkEl.value='';save();renderCalories();}
+const fnEl=document.getElementById('foodName');if(fnEl)fnEl.addEventListener('input',e=>{const val=e.target.value;const allFoods={...basicFoods,...((state&&state.customFoods)||{})};const fk=document.getElementById('foodKcal100');if(allFoods[val]&&fk)fk.value=allFoods[val];});
+function addFood(){if(!state)return;const fn=document.getElementById('foodName');const fk=document.getElementById('foodKcal100');const fw=document.getElementById('foodWeight');if(!fn||!fk||!fw)return;const name=fn.value.trim();const kcal100=parseFloat(fk.value);const weight=parseFloat(fw.value);if(!name||isNaN(kcal100)||isNaN(weight)){showToast('Заполни всё!','fail');return;}if(!basicFoods[name])state.customFoods[name]=kcal100;const totalKcal=Math.round((kcal100/100)*weight);state.food[selectedDate]=state.food[selectedDate]||[];state.food[selectedDate].push({id:uid(),name,kcal100,weight,totalKcal});fn.value='';fk.value='';save();renderCalories();}
 function delFood(id){if(!state)return;state.food[selectedDate]=state.food[selectedDate].filter(x=>x.id!==id);save();renderCalories();}
 
-/* ============ СТАРТ ============ */
+/* ============ ЗАПУСК ============ */
 init();
 </script>
 </body>
