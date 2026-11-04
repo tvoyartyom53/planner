@@ -155,17 +155,66 @@ input:checked + .slider:before{transform:translateX(24px)}
 .profile-switch{background:#42A5F5}
 .profile-rename{background:#FF9800}
 .profile-del{background:var(--red)}
-body.drag-mode .wrap{overflow:hidden!important}
-body.drag-mode [data-draggable]{touch-action:none;outline:2px dashed var(--accent);outline-offset:4px;cursor:grab;user-select:none;-webkit-user-select:none;position:relative;z-index:10;box-sizing:border-box}
+.profile-copy{background:#AB47BC}
+
+/* DRAG MODE — скролл разрешён, ручка перемещения */
+body.drag-mode .wrap{overflow-y:auto!important;overflow-x:hidden!important}
+body.drag-mode .wrap::-webkit-scrollbar{width:10px;display:block}
+body.drag-mode .wrap::-webkit-scrollbar-track{background:rgba(0,0,0,0.3);border-radius:5px}
+body.drag-mode .wrap::-webkit-scrollbar-thumb{background:var(--accent);border-radius:5px;border:2px solid rgba(0,0,0,0.5);box-shadow:0 0 8px var(--accent)}
+body.drag-mode .wrap{scrollbar-width:thin;scrollbar-color:var(--accent) rgba(0,0,0,0.3)}
+body.drag-mode [data-draggable]{
+  outline:2px dashed var(--accent);outline-offset:4px;
+  user-select:none;-webkit-user-select:none;
+  position:relative;z-index:10;box-sizing:border-box;
+  touch-action:pan-y;
+}
 body.drag-mode [data-draggable] *{pointer-events:none}
-body.drag-mode [data-draggable].dragging{cursor:grabbing;opacity:0.9;z-index:100;outline-color:var(--red)}
-body.drag-mode .drag-remove-btn,body.drag-mode .drag-resize-handle{pointer-events:auto!important}
-body.drag-mode .drag-remove-btn{position:absolute;top:-10px;right:-10px;width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;cursor:pointer;z-index:200;border:2px solid #000;font-family:sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.6);touch-action:none}
-body.drag-mode .drag-resize-handle{position:absolute;bottom:-10px;right:-10px;width:28px;height:28px;border-radius:6px;background:var(--accent);color:#000;cursor:nwse-resize;z-index:200;border:2px solid #000;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.6);touch-action:none}
+body.drag-mode [data-draggable].dragging{opacity:0.9;z-index:100;outline-color:var(--red)}
+body.drag-mode .drag-remove-btn,
+body.drag-mode .drag-resize-handle,
+body.drag-mode .drag-move-handle{pointer-events:auto!important}
+body.drag-mode .drag-remove-btn{
+  position:absolute;top:-10px;right:-10px;width:28px;height:28px;border-radius:50%;
+  background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:bold;cursor:pointer;z-index:200;border:2px solid #000;
+  font-family:sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.6);touch-action:none;
+}
+body.drag-mode .drag-resize-handle{
+  position:absolute;bottom:-10px;right:-10px;width:28px;height:28px;border-radius:6px;
+  background:var(--accent);color:#000;cursor:nwse-resize;z-index:200;border:2px solid #000;
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-family:sans-serif;
+  box-shadow:0 2px 8px rgba(0,0,0,0.6);touch-action:none;
+}
+body.drag-mode .drag-move-handle{
+  position:absolute;top:-10px;left:-10px;width:28px;height:28px;border-radius:6px;
+  background:#42A5F5;color:#fff;cursor:move;z-index:200;border:2px solid #000;
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-family:sans-serif;
+  box-shadow:0 2px 8px rgba(0,0,0,0.6);touch-action:none;
+}
 #dragExitBtn{display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:250;background:var(--accent);color:#000;padding:12px 28px;border-radius:24px;font-weight:bold;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.5);font-family:var(--font-main);font-size:20px;border:none}
 #dragExitBtn.show{display:block}
-#dragHint{display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:250;background:rgba(0,0,0,0.85);color:var(--accent);padding:6px 14px;border-radius:16px;font-family:var(--font-main);font-size:14px;border:1px solid var(--accent);pointer-events:none}
+#dragHint{display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:250;background:rgba(0,0,0,0.85);color:var(--accent);padding:6px 14px;border-radius:16px;font-family:var(--font-main);font-size:13px;border:1px solid var(--accent);pointer-events:none;text-align:center;line-height:1.3}
 #dragHint.show{display:block}
+
+/* Confirm modal (Нахуя?!) */
+#confirmModal{background:rgba(0,0,0,0.9);z-index:300}
+#confirmModal .sheet{border-color:var(--red);border-width:3px;text-align:center}
+.confirm-icon{font-size:56px;margin-bottom:10px;line-height:1}
+.confirm-title{font-family:'Marck Script',cursive;font-size:32px;color:var(--red);margin:0 0 10px 0;line-height:1.1}
+.confirm-text{color:var(--text);font-size:18px;line-height:1.4;margin-bottom:20px;opacity:0.85}
+.confirm-btn-yes{background:var(--red)!important;color:#fff!important;font-size:22px!important;font-weight:bold}
+.confirm-btn-no{background:transparent!important;color:var(--text)!important;border:2px solid var(--border)!important;margin-top:8px}
+
+/* Copy form */
+.copy-form-row{display:flex;flex-direction:column;margin-bottom:12px}
+.copy-form-row label{color:var(--muted);font-size:14px;margin-bottom:6px;font-family:sans-serif;font-weight:600;letter-spacing:0.5px}
+.copy-mode{display:flex;gap:8px;margin-bottom:15px}
+.copy-mode label{flex:1;padding:12px;background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:10px;cursor:pointer;text-align:center;font-size:16px;font-family:var(--font-main)}
+.copy-mode input{display:none}
+.copy-mode input:checked + span{color:var(--accent)}
+.copy-mode label:has(input:checked){border-color:var(--accent);background:rgba(102,187,106,0.15)}
+
 body.layout-minimal .app-header{border-bottom-width:1px;border-bottom-style:solid}
 body.layout-minimal .month-nav,body.layout-minimal .week-strip{border-bottom-width:1px;border-bottom-style:solid}
 body.layout-minimal .cal-grid{border-width:1px;border-style:solid;border-radius:12px;padding:12px 8px}
@@ -224,7 +273,7 @@ body.layout-wavy .add-row input[type="text"]{border-radius:50% 50% 50% 50% / 30p
 
 <div id="bg-layer"></div>
 <div class="toast-container" id="toastContainer"></div>
-<div id="dragHint">Тяни / ✕ скрыть / ⤢ размер</div>
+<div id="dragHint">Тащи за ⤧ · ✕ скрыть · ⤢ размер</div>
 <button id="dragExitBtn" onclick="toggleDragMode()">✓ Готово</button>
 
 <div class="wrap">
@@ -299,8 +348,11 @@ body.layout-wavy .add-row input[type="text"]{border-radius:50% 50% 50% 50% / 30p
       <button class="settings-tile-full" onclick="openProfileModal('create')" style="margin-bottom:10px;">
         <span class="tile-icon">➕</span><span>Создать профиль</span>
       </button>
-      <button class="settings-tile-full" onclick="openProfileModal('switch')" style="margin-bottom:0;">
+      <button class="settings-tile-full" onclick="openProfileModal('switch')" style="margin-bottom:10px;">
         <span class="tile-icon">🔀</span><span>Управление профилями</span>
+      </button>
+      <button class="settings-tile-full" onclick="openCopyModal()" style="margin-bottom:0;">
+        <span class="tile-icon">📋</span><span>Копировать заметки в другой профиль</span>
       </button>
     </div>
 
@@ -426,6 +478,37 @@ body.layout-wavy .add-row input[type="text"]{border-radius:50% 50% 50% 50% / 30p
   </div>
 </div>
 
+<div class="modal" id="copyModal" onclick="if(event.target.id==='copyModal') closeCopyModal()">
+  <div class="sheet">
+    <button class="close-settings-btn" onclick="closeCopyModal()">✕</button>
+    <h2 style="font-family:'Marck Script', cursive; margin-top:0;">Копировать заметки</h2>
+    <p style="color:var(--muted); font-size:14px; line-height:1.4; margin-bottom:15px;">Выбери что копировать и в какой профиль. Копирование не удаляет данные из текущего профиля.</p>
+    <div class="copy-form-row">
+      <label>Что копировать</label>
+      <div class="copy-mode">
+        <label><input type="radio" name="copyWhat" value="both" checked><span>Всё</span></label>
+        <label><input type="radio" name="copyWhat" value="templates"><span>Шаблоны</span></label>
+        <label><input type="radio" name="copyWhat" value="entries"><span>Дневные</span></label>
+      </div>
+    </div>
+    <div class="copy-form-row">
+      <label>В какой профиль</label>
+      <select id="copyTargetSelect"></select>
+    </div>
+    <button class="btn" onclick="submitCopy()">📋 Скопировать</button>
+  </div>
+</div>
+
+<div class="modal" id="confirmModal" onclick="if(event.target.id==='confirmModal') closeConfirmModal()">
+  <div class="sheet">
+    <div class="confirm-icon">😱</div>
+    <h2 class="confirm-title">Нахуя?!</h2>
+    <p class="confirm-text" id="confirmText">Точно удалить? Это действие нельзя отменить.</p>
+    <button class="btn confirm-btn-yes" id="confirmYesBtn" onclick="confirmYesAction()">Да, я уверен</button>
+    <button class="btn confirm-btn-no" onclick="closeConfirmModal()">Отмена</button>
+  </div>
+</div>
+
 <div class="modal" id="imageModal" onclick="closeImage(event)">
   <button class="close-img" onclick="closeImage(event)">✕</button>
   <img id="fullImage" src="" alt="Фото">
@@ -463,63 +546,22 @@ const getTodayIso=()=>{const t=new Date();return t.getFullYear()+'-'+pad(t.getMo
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);}
 
 /* ============ ПРОФИЛИ ============ */
-function makeEmptyProfile(name){
-  return {name:name||'Основной',templates:[],entries:{},done:{},skipped:{},failed:{},food:{},customFoods:{},punishmentChecked:{},punishmentCounts:{}};
-}
-function hydrate(s){
-  const prof=s.profiles[s.activeProfileId];
-  if(!prof){return s;}
-  s.templates=prof.templates;
-  s.entries=prof.entries;
-  s.done=prof.done;
-  s.skipped=prof.skipped;
-  s.failed=prof.failed;
-  s.food=prof.food;
-  s.customFoods=prof.customFoods;
-  s.punishmentChecked=prof.punishmentChecked;
-  s.punishmentCounts=prof.punishmentCounts;
-  return s;
-}
-function syncActiveProfile(){
-  if(!state.profiles[state.activeProfileId])return;
-  const p=state.profiles[state.activeProfileId];
-  p.templates=state.templates;
-  p.entries=state.entries;
-  p.done=state.done;
-  p.skipped=state.skipped;
-  p.failed=state.failed;
-  p.food=state.food;
-  p.customFoods=state.customFoods;
-  p.punishmentChecked=state.punishmentChecked;
-  p.punishmentCounts=state.punishmentCounts;
-}
-function migrateEntriesImages(entries){
-  if(!entries)return;
-  Object.values(entries).forEach(arr=>{
-    if(Array.isArray(arr))arr.forEach(e=>{
-      if(e.image&&!e.images){e.images=[e.image];delete e.image;}
-      if(!e.images)e.images=[];
-    });
-  });
-}
+function makeEmptyProfile(name){return {name:name||'Основной',templates:[],entries:{},done:{},skipped:{},failed:{},food:{},customFoods:{},punishmentChecked:{},punishmentCounts:{}};}
+function hydrate(s){const prof=s.profiles[s.activeProfileId];if(!prof)return s;s.templates=prof.templates;s.entries=prof.entries;s.done=prof.done;s.skipped=prof.skipped;s.failed=prof.failed;s.food=prof.food;s.customFoods=prof.customFoods;s.punishmentChecked=prof.punishmentChecked;s.punishmentCounts=prof.punishmentCounts;return s;}
+function syncActiveProfile(){if(!state.profiles[state.activeProfileId])return;const p=state.profiles[state.activeProfileId];p.templates=state.templates;p.entries=state.entries;p.done=state.done;p.skipped=state.skipped;p.failed=state.failed;p.food=state.food;p.customFoods=state.customFoods;p.punishmentChecked=state.punishmentChecked;p.punishmentCounts=state.punishmentCounts;}
+function migrateEntriesImages(entries){if(!entries)return;Object.values(entries).forEach(arr=>{if(Array.isArray(arr))arr.forEach(e=>{if(e.image&&!e.images){e.images=[e.image];delete e.image;}if(!e.images)e.images=[];});});}
 function load(){
   try{
     const d=JSON.parse(localStorage.getItem(KEY))||JSON.parse(localStorage.getItem('diary_v16'));
     if(d){
       if(!d.profiles){
-        // миграция старого формата (всё плоско)
         const settings=Object.assign({},defaultSettings,d.settings||{});
         if(!settings.voiceRecordings)settings.voiceRecordings={};
         const legacy=makeEmptyProfile('Основной');
-        legacy.templates=d.templates||[];
-        legacy.entries=d.entries||{};
-        legacy.done=d.done||{};
-        legacy.skipped=d.skipped||{};
-        legacy.failed=d.failed||{};
-        legacy.food=d.food||{};
+        legacy.templates=d.templates||[];legacy.entries=d.entries||{};legacy.done=d.done||{};
+        legacy.skipped=d.skipped||{};legacy.failed=d.failed||{};legacy.food=d.food||{};
         legacy.customFoods=d.customFoods||{};
-        legacy.punishmentChecked=d.punishmentChecked||{};
-        legacy.punishmentCounts=d.punishmentCounts||{};
+        legacy.punishmentChecked=d.punishmentChecked||{};legacy.punishmentCounts=d.punishmentCounts||{};
         migrateEntriesImages(legacy.entries);
         const pid=uid();
         return hydrate({profiles:{[pid]:legacy},activeProfileId:pid,settings});
@@ -527,23 +569,15 @@ function load(){
       const settings=Object.assign({},defaultSettings,d.settings||{});
       if(!settings.voiceRecordings)settings.voiceRecordings={};
       Object.values(d.profiles).forEach(p=>{migrateEntriesImages(p.entries);});
-      if(!d.profiles[d.activeProfileId]){
-        d.activeProfileId=Object.keys(d.profiles)[0];
-      }
+      if(!d.profiles[d.activeProfileId])d.activeProfileId=Object.keys(d.profiles)[0];
       return hydrate({profiles:d.profiles,activeProfileId:d.activeProfileId,settings});
     }
   }catch(e){console.log('load err',e);}
   const pid=uid();
   return hydrate({profiles:{[pid]:makeEmptyProfile('Основной')},activeProfileId:pid,settings:Object.assign({},defaultSettings,{voiceRecordings:{}})});
 }
-
 let state=load();
-const save=()=>{
-  try{
-    syncActiveProfile();
-    localStorage.setItem(KEY,JSON.stringify(state));
-  }catch(e){if(e.name==='QuotaExceededError')showToast("Память заполнена!","fail");}
-};
+const save=()=>{try{syncActiveProfile();localStorage.setItem(KEY,JSON.stringify(state));}catch(e){if(e.name==='QuotaExceededError')showToast("Память заполнена!","fail");}};
 
 let currentDateObj=new Date();
 let selectedDate=getTodayIso();
@@ -554,6 +588,7 @@ let editingTask=null;
 let dragMode=false;
 let dragState=null;
 let availableVoices=[];
+let confirmCallback=null;
 
 let audioCtx;
 const fartUrl='https://www.myinstants.com/media/sounds/fart.mp3';
@@ -564,6 +599,16 @@ function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webki
 async function loadFartBuffer(){try{const response=await fetch(fartUrl);if(!response.ok)throw new Error('net');const arrayBuffer=await response.arrayBuffer();initAudio();fartBuffer=await audioCtx.decodeAudioData(arrayBuffer);}catch(e){console.log("Fart buffer error:",e);}}
 function playVictorySound(){if(!state.settings.soundEnabled)return;initAudio();const notes=[523.25,659.25,783.99,1046.50];notes.forEach((freq,i)=>{let osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.setValueAtTime(freq,audioCtx.currentTime+i*0.1);gain.gain.setValueAtTime(0.2,audioCtx.currentTime+i*0.1);gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+i*0.1+0.3);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(audioCtx.currentTime+i*0.1);osc.stop(audioCtx.currentTime+i*0.1+0.3);});}
 function playFartSound(){if(!state.settings.soundEnabled)return;initAudio();if(navigator.vibrate)navigator.vibrate(0);if(fartBuffer){const source=audioCtx.createBufferSource();source.buffer=fartBuffer;source.connect(audioCtx.destination);source.start(0);}else{fartAudio.currentTime=0;fartAudio.play().catch(e=>console.log("Sound error:",e));}}
+
+/* ============ CONFIRM MODAL ============ */
+function showConfirm(title,text,onYes){
+  document.getElementById('confirmText').textContent=text;
+  document.querySelector('#confirmModal .confirm-title').textContent=title||'Нахуя?!';
+  confirmCallback=onYes;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirmModal(){document.getElementById('confirmModal').classList.remove('open');confirmCallback=null;}
+function confirmYesAction(){const cb=confirmCallback;closeConfirmModal();if(typeof cb==='function')cb();}
 
 /* ============ ПРОФИЛИ UI ============ */
 function updateCurrentProfileInfo(){
@@ -612,11 +657,7 @@ function renderProfilesModalList(){
   if(!el)return;
   const profiles=state.profiles;
   const keys=Object.keys(profiles);
-  keys.sort((a,b)=>{
-    if(a===state.activeProfileId)return -1;
-    if(b===state.activeProfileId)return 1;
-    return 0;
-  });
+  keys.sort((a,b)=>{if(a===state.activeProfileId)return -1;if(b===state.activeProfileId)return 1;return 0;});
   el.innerHTML=keys.map(id=>{
     const p=profiles[id];
     const isActive=id===state.activeProfileId;
@@ -631,6 +672,7 @@ function renderProfilesModalList(){
       </div>
       <div class="profile-actions">
         ${!isActive?`<button class="profile-btn profile-switch" title="Переключиться" onclick="switchProfile('${id}');openProfileModal('switch');">✓</button>`:''}
+        <button class="profile-btn profile-copy" title="Копировать сюда" onclick="openCopyModalTo('${id}')">📋</button>
         <button class="profile-btn profile-rename" title="Переименовать" onclick="promptRename('${id}')">✎</button>
         <button class="profile-btn profile-del" title="Удалить" onclick="deleteProfile('${id}')">✕</button>
       </div>
@@ -659,45 +701,108 @@ function switchProfile(id){
   state.activeProfileId=id;
   hydrate(state);
   save();
-  // сброс дат на текущую
   currentDateObj=new Date();
   selectedDate=getTodayIso();
-  // перерисовка всех вкладок
   renderCalendar();
   renderDaily();
   renderCalories();
   renderPunishCounter();
   updateCurrentProfileInfo();
   showToast("Профиль: "+state.profiles[id].name,"success");
-  // перерисовать элементы
   requestAnimationFrame(()=>{applyPositions();});
 }
 function deleteProfile(id){
   if(!state.profiles[id])return;
   const keys=Object.keys(state.profiles);
   if(keys.length<=1){showToast("Нельзя удалить последний профиль","fail");return;}
-  if(!confirm('Удалить профиль "'+state.profiles[id].name+'"? Все данные будут стёрты безвозвратно.'))return;
-  const wasActive=state.activeProfileId===id;
-  delete state.profiles[id];
-  if(wasActive){
-    state.activeProfileId=Object.keys(state.profiles)[0];
-    hydrate(state);
-    currentDateObj=new Date();
-    selectedDate=getTodayIso();
-  }
-  save();
-  showToast("Профиль удалён","fail");
-  renderProfilesModalList();
-  updateCurrentProfileInfo();
-  if(wasActive){
-    renderCalendar();
-    renderDaily();
-    renderCalories();
-    renderPunishCounter();
-  }
+  const pname=state.profiles[id].name;
+  showConfirm(
+    'Нахуя?!',
+    `Ты серьёзно хочешь удалить профиль "${pname}"? Все его шаблоны, заметки и калории исчезнут навсегда. Восстановить нельзя.`,
+    ()=>{
+      const wasActive=state.activeProfileId===id;
+      delete state.profiles[id];
+      if(wasActive){
+        state.activeProfileId=Object.keys(state.profiles)[0];
+        hydrate(state);
+        currentDateObj=new Date();
+        selectedDate=getTodayIso();
+      }
+      save();
+      showToast("Профиль удалён","fail");
+      renderProfilesModalList();
+      updateCurrentProfileInfo();
+      if(wasActive){
+        renderCalendar();
+        renderDaily();
+        renderCalories();
+        renderPunishCounter();
+      }
+    }
+  );
 }
 
-/* ============ АУДИО/TTS ============ */
+/* ============ КОПИРОВАНИЕ ЗАМЕТОК ============ */
+function openCopyModal(){
+  const keys=Object.keys(state.profiles).filter(id=>id!==state.activeProfileId);
+  if(!keys.length){showToast("Нет других профилей для копирования","fail");return;}
+  const sel=document.getElementById('copyTargetSelect');
+  sel.innerHTML=keys.map(id=>`<option value="${id}">${escapeHtml(state.profiles[id].name)}</option>`).join('');
+  document.querySelector('input[name="copyWhat"][value="both"]').checked=true;
+  document.getElementById('copyModal').classList.add('open');
+}
+function openCopyModalTo(targetId){
+  const keys=Object.keys(state.profiles).filter(id=>id!==state.activeProfileId);
+  if(!keys.length){showToast("Нет других профилей","fail");return;}
+  const sel=document.getElementById('copyTargetSelect');
+  sel.innerHTML=keys.map(id=>`<option value="${id}">${escapeHtml(state.profiles[id].name)}</option>`).join('');
+  if(keys.includes(targetId))sel.value=targetId;
+  document.querySelector('input[name="copyWhat"][value="both"]').checked=true;
+  document.getElementById('copyModal').classList.add('open');
+}
+function closeCopyModal(){document.getElementById('copyModal').classList.remove('open');}
+function submitCopy(){
+  const what=document.querySelector('input[name="copyWhat"]:checked').value;
+  const targetId=document.getElementById('copyTargetSelect').value;
+  if(!targetId||!state.profiles[targetId]){showToast("Выбери профиль","fail");return;}
+  syncActiveProfile();
+  const src=state.profiles[state.activeProfileId];
+  const dst=state.profiles[targetId];
+  let copiedT=0,copiedE=0;
+  if(what==='both'||what==='templates'){
+    (src.templates||[]).forEach(t=>{
+      dst.templates.push({id:uid(),title:t.title,days:[...t.days]});
+      copiedT++;
+    });
+  }
+  if(what==='both'||what==='entries'){
+    Object.keys(src.entries||{}).forEach(dateIso=>{
+      const arr=src.entries[dateIso];
+      if(!Array.isArray(arr))return;
+      dst.entries[dateIso]=dst.entries[dateIso]||[];
+      arr.forEach(e=>{
+        dst.entries[dateIso].push({
+          id:uid(),
+          title:e.title,
+          done:false,failed:false,
+          images:[...(e.images||[])],
+          isPunishment:!!e.isPunishment
+        });
+        copiedE++;
+      });
+    });
+  }
+  save();
+  const parts=[];
+  if(copiedT)parts.push(`шаблонов: ${copiedT}`);
+  if(copiedE)parts.push(`заметок: ${copiedE}`);
+  if(!parts.length){showToast("Нечего копировать","fail");return;}
+  showToast("Скопировано в «"+state.profiles[targetId].name+"» — "+parts.join(', '),"success");
+  closeCopyModal();
+  renderProfilesModalList();
+}
+
+/* ============ TTS / VOICE ============ */
 function speak(text){if(!state.settings.voiceEnabled)return;if(state.settings.voiceRecordings&&state.settings.voiceRecordings[text]){try{const a=new Audio(state.settings.voiceRecordings[text]);a.play().catch(e=>console.log("Rec play err",e));return;}catch(e){console.log(e);}}if(!('speechSynthesis'in window))return;try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ru-RU';u.rate=state.settings.voiceRate||1;u.pitch=state.settings.voicePitch||1;u.volume=1;if(availableVoices.length===0)availableVoices=window.speechSynthesis.getVoices();let v=null;if(state.settings.voiceName)v=availableVoices.find(x=>x.name===state.settings.voiceName);if(!v)v=availableVoices.find(x=>x.lang.toLowerCase().startsWith('ru'));if(v)u.voice=v;window.speechSynthesis.speak(u);}catch(e){console.log("TTS err",e);}}
 function testVoice(){if(!('speechSynthesis'in window)){showToast("Голос не поддерживается","fail");return;}const was=state.settings.voiceEnabled;state.settings.voiceEnabled=true;speak("Проверка голоса. Раз, два, три. Всё работает.");state.settings.voiceEnabled=was;showToast("Тест голоса...","success");}
 function loadVoices(){if(!('speechSynthesis'in window))return;availableVoices=window.speechSynthesis.getVoices();const sel=document.getElementById('voiceSelect');if(!sel)return;const cur=state.settings.voiceName||'';sel.innerHTML='<option value="">Автоматически (русский)</option>';availableVoices.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')'+(v.default?' · по умолч.':'');if(v.name===cur)o.selected=true;sel.appendChild(o);});}
@@ -778,17 +883,97 @@ async function handleEditImageUpload(event){if(!editingTask)return;const files=A
 function saveEdit(){if(!editingTask)return;const entry=(state.entries[selectedDate]||[]).find(x=>x.id===editingTask.id);if(!entry)return;entry.title=document.getElementById('editTitle').value.trim()||'📸 Фотозаметка';entry.images=[...editingTask.images];save();closeEdit();renderDaily();showToast("Сохранено","success");}
 function closeEdit(){document.getElementById('editModal').classList.remove('open');editingTask=null;}
 
-/* ============ DRAG ============ */
-function toggleDragMode(){dragMode=!dragMode;document.body.classList.toggle('drag-mode',dragMode);document.getElementById('dragExitBtn').classList.toggle('show',dragMode);document.getElementById('dragHint').classList.toggle('show',dragMode);document.querySelector('.wrap').style.overflow=dragMode?'hidden':'';if(dragMode){showToast("Тащи · ✕ — скрыть · ⤢ — размер","success");applyPositions();injectDragControls();}else{document.querySelectorAll('.drag-remove-btn, .drag-resize-handle').forEach(b=>b.remove());save();}}
-function injectDragControls(){document.querySelectorAll('[data-draggable]').forEach(el=>{if(el.querySelector(':scope > .drag-remove-btn'))return;const rm=document.createElement('div');rm.className='drag-remove-btn';rm.textContent='✕';el.appendChild(rm);const rh=document.createElement('div');rh.className='drag-resize-handle';rh.textContent='⤢';el.appendChild(rh);});}
+/* ============ DRAG (скролл + ручка перемещения) ============ */
+function toggleDragMode(){
+  dragMode=!dragMode;
+  document.body.classList.toggle('drag-mode',dragMode);
+  document.getElementById('dragExitBtn').classList.toggle('show',dragMode);
+  document.getElementById('dragHint').classList.toggle('show',dragMode);
+  if(dragMode){
+    showToast("Скролл работает, тащи за ⤧","success");
+    applyPositions();
+    injectDragControls();
+  }else{
+    document.querySelectorAll('.drag-remove-btn, .drag-resize-handle, .drag-move-handle').forEach(b=>b.remove());
+    save();
+  }
+}
+function injectDragControls(){
+  document.querySelectorAll('[data-draggable]').forEach(el=>{
+    if(el.querySelector(':scope > .drag-move-handle'))return;
+    const mh=document.createElement('div');
+    mh.className='drag-move-handle';mh.textContent='⤧';
+    el.appendChild(mh);
+    const rm=document.createElement('div');
+    rm.className='drag-remove-btn';rm.textContent='✕';
+    el.appendChild(rm);
+    const rh=document.createElement('div');
+    rh.className='drag-resize-handle';rh.textContent='⤢';
+    el.appendChild(rh);
+  });
+}
 function removeDraggable(key){if(!confirm('Скрыть этот элемент?'))return;const pos=state.settings.positions[key]||{};pos.hidden=true;state.settings.positions[key]=pos;save();applyPositions();showToast("Скрыто. Восстановить — в профиле.","success");}
 function restoreHidden(){let count=0;Object.keys(state.settings.positions).forEach(k=>{if(state.settings.positions[k].hidden){state.settings.positions[k].hidden=false;count++;}});if(!count){showToast("Скрытых элементов нет","fail");return;}save();applyPositions();showToast(`Восстановлено: ${count}`,"success");}
-document.addEventListener('pointerdown',e=>{if(!dragMode||dragState)return;const rmBtn=e.target.closest('.drag-remove-btn');if(rmBtn){e.preventDefault();e.stopPropagation();const el=rmBtn.closest('[data-draggable]');if(el)removeDraggable(el.dataset.draggable);return;}const rh=e.target.closest('.drag-resize-handle');if(rh){e.preventDefault();e.stopPropagation();const el=rh.closest('[data-draggable]');if(!el)return;const rect=el.getBoundingClientRect();dragState={mode:'resize',el,key:el.dataset.draggable,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,startW:rect.width,startH:rect.height};el.classList.add('dragging');return;}const el=e.target.closest('[data-draggable]');if(!el)return;e.preventDefault();const pos=state.settings.positions[el.dataset.draggable]||{x:0,y:0};dragState={mode:'move',el,key:el.dataset.draggable,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,baseX:pos.x||0,baseY:pos.y||0};el.classList.add('dragging');},{passive:false});
-document.addEventListener('pointermove',e=>{if(!dragState||e.pointerId!==dragState.pointerId)return;e.preventDefault();const dx=e.clientX-dragState.startX;const dy=e.clientY-dragState.startY;if(dragState.mode==='resize'){const w=Math.max(60,dragState.startW+dx);const h=Math.max(40,dragState.startH+dy);dragState.el.style.width=w+'px';dragState.el.style.height=h+'px';dragState.curW=w;dragState.curH=h;}else{const x=dragState.baseX+dx;const y=dragState.baseY+dy;dragState.el.style.transform=`translate(${x}px, ${y}px)`;dragState.curX=x;dragState.curY=y;}},{passive:false});
-function endDrag(e){if(!dragState)return;if(e.pointerId&&e.pointerId!==dragState.pointerId)return;const{el,key,mode,curX,curY,curW,curH}=dragState;el.classList.remove('dragging');const pos=state.settings.positions[key]||{x:0,y:0};if(mode==='resize'){if(curW!==undefined){pos.w=curW;pos.h=curH;}}else{if(curX!==undefined){pos.x=curX;pos.y=curY;}}state.settings.positions[key]=pos;save();dragState=null;}
+
+document.addEventListener('pointerdown',e=>{
+  if(!dragMode||dragState)return;
+  const rmBtn=e.target.closest('.drag-remove-btn');
+  if(rmBtn){e.preventDefault();e.stopPropagation();const el=rmBtn.closest('[data-draggable]');if(el)removeDraggable(el.dataset.draggable);return;}
+  const rh=e.target.closest('.drag-resize-handle');
+  if(rh){e.preventDefault();e.stopPropagation();const el=rh.closest('[data-draggable]');if(!el)return;const rect=el.getBoundingClientRect();dragState={mode:'resize',el,key:el.dataset.draggable,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,startW:rect.width,startH:rect.height};el.classList.add('dragging');return;}
+  const mh=e.target.closest('.drag-move-handle');
+  if(mh){e.preventDefault();e.stopPropagation();const el=mh.closest('[data-draggable]');if(!el)return;const pos=state.settings.positions[el.dataset.draggable]||{x:0,y:0};dragState={mode:'move',el,key:el.dataset.draggable,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,baseX:pos.x||0,baseY:pos.y||0};el.classList.add('dragging');return;}
+  // Иначе — ничего не делаем, даём скроллу работать
+},{passive:false});
+
+document.addEventListener('pointermove',e=>{
+  if(!dragState||e.pointerId!==dragState.pointerId)return;
+  e.preventDefault();
+  const dx=e.clientX-dragState.startX;
+  const dy=e.clientY-dragState.startY;
+  if(dragState.mode==='resize'){
+    const w=Math.max(60,dragState.startW+dx);
+    const h=Math.max(40,dragState.startH+dy);
+    dragState.el.style.width=w+'px';
+    dragState.el.style.height=h+'px';
+    dragState.curW=w;dragState.curH=h;
+  }else{
+    const x=dragState.baseX+dx;
+    const y=dragState.baseY+dy;
+    dragState.el.style.transform=`translate(${x}px, ${y}px)`;
+    dragState.curX=x;dragState.curY=y;
+  }
+},{passive:false});
+
+function endDrag(e){
+  if(!dragState)return;
+  if(e.pointerId&&e.pointerId!==dragState.pointerId)return;
+  const{el,key,mode,curX,curY,curW,curH}=dragState;
+  el.classList.remove('dragging');
+  const pos=state.settings.positions[key]||{x:0,y:0};
+  if(mode==='resize'){if(curW!==undefined){pos.w=curW;pos.h=curH;}}
+  else{if(curX!==undefined){pos.x=curX;pos.y=curY;}}
+  state.settings.positions[key]=pos;
+  save();dragState=null;
+}
 document.addEventListener('pointerup',endDrag);
 document.addEventListener('pointercancel',endDrag);
-function applyPositions(){document.querySelectorAll('[data-draggable]').forEach(el=>{const key=el.dataset.draggable;const pos=state.settings.positions[key];if(pos){if(pos.hidden){el.style.display='none';return;}el.style.display='';el.style.transform=`translate(${pos.x||0}px, ${pos.y||0}px)`;if(pos.w)el.style.width=pos.w+'px';else el.style.width='';if(pos.h)el.style.height=pos.h+'px';else el.style.height='';}else{el.style.display='';el.style.transform='';el.style.width='';el.style.height='';}});}
+
+function applyPositions(){
+  document.querySelectorAll('[data-draggable]').forEach(el=>{
+    const key=el.dataset.draggable;
+    const pos=state.settings.positions[key];
+    if(pos){
+      if(pos.hidden){el.style.display='none';return;}
+      el.style.display='';
+      el.style.transform=`translate(${pos.x||0}px, ${pos.y||0}px)`;
+      if(pos.w)el.style.width=pos.w+'px';else el.style.width='';
+      if(pos.h)el.style.height=pos.h+'px';else el.style.height='';
+    }else{
+      el.style.display='';el.style.transform='';el.style.width='';el.style.height='';
+    }
+  });
+}
 function resetAllPositions(){if(!confirm('Сбросить все позиции, размеры и скрытия?'))return;state.settings.positions={};save();applyPositions();showToast("Всё сброшено","success");}
 
 /* ============ SETTINGS MODAL ============ */
